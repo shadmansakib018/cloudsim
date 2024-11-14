@@ -1,0 +1,54 @@
+package org.cloudbus.cloudsim;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.cloudbus.cloudsim.core.GuestEntity;
+
+public class ThrottledVmLoadBalancer  extends VmLoadBalancer {
+
+	private Map<Integer, VirtualMachineState> vmStatesList;
+	private DatacenterBroker dcbLocal;
+	boolean once = true;
+	/** 
+	 * Constructor
+	 * 
+	 * @param dcb The {@link DatacenterController} using the load balancer.
+	 */
+	public ThrottledVmLoadBalancer(DatacenterBroker dcb){
+		System.out.println("*******************starting throttled simulation");
+		this.vmStatesList = dcb.vmStatesList;
+		
+		this.dcbLocal=dcb;
+//		dcb.addCloudSimEventListener(this);
+		
+	} 
+ 
+	/**
+	 * @return VM id of the first available VM from the vmStatesList in the calling
+	 * 			{@link DatacenterController}
+	 */
+	@Override
+	public int getNextAvailableVm(List<? extends GuestEntity> vmList, Cloudlet cl){
+		
+		int vmId = -1;		
+		if (vmStatesList.size() > 0){
+			int temp;
+			for (Iterator<Integer> itr = vmStatesList.keySet().iterator(); itr.hasNext();){
+				temp = itr.next();
+				VirtualMachineState state = vmStatesList.get(temp); 
+				if (state.equals(VirtualMachineState.AVAILABLE)){
+					vmId = temp;
+					break;
+				}
+			}
+		}
+		
+		allocatedVm(vmId);
+		
+		return vmId;
+		
+	}
+	
+}
