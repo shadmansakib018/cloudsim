@@ -91,17 +91,17 @@ public class CloudSimExample3 {
 			String vmm = "Xen"; //VMM name
 
 			//create two VMs
-			Vm vm1 = new Vm(vmid, brokerId, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
+			Vm vm1 = new Vm(vmid, brokerId, mips, pesNumber, ram/2, bw*2, size/2, vmm, new CloudletSchedulerTimeShared());
 
 			//the second VM will have twice the priority of VM1 and so will receive twice CPU time
 			vmid++;
-			Vm vm2 = new Vm(vmid, brokerId, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
+			Vm vm2 = new Vm(vmid, brokerId, mips/2, pesNumber, ram, bw/2, size/2, vmm, new CloudletSchedulerTimeShared());
 			
 			vmid++;
-			Vm vm3 = new Vm(vmid, brokerId, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
+			Vm vm3 = new Vm(vmid, brokerId, mips, pesNumber, ram*2, bw*3, size*2, vmm, new CloudletSchedulerTimeShared());
 			
 			vmid++;
-			Vm vm4 = new Vm(vmid, brokerId, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
+			Vm vm4 = new Vm(vmid, brokerId, mips*2, pesNumber, ram/2, bw/2, size, vmm, new CloudletSchedulerTimeShared());
 			
 
 			//add the VMs to the vmList
@@ -328,8 +328,13 @@ public class CloudSimExample3 {
 		String indent = "    ";
 		Log.println();
 		Log.println("========== OUTPUT ==========");
-		Log.println("Cloudlet ID" + indent + indent + "STATUS" + indent + indent +
-				"Data center ID" + indent + indent + "VM ID" + indent + indent + "Time" + indent + indent + "Start Time" + indent + indent + "Finish Time"+ indent + indent + "Waiting Time");
+		Log.println("Cloudlet ID" + indent + indent + "STATUS" + indent + indent + "Task Length" + indent + indent +
+				"Datacenter ID" + indent + indent + "VM ID"
+				+ indent + indent + "RAM"
+				+ indent + indent + "Storage"
+				+ indent + indent + "Bandwidth"
+				+ indent + indent + "MIPS"
+				+ indent + indent + "Processing Time" + indent + indent + "Start Time" + indent + indent + "Finish Time"+ indent + indent + "Waiting Time");
 
 		DecimalFormat dft = new DecimalFormat("###.##");
 		for (Cloudlet value : list) {
@@ -340,9 +345,14 @@ public class CloudSimExample3 {
 			if (cloudlet.getStatus() == Cloudlet.CloudletStatus.SUCCESS) {
 				Log.print("SUCCESS");
 
-				Log.println(indent + indent + indent + cloudlet.getResourceId() + indent + indent + indent + indent+ indent+ cloudlet.getGuestId() +
-						indent + indent + indent + dft.format(cloudlet.getActualCPUTime()) + indent + indent + indent + dft.format(cloudlet.getExecStartTime()) +
-						indent + indent + indent + dft.format(cloudlet.getExecFinishTime()) + indent + indent + indent+cloudlet.getWaitingTime());
+				Log.println(indent + indent + indent + cloudlet.getCloudletLength() +indent + indent + indent + cloudlet.getResourceId() + indent + indent + indent + indent+ indent+ cloudlet.getGuestId()
+						
+						+ indent + indent + indent + vmlist.get(cloudlet.getGuestId()).getRam()
+						+ indent + indent +  vmlist.get(cloudlet.getGuestId()).getSize()
+						+ indent + indent + indent +  vmlist.get(cloudlet.getGuestId()).getBw()
+						+ indent + indent +  vmlist.get(cloudlet.getGuestId()).getMips() +
+						indent + indent + indent + dft.format(cloudlet.getActualCPUTime()) + indent + indent + indent + indent  + indent + dft.format(cloudlet.getExecStartTime()) +
+						indent + indent + indent +  dft.format(cloudlet.getExecFinishTime()) + indent + indent + indent+cloudlet.getWaitingTime());
 			}
 		}
 		

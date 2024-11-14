@@ -378,18 +378,18 @@ public class DatacenterBroker extends SimEntity {
 			// if user didn't bind this cloudlet and it has not been executed yet
 			if (cloudlet.getGuestId() == -1) {
 				
-				vm = getGuestsCreatedList().get(guestIndex);
+//				vm = getGuestsCreatedList().get(guestIndex);
 //				int vmid = getAllocatedVmLB(getGuestsCreatedList());
-//				int vmid = loadBalancer.getNextAvailableVm(getCloudletList(), cloudlet);
-//				if(vmid == -1) {
-//					// add cloudlet to waiting list
-//					waitingQueue.add(cloudlet);	
-//					queuedCount++;
-//					continue;
-//				}else {
-//					vm = getGuestsCreatedList().get(vmid);
-//					vmStatesList.put(vmid, VirtualMachineState.BUSY);
-//				}	
+				int vmid = loadBalancer.getNextAvailableVm(getGuestsCreatedList(), cloudlet);
+				if(vmid == -1) {
+					// add cloudlet to waiting list
+					waitingQueue.add(cloudlet);	
+					queuedCount++;
+					continue;
+				}else {
+					vm = getGuestsCreatedList().get(vmid);
+					vmStatesList.put(vmid, VirtualMachineState.BUSY);
+				}	
 				
 			} else { // submit to the specific vm
 				vm = VmList.getById(getGuestsCreatedList(), cloudlet.getGuestId());
@@ -417,12 +417,31 @@ public class DatacenterBroker extends SimEntity {
 			cloudlet.setGuestId(vm.getId());
 			sendNow(getVmsToDatacentersMap().get(vm.getId()), CloudActionTags.CLOUDLET_SUBMIT, cloudlet);
 			cloudletsSubmitted++;
-			guestIndex = (guestIndex + 1) % getGuestsCreatedList().size();
+//			guestIndex = (guestIndex + 1) % getGuestsCreatedList().size();
 			getCloudletSubmittedList().add(cloudlet);
 			successfullySubmitted.add(cloudlet);
 			delay+=10;
 		}
 
+		// remove submitted cloudlets from waiting list
+		getCloudletList().removeAll(successfullySubmitted);
+	}
+	
+	private void sendTaskForProcessing(int vmId, Cloudlet cloudlet) {
+		List<Cloudlet> successfullySubmitted = new ArrayList<>();
+		GuestEntity vm = getGuestsCreatedList().get(vmId);
+		vmStatesList.put(vmId, VirtualMachineState.BUSY);
+		if (!Log.isDisabled()) {
+			Log.printlnConcat(CloudSim.clock(), ": ", getName(), ": Sending ", cloudlet.getClass().getSimpleName(),
+					" #", cloudlet.getCloudletId(), " to " + vm.getClassName() + " #", vm.getId());
+		}
+		
+		cloudlet.setGuestId(vm.getId());
+		sendNow(getVmsToDatacentersMap().get(vm.getId()), CloudActionTags.CLOUDLET_SUBMIT, cloudlet);
+		cloudletsSubmitted++;
+//		guestIndex = (guestIndex + 1) % getGuestsCreatedList().size();
+		getCloudletSubmittedList().add(cloudlet);
+		successfullySubmitted.add(cloudlet);
 		// remove submitted cloudlets from waiting list
 		getCloudletList().removeAll(successfullySubmitted);
 	}
@@ -437,29 +456,15 @@ public class DatacenterBroker extends SimEntity {
 	
 	private void submitWaitingCloudlet(){
 		if(waitingQueue.size() > 0){
-			List<Cloudlet> successfullySubmitted = new ArrayList<>();
+			
 			Cloudlet cloudlet = waitingQueue.remove(0);
 //			int vmId = getAllocatedVmLB(getGuestsCreatedList());
-			int vmId =  loadBalancer.getNextAvailableVm(getCloudletList(), cloudlet);
+			int vmId =  loadBalancer.getNextAvailableVm(getGuestsCreatedList(), cloudlet);
 			if (vmId == -1){
 				waitingQueue.add(cloudlet);
 				queuedCount++;
 			}else {
-				GuestEntity vm = getGuestsCreatedList().get(vmId);
-				vmStatesList.put(vmId, VirtualMachineState.BUSY);
-				if (!Log.isDisabled()) {
-					Log.printlnConcat(CloudSim.clock(), ": ", getName(), ": Sending ", cloudlet.getClass().getSimpleName(),
-							" #", cloudlet.getCloudletId(), " to " + vm.getClassName() + " #", vm.getId());
-				}
-				
-				cloudlet.setGuestId(vm.getId());
-				sendNow(getVmsToDatacentersMap().get(vm.getId()), CloudActionTags.CLOUDLET_SUBMIT, cloudlet);
-				cloudletsSubmitted++;
-//				guestIndex = (guestIndex + 1) % getGuestsCreatedList().size();
-				getCloudletSubmittedList().add(cloudlet);
-				successfullySubmitted.add(cloudlet);
-				// remove submitted cloudlets from waiting list
-				getCloudletList().removeAll(successfullySubmitted);
+				sendTaskForProcessing(vmId, cloudlet);
 			}
 		}
 

@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.GuestEntity;
 
 public class ThrottledVmLoadBalancer  extends VmLoadBalancer {
@@ -31,6 +32,17 @@ public class ThrottledVmLoadBalancer  extends VmLoadBalancer {
 	 */
 	@Override
 	public int getNextAvailableVm(List<? extends GuestEntity> vmList, Cloudlet cl){
+		
+//		double TotalUtilizationOfCpu = 0.0;
+		for(GuestEntity vm : vmList) {
+			double CPUutilization = vm.getTotalUtilizationOfCpu(CloudSim.clock());
+			System.out.println(CloudSim.clock() + " Vm ID: #"+ vm.getId() + " CPU utilization: "
+			+ CPUutilization + " ram"+ vm.getRam() + " ram req "+ vm.getCurrentRequestedRam());
+//			if(CPUutilization < TotalUtilizationOfCpu) {
+//				chosenVm = vm;
+//				TotalUtilizationOfCpu = CPUutilization;
+//			}
+		}
 		
 		int vmId = -1;		
 		if (vmStatesList.size() > 0){
