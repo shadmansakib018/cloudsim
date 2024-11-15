@@ -8,6 +8,7 @@ import org.cloudbus.cloudsim.core.GuestEntity;
 abstract public class VmLoadBalancer {
 	/** Holds the count of allocations for each VM */
 	protected Map<Integer, Integer> vmAllocationCounts;
+	public String lbname = "hhhh";
 	
 	/** No args contructor */
 	public VmLoadBalancer(){
@@ -21,7 +22,7 @@ abstract public class VmLoadBalancer {
 	 * @return id of the next available Virtual Machine to which the next task should be
 	 * 			allocated 
 	 */
-	abstract public int getNextAvailableVm(List<? extends GuestEntity> vmList, Cloudlet cl);
+	abstract public int getNextAvailableVm(Cloudlet cl);
 	
 	/**
 	 * Used internally to update VM allocation statistics. Should be called by all impelementing
@@ -44,5 +45,13 @@ abstract public class VmLoadBalancer {
 	 */
 	public Map<Integer, Integer> getVmAllocationCounts(){
 		return vmAllocationCounts;
+	}
+	
+	public void setName(String name) {
+		this.lbname = name;
+	}
+	
+	public String getName() {
+		return this.lbname;
 	}
 }

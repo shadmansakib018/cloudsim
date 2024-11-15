@@ -10,7 +10,8 @@ import org.cloudbus.cloudsim.core.GuestEntity;
 public class ThrottledVmLoadBalancer  extends VmLoadBalancer {
 
 	private Map<Integer, VirtualMachineState> vmStatesList;
-	private DatacenterBroker dcbLocal;
+	private List<? extends GuestEntity> vmList;
+//	private DatacenterBroker dcbLocal;
 	boolean once = true;
 	/** 
 	 * Constructor
@@ -18,10 +19,11 @@ public class ThrottledVmLoadBalancer  extends VmLoadBalancer {
 	 * @param dcb The {@link DatacenterController} using the load balancer.
 	 */
 	public ThrottledVmLoadBalancer(DatacenterBroker dcb){
-		System.out.println("*******************starting throttled simulation");
+		setName("ThrottledVmLoadBalancer");
 		this.vmStatesList = dcb.vmStatesList;
+		this.vmList = dcb.getGuestsCreatedList();
 		
-		this.dcbLocal=dcb;
+//		this.dcbLocal=dcb;
 //		dcb.addCloudSimEventListener(this);
 		
 	} 
@@ -31,18 +33,18 @@ public class ThrottledVmLoadBalancer  extends VmLoadBalancer {
 	 * 			{@link DatacenterController}
 	 */
 	@Override
-	public int getNextAvailableVm(List<? extends GuestEntity> vmList, Cloudlet cl){
+	public int getNextAvailableVm(Cloudlet cl){
 		
 //		double TotalUtilizationOfCpu = 0.0;
-		for(GuestEntity vm : vmList) {
-			double CPUutilization = vm.getTotalUtilizationOfCpu(CloudSim.clock());
-			System.out.println(CloudSim.clock() + " Vm ID: #"+ vm.getId() + " CPU utilization: "
-			+ CPUutilization + " ram"+ vm.getRam() + " ram req "+ vm.getCurrentRequestedRam());
-//			if(CPUutilization < TotalUtilizationOfCpu) {
-//				chosenVm = vm;
-//				TotalUtilizationOfCpu = CPUutilization;
-//			}
-		}
+//		for(GuestEntity vm : vmList) {
+//			double CPUutilization = vm.getTotalUtilizationOfCpu(CloudSim.clock());
+//			System.out.println(CloudSim.clock() + " Vm ID: #"+ vm.getId() + " CPU utilization: "
+//			+ CPUutilization + " ram"+ vm.getRam() + " ram req "+ vm.getCurrentRequestedRam());
+////			if(CPUutilization < TotalUtilizationOfCpu) {
+////				chosenVm = vm;
+////				TotalUtilizationOfCpu = CPUutilization;
+////			}
+//		}
 		
 		int vmId = -1;		
 		if (vmStatesList.size() > 0){

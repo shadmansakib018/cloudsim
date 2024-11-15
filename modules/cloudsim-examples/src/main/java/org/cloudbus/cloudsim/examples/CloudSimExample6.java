@@ -143,7 +143,9 @@ public class CloudSimExample6 {
 
 			CloudSim.stopSimulation();
 
-			printCloudletList(newList);
+//			printCloudletList(newList);
+			ShowResults.printCloudletList(newList, vmlist);
+			ShowResults.writeCloudletDataToCsv(newList, vmlist, broker.loadBalancer.getName());
 
 			Log.println("CloudSimExample6 finished!");
 		}

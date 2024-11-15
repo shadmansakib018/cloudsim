@@ -83,7 +83,7 @@ public class CloudSimExample3 {
 
 			//VM description
 			int vmid = 0;
-			int mips = 250;
+			int mips = 500;
 			long size = 10000; //image size (MB)
 			int ram = 1024; //vm memory (MB)
 			long bw = 1000;
@@ -91,17 +91,17 @@ public class CloudSimExample3 {
 			String vmm = "Xen"; //VMM name
 
 			//create two VMs
-			Vm vm1 = new Vm(vmid, brokerId, mips, pesNumber, ram/2, bw*2, size/2, vmm, new CloudletSchedulerTimeShared());
+			Vm vm1 = new Vm(vmid, brokerId, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
 
 			//the second VM will have twice the priority of VM1 and so will receive twice CPU time
 			vmid++;
-			Vm vm2 = new Vm(vmid, brokerId, mips/2, pesNumber, ram, bw/2, size/2, vmm, new CloudletSchedulerTimeShared());
+			Vm vm2 = new Vm(vmid, brokerId, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
 			
 			vmid++;
-			Vm vm3 = new Vm(vmid, brokerId, mips, pesNumber, ram*2, bw*3, size*2, vmm, new CloudletSchedulerTimeShared());
+			Vm vm3 = new Vm(vmid, brokerId, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
 			
 			vmid++;
-			Vm vm4 = new Vm(vmid, brokerId, mips*2, pesNumber, ram/2, bw/2, size, vmm, new CloudletSchedulerTimeShared());
+			Vm vm4 = new Vm(vmid, brokerId, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
 			
 
 			//add the VMs to the vmList
@@ -119,42 +119,47 @@ public class CloudSimExample3 {
 
 			//Cloudlet properties
 			int id = 1;
-			long length = 40000;
+			long length = 30000;
 			long fileSize = 300;
 			long outputSize = 300;
 			UtilizationModel utilizationModel = new UtilizationModelFull();
 
 			Cloudlet cloudlet1 = new Cloudlet(id, length, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
 			cloudlet1.setUserId(brokerId);
-
+//			cloudlet1.setSubmissionTime(10);
 			id++;
 			Cloudlet cloudlet2 = new Cloudlet(id, length, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
 			cloudlet2.setUserId(brokerId);
+			cloudlet2.setSubmissionTime(10);
 			
 			id++;
-			Cloudlet cloudlet3 = new Cloudlet(id, length*5, pesNumber*2, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
+			Cloudlet cloudlet3 = new Cloudlet(id, length*5, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
 			cloudlet3.setUserId(brokerId);
+			cloudlet3.setSubmissionTime(15);
 			
 			id++;
 			Cloudlet cloudlet4 = new Cloudlet(id, length, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
 			cloudlet4.setUserId(brokerId);
+			cloudlet4.setSubmissionTime(17);
 			
 			id++;
 			Cloudlet cloudlet5 = new Cloudlet(id, length, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
 			cloudlet5.setUserId(brokerId);
+			cloudlet5.setSubmissionTime(19);
 			
 			id++;
 			Cloudlet cloudlet6 = new Cloudlet(id, length, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
 			cloudlet6.setUserId(brokerId);
+			cloudlet6.setSubmissionTime(22);
 			
-			id++;
-			Cloudlet cloudlet7 = new Cloudlet(id, length*3, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
-			cloudlet7.setUserId(brokerId);
-			
-			id++;
-			Cloudlet cloudlet8 = new Cloudlet(id, length*2, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
-			cloudlet8.setUserId(brokerId);
-			
+//			id++;
+//			Cloudlet cloudlet7 = new Cloudlet(id, length*3, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
+//			cloudlet7.setUserId(brokerId);
+//			
+//			id++;
+//			Cloudlet cloudlet8 = new Cloudlet(id, length*2, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
+//			cloudlet8.setUserId(brokerId);
+//			
 //			id++;
 //			Cloudlet cloudlet9 = new Cloudlet(id, length, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
 //			cloudlet9.setUserId(brokerId);
@@ -178,8 +183,8 @@ public class CloudSimExample3 {
 			cloudletList.add(cloudlet4);
 			cloudletList.add(cloudlet5);
 			cloudletList.add(cloudlet6);
-			cloudletList.add(cloudlet7);
-			cloudletList.add(cloudlet8);
+//			cloudletList.add(cloudlet7);
+//			cloudletList.add(cloudlet8);
 //			cloudletList.add(cloudlet9);
 //			cloudletList.add(cloudlet10);
 //			cloudletList.add(cloudlet11);
@@ -187,20 +192,24 @@ public class CloudSimExample3 {
 
 			//submit cloudlet list to the broker
 			broker.submitCloudletList(cloudletList);
+			
+//			 for (int i = 0; i < cloudletList.size(); i++) {
+//				 	cloudletList = new ArrayList<>();
+//		            Cloudlet cloudlet = cloudletList.get(i);
+//		            cloudletList.add(cloudlet);
+//		            broker.submitCloudletList(cloudletList);
+//		            System.out.println("Cloudlet " + cloudlet.getCloudletId() + " submitted at time: " + cloudlet.getSubmissionTime());
+//		            
+//		            // Simulate a delay between submissions (e.g., 10 seconds between each)
+//		            CloudSim.getInstance().schedule(new SimEvent(cloudlet.getSubmissionTime() + 10, cloudlet));
+//		        }
+			 
 
 
 			//bind the cloudlets to the vms. This way, the broker
 			// will submit the bound cloudlets only to the specific VM
 //			broker.bindCloudletToVm(cloudlet1.getCloudletId(),vm1.getId());
 //			broker.bindCloudletToVm(cloudlet2.getCloudletId(),vm1.getId());
-//			broker.bindCloudletToVm(cloudlet3.getCloudletId(),vm1.getId());
-//			broker.bindCloudletToVm(cloudlet4.getCloudletId(),vm4.getId());
-//			broker.bindCloudletToVm(cloudlet5.getCloudletId(),vm1.getId());
-//			broker.bindCloudletToVm(cloudlet6.getCloudletId(),vm1.getId());
-//
-//			broker.bindCloudletToVm(cloudlet7.getCloudletId(),vm2.getId());
-//			broker.bindCloudletToVm(cloudlet8.getCloudletId(),vm2.getId());
-
 
 			// Sixth step: Starts the simulation
 			CloudSim.startSimulation();
@@ -209,9 +218,11 @@ public class CloudSimExample3 {
 			// Final step: Print results when simulation is over
 			List<Cloudlet> newList = broker.getCloudletReceivedList();
 
-//			CloudSim.stopSimulation();
+			CloudSim.stopSimulation();
 
-        	printCloudletList(newList);
+//        	printCloudletList(newList);
+			ShowResults.printCloudletList(newList, vmlist);
+			ShowResults.writeCloudletDataToCsv(newList, vmlist, broker.loadBalancer.getName());
 
 			Log.println("CloudSimExample3 finished!");
 		}
@@ -257,7 +268,7 @@ public class CloudSimExample3 {
 		//create another machine in the Data center
 		List<Pe> peList2 = new ArrayList<>();
 
-		peList2.add(new Pe(0, new PeProvisionerSimple(mips*10)));
+		peList2.add(new Pe(0, new PeProvisionerSimple(mips*5)));
 
 		hostId++;
 
@@ -328,36 +339,46 @@ public class CloudSimExample3 {
 		String indent = "    ";
 		Log.println();
 		Log.println("========== OUTPUT ==========");
-		Log.println("Cloudlet ID" + indent + indent + "STATUS" + indent + indent + "Task Length" + indent + indent +
-				"Datacenter ID" + indent + indent + "VM ID"
-				+ indent + indent + "RAM"
-				+ indent + indent + "Storage"
-				+ indent + indent + "Bandwidth"
-				+ indent + indent + "MIPS"
-				+ indent + indent + "Processing Time" + indent + indent + "Start Time" + indent + indent + "Finish Time"+ indent + indent + "Waiting Time");
+		Log.println("Cloudlet ID"
+					+ indent + indent + "STATUS"
+					+ indent + indent + "Task Length"
+//					+ indent + indent + "Datacenter ID"
+					+ indent + indent + "VM ID"
+					+ indent + indent + "RAM"
+					+ indent + indent + "Storage"
+					+ indent + indent + "Bandwidth"
+					+ indent + indent + "MIPS"
+					+ indent + indent + "Processing Time"
+					+ indent + indent + "Start Time"
+					+ indent + indent + "Finish Time");
+		
+		Log.println("");
 
 		DecimalFormat dft = new DecimalFormat("###.##");
 		for (Cloudlet value : list) {
 			cloudlet = value;
-			Log.print(indent + cloudlet.getCloudletId() + indent + indent + indent );
 			guestIdCountMap.put(cloudlet.getGuestId(), guestIdCountMap.getOrDefault(cloudlet.getGuestId(), 0) + 1);
 
 			if (cloudlet.getStatus() == Cloudlet.CloudletStatus.SUCCESS) {
-				Log.print("SUCCESS");
 
-				Log.println(indent + indent + indent + cloudlet.getCloudletLength() +indent + indent + indent + cloudlet.getResourceId() + indent + indent + indent + indent+ indent+ cloudlet.getGuestId()
-						
+				Log.println(
+						indent + cloudlet.getCloudletId()
+						+ indent + indent + indent + "SUCCESS"
+						+ indent + indent + indent + cloudlet.getCloudletLength() 
+//						+ indent + indent + indent + cloudlet.getResourceId()
+						+ indent + indent + indent + cloudlet.getGuestId()
 						+ indent + indent + indent + vmlist.get(cloudlet.getGuestId()).getRam()
 						+ indent + indent +  vmlist.get(cloudlet.getGuestId()).getSize()
 						+ indent + indent + indent +  vmlist.get(cloudlet.getGuestId()).getBw()
-						+ indent + indent +  vmlist.get(cloudlet.getGuestId()).getMips() +
-						indent + indent + indent + dft.format(cloudlet.getActualCPUTime()) + indent + indent + indent + indent  + indent + dft.format(cloudlet.getExecStartTime()) +
-						indent + indent + indent +  dft.format(cloudlet.getExecFinishTime()) + indent + indent + indent+cloudlet.getWaitingTime());
+						+ indent + indent + indent + vmlist.get(cloudlet.getGuestId()).getMips()
+						+ indent + indent + indent + dft.format(cloudlet.getActualCPUTime())
+						+ indent + indent + indent + indent  + indent + dft.format(cloudlet.getExecStartTime())
+						+ indent + indent + indent +  dft.format(cloudlet.getExecFinishTime()));
 			}
 		}
 		
 		for (Map.Entry<Integer, Integer> entry : guestIdCountMap.entrySet()) {
-            System.out.println("VM ID: " + entry.getKey() + " ==> " + entry.getValue());
+            System.out.println("VM ID: " + entry.getKey() + " ==> " + entry.getValue() + " Tasks");
         }
 
 	}

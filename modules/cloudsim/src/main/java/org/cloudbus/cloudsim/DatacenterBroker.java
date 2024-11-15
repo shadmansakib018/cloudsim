@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Iterator;
 
 import org.cloudbus.cloudsim.core.*;
@@ -34,7 +35,7 @@ public class DatacenterBroker extends SimEntity {
 	public int queuedCount = 0;
 	public Map<Integer, VirtualMachineState> vmStatesList;
 	public List<Cloudlet> waitingQueue;
-	private VmLoadBalancer loadBalancer;
+	public VmLoadBalancer loadBalancer;
 
 	/** The list of VMs submitted to be managed by the broker. */
 	protected List<? extends GuestEntity> vmList;
@@ -112,7 +113,39 @@ public class DatacenterBroker extends SimEntity {
 		
 		vmStatesList = Collections.synchronizedMap(new HashMap<Integer, VirtualMachineState>());
 		waitingQueue = Collections.synchronizedList(new LinkedList<Cloudlet>());
-		loadBalancer = new ThrottledVmLoadBalancer(this);
+		Scanner scanner = new Scanner(System.in);
+
+        // Prompt the user for input
+        System.out.println("Please select Load Balancing algorithm:");
+        System.out.println("1. RoundRobin");
+        System.out.println("2. Throttled");
+        System.out.println("3. DynamicLB");
+
+        // Read the user's input
+        int choice = scanner.nextInt();
+
+        // Conditional logic based on user input
+        switch (choice) {
+            case 1:
+                System.out.println("You selected RoundRobin.");
+                loadBalancer = new RoundRobinVmLoadBalancer(this);
+                break;
+            case 2:
+                System.out.println("You selected Throttled.");
+                loadBalancer = new ThrottledVmLoadBalancer(this);
+                break;
+            case 3:
+                System.out.println("You selected DynamicLB.");
+                loadBalancer = new DynamicVmLoadBalancer(this);
+                break;
+            default:
+                System.out.println("Invalid choice. Please enter 1, 2, or 3.");
+                loadBalancer = new ThrottledVmLoadBalancer(this);
+        }
+
+        // Close the scanner to prevent resource leaks
+        scanner.close();
+		
 	}
 
 	/**
@@ -290,9 +323,9 @@ public class DatacenterBroker extends SimEntity {
 		Cloudlet cloudlet = (Cloudlet) ev.getData();
 		vmStatesList.put(cloudlet.getGuestId(), VirtualMachineState.AVAILABLE);
 		getCloudletReceivedList().add(cloudlet);
-		Log.printlnConcat(CloudSim.clock(), ": ", getName(), ": ", cloudlet.getClass().getSimpleName(), " #", cloudlet.getCloudletId(),
+		Log.printlnConcat( getName(), ": ", cloudlet.getClass().getSimpleName(), " #", cloudlet.getCloudletId(),
 				" return received");
-		Log.printlnConcat(CloudSim.clock(), ": ", getName(), ": The number of finished Cloudlets is:", getCloudletReceivedList().size());
+		Log.printlnConcat(getName(), ": The number of finished Cloudlets is:", getCloudletReceivedList().size());
 		cloudletsSubmitted--;
 		submitWaitingCloudlet();
 		if (getCloudletList().isEmpty() && cloudletsSubmitted == 0) { // all cloudlets executed
@@ -379,10 +412,11 @@ public class DatacenterBroker extends SimEntity {
 			if (cloudlet.getGuestId() == -1) {
 				
 //				vm = getGuestsCreatedList().get(guestIndex);
-//				int vmid = getAllocatedVmLB(getGuestsCreatedList());
-				int vmid = loadBalancer.getNextAvailableVm(getGuestsCreatedList(), cloudlet);
+				int vmid = loadBalancer.getNextAvailableVm(cloudlet);
+			
 				if(vmid == -1) {
 					// add cloudlet to waiting list
+					System.out.println("all vms are busy, send task to waiting queue");
 					waitingQueue.add(cloudlet);	
 					queuedCount++;
 					continue;
@@ -427,25 +461,6 @@ public class DatacenterBroker extends SimEntity {
 		getCloudletList().removeAll(successfullySubmitted);
 	}
 	
-	private void sendTaskForProcessing(int vmId, Cloudlet cloudlet) {
-		List<Cloudlet> successfullySubmitted = new ArrayList<>();
-		GuestEntity vm = getGuestsCreatedList().get(vmId);
-		vmStatesList.put(vmId, VirtualMachineState.BUSY);
-		if (!Log.isDisabled()) {
-			Log.printlnConcat(CloudSim.clock(), ": ", getName(), ": Sending ", cloudlet.getClass().getSimpleName(),
-					" #", cloudlet.getCloudletId(), " to " + vm.getClassName() + " #", vm.getId());
-		}
-		
-		cloudlet.setGuestId(vm.getId());
-		sendNow(getVmsToDatacentersMap().get(vm.getId()), CloudActionTags.CLOUDLET_SUBMIT, cloudlet);
-		cloudletsSubmitted++;
-//		guestIndex = (guestIndex + 1) % getGuestsCreatedList().size();
-		getCloudletSubmittedList().add(cloudlet);
-		successfullySubmitted.add(cloudlet);
-		// remove submitted cloudlets from waiting list
-		getCloudletList().removeAll(successfullySubmitted);
-	}
-	
 	
 	/**
 	 * Process waiting queue cloudlets when some cloudlet have been returned.
@@ -456,15 +471,28 @@ public class DatacenterBroker extends SimEntity {
 	
 	private void submitWaitingCloudlet(){
 		if(waitingQueue.size() > 0){
-			
 			Cloudlet cloudlet = waitingQueue.remove(0);
-//			int vmId = getAllocatedVmLB(getGuestsCreatedList());
-			int vmId =  loadBalancer.getNextAvailableVm(getGuestsCreatedList(), cloudlet);
+			System.out.println("pop from waiting list: task ID:  " + cloudlet.getCloudletId());
+			int vmId =  loadBalancer.getNextAvailableVm(cloudlet);
 			if (vmId == -1){
 				waitingQueue.add(cloudlet);
 				queuedCount++;
 			}else {
-				sendTaskForProcessing(vmId, cloudlet);
+				List<Cloudlet> successfullySubmitted = new ArrayList<>();
+				GuestEntity vm = getGuestsCreatedList().get(vmId);
+				vmStatesList.put(vmId, VirtualMachineState.BUSY);
+				if (!Log.isDisabled()) {
+					Log.printlnConcat(CloudSim.clock(), ": ", getName(), ": Sending ", cloudlet.getClass().getSimpleName(),
+							" #", cloudlet.getCloudletId(), " to " + vm.getClassName() + " #", vm.getId());
+				}
+				
+				cloudlet.setGuestId(vm.getId());
+				sendNow(getVmsToDatacentersMap().get(vm.getId()), CloudActionTags.CLOUDLET_SUBMIT, cloudlet);
+				cloudletsSubmitted++;
+				getCloudletSubmittedList().add(cloudlet);
+				successfullySubmitted.add(cloudlet);
+				// remove submitted cloudlets from waiting list
+				getCloudletList().removeAll(successfullySubmitted);
 			}
 		}
 
