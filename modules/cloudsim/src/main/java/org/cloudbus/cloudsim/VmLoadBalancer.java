@@ -54,4 +54,6 @@ abstract public class VmLoadBalancer {
 	public String getName() {
 		return this.lbname;
 	}
+
+	protected abstract void releaseResources(int vmId, Cloudlet cl);
 }

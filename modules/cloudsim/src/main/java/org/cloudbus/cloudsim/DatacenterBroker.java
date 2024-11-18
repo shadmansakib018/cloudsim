@@ -36,6 +36,8 @@ public class DatacenterBroker extends SimEntity {
 	public Map<Integer, VirtualMachineState> vmStatesList;
 	public List<Cloudlet> waitingQueue;
 	public VmLoadBalancer loadBalancer;
+	
+	public boolean once = true;
 
 	/** The list of VMs submitted to be managed by the broker. */
 	protected List<? extends GuestEntity> vmList;
@@ -139,8 +141,8 @@ public class DatacenterBroker extends SimEntity {
                 loadBalancer = new DynamicVmLoadBalancer(this);
                 break;
             default:
-                System.out.println("Invalid choice. Please enter 1, 2, or 3.");
-                loadBalancer = new ThrottledVmLoadBalancer(this);
+                System.out.println("Invalid choice. Defaults to Round Robin");
+                loadBalancer = new RoundRobinVmLoadBalancer(this);
         }
 
         // Close the scanner to prevent resource leaks
@@ -322,12 +324,37 @@ public class DatacenterBroker extends SimEntity {
 	protected void processCloudletReturn(SimEvent ev) {
 		Cloudlet cloudlet = (Cloudlet) ev.getData();
 		vmStatesList.put(cloudlet.getGuestId(), VirtualMachineState.AVAILABLE);
+		if(loadBalancer.lbname == "DynamicVmLoadBalancer") {
+			loadBalancer.releaseResources(cloudlet.getGuestId(), cloudlet);
+		}
 		getCloudletReceivedList().add(cloudlet);
-		Log.printlnConcat( getName(), ": ", cloudlet.getClass().getSimpleName(), " #", cloudlet.getCloudletId(),
+		Log.printlnConcat(CloudSim.clock(), ": ", getName(), ": ", cloudlet.getClass().getSimpleName(), " #", cloudlet.getCloudletId(),
 				" return received");
 		Log.printlnConcat(getName(), ": The number of finished Cloudlets is:", getCloudletReceivedList().size());
 		cloudletsSubmitted--;
 		submitWaitingCloudlet();
+		
+//		if(getCloudletReceivedList().size() == 3 && once) {
+//			System.out.println("******************adding new cloudlets");
+//		List<Cloudlet> cloudletList = new ArrayList<>();
+//		int pesNumber = 1;
+//		long length = 500;
+//		long fileSize = 300;
+//		long outputSize = 300;
+//		UtilizationModel utilizationModel = new UtilizationModelFull();
+//		int numCloudlets = 6;
+//        for (int i = 6; i < numCloudlets; i++) {
+//            Cloudlet cloudletNew = new Cloudlet(i, length, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
+//            
+//            // Set the user ID of the cloudlet to associate it with the broker
+//            cloudlet.setUserId(this.getId());
+//
+//            cloudletList.add(cloudletNew);
+//        }
+//        this.submitCloudletList(cloudletList);
+//        once = false;
+//		}
+		
 		if (getCloudletList().isEmpty() && cloudletsSubmitted == 0) { // all cloudlets executed
 			Log.printlnConcat(CloudSim.clock(), ": ", getName(), ": All Cloudlets executed. Finishing...");
 			clearDatacenters();
@@ -449,7 +476,7 @@ public class DatacenterBroker extends SimEntity {
 			}
 			
 			cloudlet.setGuestId(vm.getId());
-			sendNow(getVmsToDatacentersMap().get(vm.getId()), CloudActionTags.CLOUDLET_SUBMIT, cloudlet);
+			send(getVmsToDatacentersMap().get(vm.getId()),delay, CloudActionTags.CLOUDLET_SUBMIT, cloudlet);
 			cloudletsSubmitted++;
 //			guestIndex = (guestIndex + 1) % getGuestsCreatedList().size();
 			getCloudletSubmittedList().add(cloudlet);

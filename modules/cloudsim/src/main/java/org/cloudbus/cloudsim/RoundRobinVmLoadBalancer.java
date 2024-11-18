@@ -29,4 +29,10 @@ public class RoundRobinVmLoadBalancer extends VmLoadBalancer {
 		
 	}
 
+	@Override
+	protected void releaseResources(int vmId, Cloudlet cl) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

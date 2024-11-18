@@ -34,7 +34,7 @@ import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
-
+import java.util.Random;
 
 /**
  * A simple example showing how to create
@@ -91,9 +91,8 @@ public class CloudSimExample3 {
 			String vmm = "Xen"; //VMM name
 
 			//create two VMs
-			Vm vm1 = new Vm(vmid, brokerId, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
+			Vm vm1 = new Vm(vmid, brokerId, mips/2, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
 
-			//the second VM will have twice the priority of VM1 and so will receive twice CPU time
 			vmid++;
 			Vm vm2 = new Vm(vmid, brokerId, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
 			
@@ -101,7 +100,8 @@ public class CloudSimExample3 {
 			Vm vm3 = new Vm(vmid, brokerId, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
 			
 			vmid++;
-			Vm vm4 = new Vm(vmid, brokerId, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
+			Vm vm4 = new Vm(vmid, brokerId, mips*2, pesNumber*2, ram*2, bw*2, size, vmm, new CloudletSchedulerTimeShared());
+
 			
 
 			//add the VMs to the vmList
@@ -114,104 +114,78 @@ public class CloudSimExample3 {
 			broker.submitGuestList(vmlist);
 
 
-			//Fifth step: Create two Cloudlets
 			cloudletList = new ArrayList<>();
-
+			Random random = new Random();
 			//Cloudlet properties
 			int id = 1;
-			long length = 30000;
+			long length = 400;
 			long fileSize = 300;
 			long outputSize = 300;
+			int originalMin = 10000;    // Lower bound of the range
+	        int originalMax = 30000;    // Upper bound of the range
 			UtilizationModel utilizationModel = new UtilizationModelFull();
+			
+			int numCloudlets = 40;
+			int[] values = {
+					26869,
+					25263,
+					26810,
+					13170,
+					12825,
+					15088,
+					22921,
+					11130,
+					14200,
+					24734,
+					29820,
+					15733,
+					17093,
+					27005,
+					24596,
+					26644,
+					12704,
+					25567,
+					26039,
+					12378,
+					29759,
+					28805,
+					27171,
+					28804,
+					11089,
+					23087,
+					19277,
+					12990,
+					28957,
+					10273,
+					26811,
+					13986,
+					17465,
+					14227,
+					29718,
+					10742,
+					16566,
+					14709,
+					26785,
+					27070,
+		        };
+	        for (int i = 0; i < numCloudlets; i++) {
+	        	 int randomNumber = random.nextInt(originalMax - originalMin + 1) + originalMin;
+	            Cloudlet cloudlet = new Cloudlet(i, values[i], pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
+	            
+	            // Set the user ID of the cloudlet to associate it with the broker
+	            cloudlet.setUserId(brokerId);
 
-			Cloudlet cloudlet1 = new Cloudlet(id, length, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
+	            cloudletList.add(cloudlet);
+	        }
+
+			Cloudlet cloudlet1 = new Cloudlet(id, length*5, pesNumber*2, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
 			cloudlet1.setUserId(brokerId);
-//			cloudlet1.setSubmissionTime(10);
-			id++;
-			Cloudlet cloudlet2 = new Cloudlet(id, length, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
-			cloudlet2.setUserId(brokerId);
-			cloudlet2.setSubmissionTime(10);
-			
-			id++;
-			Cloudlet cloudlet3 = new Cloudlet(id, length*5, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
-			cloudlet3.setUserId(brokerId);
-			cloudlet3.setSubmissionTime(15);
-			
-			id++;
-			Cloudlet cloudlet4 = new Cloudlet(id, length, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
-			cloudlet4.setUserId(brokerId);
-			cloudlet4.setSubmissionTime(17);
-			
-			id++;
-			Cloudlet cloudlet5 = new Cloudlet(id, length, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
-			cloudlet5.setUserId(brokerId);
-			cloudlet5.setSubmissionTime(19);
-			
-			id++;
-			Cloudlet cloudlet6 = new Cloudlet(id, length, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
-			cloudlet6.setUserId(brokerId);
-			cloudlet6.setSubmissionTime(22);
-			
-//			id++;
-//			Cloudlet cloudlet7 = new Cloudlet(id, length*3, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
-//			cloudlet7.setUserId(brokerId);
-//			
-//			id++;
-//			Cloudlet cloudlet8 = new Cloudlet(id, length*2, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
-//			cloudlet8.setUserId(brokerId);
-//			
-//			id++;
-//			Cloudlet cloudlet9 = new Cloudlet(id, length, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
-//			cloudlet9.setUserId(brokerId);
-//			
-//			id++;
-//			Cloudlet cloudlet10 = new Cloudlet(id, length, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
-//			cloudlet10.setUserId(brokerId);
-//			
-//			id++;
-//			Cloudlet cloudlet11 = new Cloudlet(id, length, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
-//			cloudlet11.setUserId(brokerId);
-//			
-//			id++;
-//			Cloudlet cloudlet12 = new Cloudlet(id, length, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
-//			cloudlet12.setUserId(brokerId);
 
-			//add the cloudlets to the list
-			cloudletList.add(cloudlet1);
-			cloudletList.add(cloudlet2);
-			cloudletList.add(cloudlet3);
-			cloudletList.add(cloudlet4);
-			cloudletList.add(cloudlet5);
-			cloudletList.add(cloudlet6);
-//			cloudletList.add(cloudlet7);
-//			cloudletList.add(cloudlet8);
-//			cloudletList.add(cloudlet9);
-//			cloudletList.add(cloudlet10);
-//			cloudletList.add(cloudlet11);
-//			cloudletList.add(cloudlet12);
 
 			//submit cloudlet list to the broker
 			broker.submitCloudletList(cloudletList);
 			
-//			 for (int i = 0; i < cloudletList.size(); i++) {
-//				 	cloudletList = new ArrayList<>();
-//		            Cloudlet cloudlet = cloudletList.get(i);
-//		            cloudletList.add(cloudlet);
-//		            broker.submitCloudletList(cloudletList);
-//		            System.out.println("Cloudlet " + cloudlet.getCloudletId() + " submitted at time: " + cloudlet.getSubmissionTime());
-//		            
-//		            // Simulate a delay between submissions (e.g., 10 seconds between each)
-//		            CloudSim.getInstance().schedule(new SimEvent(cloudlet.getSubmissionTime() + 10, cloudlet));
-//		        }
-			 
-
-
-			//bind the cloudlets to the vms. This way, the broker
-			// will submit the bound cloudlets only to the specific VM
-//			broker.bindCloudletToVm(cloudlet1.getCloudletId(),vm1.getId());
-//			broker.bindCloudletToVm(cloudlet2.getCloudletId(),vm1.getId());
-
-			// Sixth step: Starts the simulation
+//			CloudSim.startSimulation();
 			CloudSim.startSimulation();
 
 
@@ -222,7 +196,7 @@ public class CloudSimExample3 {
 
 //        	printCloudletList(newList);
 			ShowResults.printCloudletList(newList, vmlist);
-			ShowResults.writeCloudletDataToCsv(newList, vmlist, broker.loadBalancer.getName());
+//			ShowResults.writeCloudletDataToCsv(newList, vmlist, broker.loadBalancer.getName());
 
 			Log.println("CloudSimExample3 finished!");
 		}

@@ -122,7 +122,7 @@ public class ShowResults {
 		DecimalFormat dft = new DecimalFormat("###.##");
 		int counter = 0;
 		for (Cloudlet value : list) {
-			if (counter >= 20) {
+			if (counter >= 40) {
 		        break;  // Exit the loop if 20 iterations are reached
 		    }
 			counter++;
@@ -135,14 +135,14 @@ public class ShowResults {
 						indent + cloudlet.getCloudletId()
 						+ indent + indent + indent + "SUCCESS"
 						+ indent + indent + indent + cloudlet.getCloudletLength() 
-						+ indent + indent + indent + cloudlet.getResourceId()
-						+ indent + indent + indent + cloudlet.getGuestId()
+						+ indent + indent + indent +indent + cloudlet.getResourceId()
+						+ indent + indent + indent + indent + indent +cloudlet.getGuestId()
 						+ indent + indent + indent + vmlist.get(cloudlet.getGuestId()).getRam()
 						+ indent + indent +  vmlist.get(cloudlet.getGuestId()).getSize()
 						+ indent + indent + indent +  vmlist.get(cloudlet.getGuestId()).getBw()
 						+ indent + indent + indent + vmlist.get(cloudlet.getGuestId()).getMips()
 						+ indent + indent + indent + dft.format(cloudlet.getActualCPUTime())
-						+ indent + indent + indent + indent  + indent + dft.format(cloudlet.getExecStartTime())
+						+ indent + indent + indent  + indent + dft.format(cloudlet.getExecStartTime())
 						+ indent + indent + indent +  dft.format(cloudlet.getExecFinishTime()));
 			}
 		}
