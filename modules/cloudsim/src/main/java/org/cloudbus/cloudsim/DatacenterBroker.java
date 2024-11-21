@@ -432,15 +432,11 @@ public class DatacenterBroker extends SimEntity {
 	 */
 	protected void submitCloudlets() {
 		List<Cloudlet> successfullySubmitted = new ArrayList<>();
-		int delay =0;
 		for (Cloudlet cloudlet : getCloudletList()) {
 			GuestEntity vm;
 			// if user didn't bind this cloudlet and it has not been executed yet
 			if (cloudlet.getGuestId() == -1) {
-				
-//				vm = getGuestsCreatedList().get(guestIndex);
 				int vmid = loadBalancer.getNextAvailableVm(cloudlet);
-			
 				if(vmid == -1) {
 					// add cloudlet to waiting list
 					System.out.println("all vms are busy, send task to waiting queue");
@@ -451,7 +447,6 @@ public class DatacenterBroker extends SimEntity {
 					vm = getGuestsCreatedList().get(vmid);
 					vmStatesList.put(vmid, VirtualMachineState.BUSY);
 				}	
-				
 			} else { // submit to the specific vm
 				vm = VmList.getById(getGuestsCreatedList(), cloudlet.getGuestId());
 				if (vm == null) { // vm was not created
@@ -476,12 +471,10 @@ public class DatacenterBroker extends SimEntity {
 			}
 			
 			cloudlet.setGuestId(vm.getId());
-			send(getVmsToDatacentersMap().get(vm.getId()),delay, CloudActionTags.CLOUDLET_SUBMIT, cloudlet);
+			sendNow(getVmsToDatacentersMap().get(vm.getId()), CloudActionTags.CLOUDLET_SUBMIT, cloudlet);
 			cloudletsSubmitted++;
-//			guestIndex = (guestIndex + 1) % getGuestsCreatedList().size();
 			getCloudletSubmittedList().add(cloudlet);
 			successfullySubmitted.add(cloudlet);
-			delay+=10;
 		}
 
 		// remove submitted cloudlets from waiting list
@@ -499,7 +492,7 @@ public class DatacenterBroker extends SimEntity {
 	private void submitWaitingCloudlet(){
 		if(waitingQueue.size() > 0){
 			Cloudlet cloudlet = waitingQueue.remove(0);
-			System.out.println("pop from waiting list: task ID:  " + cloudlet.getCloudletId());
+//			System.out.println("pop from waiting list: task ID:  " + cloudlet.getCloudletId());
 			int vmId =  loadBalancer.getNextAvailableVm(cloudlet);
 			if (vmId == -1){
 				waitingQueue.add(cloudlet);
@@ -522,6 +515,7 @@ public class DatacenterBroker extends SimEntity {
 				getCloudletList().removeAll(successfullySubmitted);
 			}
 		}
+		return;
 
 	}
 	

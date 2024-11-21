@@ -9,6 +9,10 @@
 
 package org.cloudbus.cloudsim.examples;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -73,43 +77,21 @@ public class CloudSimExample3 {
 			// Second step: Create Datacenters
 			//Datacenters are the resource providers in CloudSim. We need at list one of them to run a CloudSim simulation
 			Datacenter datacenter0 = createDatacenter("Datacenter_0");
+			Datacenter datacenter1 = createDatacenter("Datacenter_1");
+
 
 			//Third step: Create Broker
 			DatacenterBroker broker = createBroker();
 			int brokerId = broker.getId();
 
-			//Fourth step: Create one virtual machine
 			vmlist = new ArrayList<>();
 
-			//VM description
-			int vmid = 0;
-			int mips = 500;
-			long size = 10000; //image size (MB)
-			int ram = 1024; //vm memory (MB)
-			long bw = 1000;
-			int pesNumber = 1; //number of cpus
-			String vmm = "Xen"; //VMM name
-
-			//create two VMs
-			Vm vm1 = new Vm(vmid, brokerId, mips/2, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
-
-			vmid++;
-			Vm vm2 = new Vm(vmid, brokerId, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
+			CreateVmCharacteristics CreateVmCharacteristics = new CreateVmCharacteristics();
+			List<Vm> vmListVersionOne = CreateVmCharacteristics.createVmsVersionOne(3, brokerId);
+			List<Vm> highPerformanceVmList = CreateVmCharacteristics.createVmsVersionTwo(2, brokerId);
+			vmlist.addAll(vmListVersionOne);
+			vmlist.addAll(highPerformanceVmList);
 			
-			vmid++;
-			Vm vm3 = new Vm(vmid, brokerId, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
-			
-			vmid++;
-			Vm vm4 = new Vm(vmid, brokerId, mips*2, pesNumber*2, ram*2, bw*2, size, vmm, new CloudletSchedulerTimeShared());
-
-			
-
-			//add the VMs to the vmList
-			vmlist.add(vm1);
-			vmlist.add(vm2);
-			vmlist.add(vm3);
-			vmlist.add(vm4);
-
 			//submit vm list to the broker
 			broker.submitGuestList(vmlist);
 
@@ -124,53 +106,30 @@ public class CloudSimExample3 {
 			int originalMin = 10000;    // Lower bound of the range
 	        int originalMax = 30000;    // Upper bound of the range
 			UtilizationModel utilizationModel = new UtilizationModelFull();
+			int[] numbers = {};
 			
-			int numCloudlets = 40;
-			int[] values = {
-					26869,
-					25263,
-					26810,
-					13170,
-					12825,
-					15088,
-					22921,
-					11130,
-					14200,
-					24734,
-					29820,
-					15733,
-					17093,
-					27005,
-					24596,
-					26644,
-					12704,
-					25567,
-					26039,
-					12378,
-					29759,
-					28805,
-					27171,
-					28804,
-					11089,
-					23087,
-					19277,
-					12990,
-					28957,
-					10273,
-					26811,
-					13986,
-					17465,
-					14227,
-					29718,
-					10742,
-					16566,
-					14709,
-					26785,
-					27070,
-		        };
-	        for (int i = 0; i < numCloudlets; i++) {
-	        	 int randomNumber = random.nextInt(originalMax - originalMin + 1) + originalMin;
-	            Cloudlet cloudlet = new Cloudlet(i, values[i], pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
+			String filePath = "C:\\Users\\ss4587s\\Desktop\\CloudSimCSVs\\Resources\\taskLength.txt";
+
+			// Use BufferedReader for line-by-line reading
+	         BufferedReader reader = new BufferedReader(new FileReader(filePath));
+	            
+	            // List to temporarily hold the numbers
+	            List<Integer> numberList = new ArrayList<>();
+	            
+	            String line;
+	            while ((line = reader.readLine()) != null) {
+	                // Parse each line as an integer and add to list
+	                numberList.add(Integer.parseInt(line.trim()));
+	            }
+	            reader.close();
+	            
+	            // Convert List to Array
+	            numbers = numberList.stream().mapToInt(i -> i).toArray();
+	            int pesNumber = 1; 
+	        for (int i = 0; i < numbers.length; i++) {
+//	        	 int randomNumber = random.nextInt(originalMax - originalMin + 1) + originalMin;
+	            Cloudlet cloudlet = new Cloudlet(i, numbers[i], pesNumber, fileSize, outputSize,
+	            									utilizationModel, utilizationModel, utilizationModel);
 	            
 	            // Set the user ID of the cloudlet to associate it with the broker
 	            cloudlet.setUserId(brokerId);
@@ -178,23 +137,17 @@ public class CloudSimExample3 {
 	            cloudletList.add(cloudlet);
 	        }
 
-			Cloudlet cloudlet1 = new Cloudlet(id, length*5, pesNumber*2, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
-			cloudlet1.setUserId(brokerId);
-
-
 			//submit cloudlet list to the broker
 			broker.submitCloudletList(cloudletList);
 			
-//			CloudSim.startSimulation();
 			CloudSim.startSimulation();
 
 
 			// Final step: Print results when simulation is over
 			List<Cloudlet> newList = broker.getCloudletReceivedList();
 
-			CloudSim.stopSimulation();
+//			CloudSim.stopSimulation();
 
-//        	printCloudletList(newList);
 			ShowResults.printCloudletList(newList, vmlist);
 //			ShowResults.writeCloudletDataToCsv(newList, vmlist, broker.loadBalancer.getName());
 
@@ -242,15 +195,15 @@ public class CloudSimExample3 {
 		//create another machine in the Data center
 		List<Pe> peList2 = new ArrayList<>();
 
-		peList2.add(new Pe(0, new PeProvisionerSimple(mips*5)));
+		peList2.add(new Pe(0, new PeProvisionerSimple(mips*4)));
 
 		hostId++;
 
 		hostList.add(
     			new Host(
     				hostId,
-    				new RamProvisionerSimple(ram*2),
-    				new BwProvisionerSimple(bw*2),
+    				new RamProvisionerSimple(ram),
+    				new BwProvisionerSimple(bw),
     				storage,
     				peList2,
     				new VmSchedulerTimeShared(peList2)

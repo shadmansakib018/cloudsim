@@ -15,9 +15,9 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
 	public boolean once = true;
 	private List<CustomVm> customVmList;
 	int originalMin = 10000;    // Minimum value of the original range
-    int originalMax = 30000;    // Maximum value of the original range
+    int originalMax = 20000;    // Maximum value of the original range
     int targetMin = 0;         // Minimum value of the target range
-    int targetMax = 500;       // Maximum value of the target range
+//    int targetMax = 500;       // Maximum value of the target range
 
 
 	public DynamicVmLoadBalancer(DatacenterBroker dcb) {
@@ -80,10 +80,10 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
         double availableRam = vm.getRam() - vm.getCurrentAllocatedRam();
         double availableBw = vm.getBw() - vm.getCurrentAllocatedBw();
 
-//        System.out.println("Checking VM ID: " + vm.getId());
-//        System.out.println("Available MIPS: " + availableMips);
-//        System.out.println("Available RAM: " + availableRam);
-//        System.out.println("Available BW: " + availableBw);
+        System.out.println("Checking VM ID: " + vm.getId());
+        System.out.println("Available MIPS: " + availableMips);
+        System.out.println("Available RAM: " + availableRam);
+        System.out.println("Available BW: " + availableBw);
 
         // If any resource is insufficient, the VM is considered overloaded
         if (availableMips <= 0 || availableRam <= 0 || availableBw <= 0) {
@@ -91,8 +91,8 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
         }
 
         // Score is a weighted sum of available resources, higher score = better VM
-        double score = availableMips * 0.5 + availableRam * 0.3 + availableBw * 0.2;
-//        System.out.println("VM ID: " + vm.getId() + " Score: " + score);
+        double score = availableMips * 0.8 + availableRam * 0.1 + availableBw * 0.1;
+        System.out.println("VM ID: " + vm.getId() + " Score: " + score);
         return score;
     }
 

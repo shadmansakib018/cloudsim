@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.awt.Desktop;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -78,6 +79,7 @@ public class ShowResults {
             }
 
             System.out.println("CSV file created successfully at: " + DESKTOP_PATH + filename);
+            OpenFileExample(DESKTOP_PATH + filename);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -97,7 +99,6 @@ public class ShowResults {
 
 	
 	static void printCloudletList(List<Cloudlet> list, List<? extends GuestEntity> vmlist) {
-		int size = list.size();
 		Cloudlet cloudlet;
 		Map<Integer, Integer> guestIdCountMap = new HashMap<>();
 
@@ -122,9 +123,9 @@ public class ShowResults {
 		DecimalFormat dft = new DecimalFormat("###.##");
 		int counter = 0;
 		for (Cloudlet value : list) {
-			if (counter >= 40) {
-		        break;  // Exit the loop if 20 iterations are reached
-		    }
+//			if (counter >= 40) {
+//		        break;  // Exit the loop if 20 iterations are reached
+//		    }
 			counter++;
 			cloudlet = value;
 			guestIdCountMap.put(cloudlet.getGuestId(), guestIdCountMap.getOrDefault(cloudlet.getGuestId(), 0) + 1);
@@ -151,6 +152,25 @@ public class ShowResults {
             System.out.println("VM ID: " + entry.getKey() + " ==> " + entry.getValue() + " Tasks");
         }
 
+	}
+	
+	public static void OpenFileExample(String pathToFile) {
+	        // Specify the path to your file
+	        File file = new File(pathToFile);
+
+	        // Check if Desktop is supported on the current platform
+	        if (Desktop.isDesktopSupported()) {
+	            Desktop desktop = Desktop.getDesktop();
+	            try {
+	                // Open the file with the default program associated with the file type
+	                desktop.open(file);
+	            } catch (IOException e) {
+	                System.err.println("Error opening the file: " + e.getMessage());
+	            }
+	        } else {
+	            System.err.println("Desktop is not supported on this platform.");
+	        }
+	    
 	}
 	
 }
