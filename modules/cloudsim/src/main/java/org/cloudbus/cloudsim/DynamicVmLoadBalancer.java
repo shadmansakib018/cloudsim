@@ -14,11 +14,12 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
 	private List<? extends GuestEntity> vmList;
 	public boolean once = true;
 	private List<CustomVm> customVmList;
-	int originalMin = 10000;    // Minimum value of the original range
-    int originalMax = 20000;    // Maximum value of the original range
+	int originalMin = 20000;    // Minimum value of the original range
+    int originalMax = 50000;    // Maximum value of the original range
     int targetMin = 0;         // Minimum value of the target range
 //    int targetMax = 500;       // Maximum value of the target range
 
+    int lastVmIdAssigned = -1;
 
 	public DynamicVmLoadBalancer(DatacenterBroker dcb) {
 		setName("DynamicVmLoadBalancer");
@@ -54,7 +55,9 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
 
         // Check each VM for the best available one
         for (CustomVm vm : customVmList) {
-        	
+//        	if(lastVmIdAssigned == vm.getId()) {
+//        		continue;
+//        	}
             double score = getCurrentScore(vm, cl);
             if (score > bestScore) {
                 bestScore = score;
@@ -63,12 +66,13 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
         }
 
         if (bestVmId == -1) {
-            System.out.println("No suitable VM found........................");
+//            System.out.println("No suitable VM found........................");
         } else {
-            System.out.println("Best VM ID selected: " + bestVmId);
+        	
+//            System.out.println("Best VM ID selected: " + bestVmId);
             allocateResourcesToVm(bestVmId, cl);
         }
-
+//        lastVmIdAssigned = bestVmId;
         return bestVmId;
     }
 
@@ -79,11 +83,11 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
         double availableMips = vm.getMips() - vm.getCurrentAllocatedMips();
         double availableRam = vm.getRam() - vm.getCurrentAllocatedRam();
         double availableBw = vm.getBw() - vm.getCurrentAllocatedBw();
-
-        System.out.println("Checking VM ID: " + vm.getId());
-        System.out.println("Available MIPS: " + availableMips);
-        System.out.println("Available RAM: " + availableRam);
-        System.out.println("Available BW: " + availableBw);
+//
+//        System.out.println("Checking VM ID: " + vm.getId());
+//        System.out.println("Available MIPS: " + availableMips);
+//        System.out.println("Available RAM: " + availableRam);
+//        System.out.println("Available BW: " + availableBw);
 
         // If any resource is insufficient, the VM is considered overloaded
         if (availableMips <= 0 || availableRam <= 0 || availableBw <= 0) {
@@ -91,8 +95,8 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
         }
 
         // Score is a weighted sum of available resources, higher score = better VM
-        double score = availableMips * 0.8 + availableRam * 0.1 + availableBw * 0.1;
-        System.out.println("VM ID: " + vm.getId() + " Score: " + score);
+        double score = availableMips * 0.2 + availableRam * 0.7 + availableBw * 0.1;
+//        System.out.println("VM ID: " + vm.getId() + " Score: " + score);
         return score;
     }
 
@@ -118,8 +122,8 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
         if (selectedVm != null) {
             // Release resources allocated to the Cloudlet
             selectedVm.setCurrentAllocatedMips(selectedVm.getCurrentAllocatedMips() - normalize(cl.getCloudletLength(), originalMin, originalMax, targetMin, (long)selectedVm.getMips()));
-            selectedVm.setCurrentAllocatedRam(selectedVm.getCurrentAllocatedRam() - normalize(cl.getCloudletLength(), 0, originalMax, targetMin, selectedVm.getRam()));
-            selectedVm.setCurrentAllocatedBw(selectedVm.getCurrentAllocatedBw() - normalize(cl.getCloudletLength(), 0, originalMax, targetMin, selectedVm.getBw()));
+            selectedVm.setCurrentAllocatedRam(selectedVm.getCurrentAllocatedRam() - normalize(cl.getCloudletLength(), originalMin, originalMax, targetMin, selectedVm.getRam()));
+            selectedVm.setCurrentAllocatedBw(selectedVm.getCurrentAllocatedBw() - normalize(cl.getCloudletLength(), originalMin, originalMax, targetMin, selectedVm.getBw()));
 
 //            System.out.println("Resources released from VM ID: " + selectedVm.getId());
         }

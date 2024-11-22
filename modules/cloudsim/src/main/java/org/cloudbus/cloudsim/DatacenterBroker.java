@@ -115,6 +115,7 @@ public class DatacenterBroker extends SimEntity {
 		
 		vmStatesList = Collections.synchronizedMap(new HashMap<Integer, VirtualMachineState>());
 		waitingQueue = Collections.synchronizedList(new LinkedList<Cloudlet>());
+		loadBalancer = new RoundRobinVmLoadBalancer(this);
 		Scanner scanner = new Scanner(System.in);
 
         // Prompt the user for input

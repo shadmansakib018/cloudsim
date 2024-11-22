@@ -77,7 +77,6 @@ public class CloudSimExample3 {
 			// Second step: Create Datacenters
 			//Datacenters are the resource providers in CloudSim. We need at list one of them to run a CloudSim simulation
 			Datacenter datacenter0 = createDatacenter("Datacenter_0");
-			Datacenter datacenter1 = createDatacenter("Datacenter_1");
 
 
 			//Third step: Create Broker
@@ -87,7 +86,7 @@ public class CloudSimExample3 {
 			vmlist = new ArrayList<>();
 
 			CreateVmCharacteristics CreateVmCharacteristics = new CreateVmCharacteristics();
-			List<Vm> vmListVersionOne = CreateVmCharacteristics.createVmsVersionOne(3, brokerId);
+			List<Vm> vmListVersionOne = CreateVmCharacteristics.createVmsVersionOne(2, brokerId);
 			List<Vm> highPerformanceVmList = CreateVmCharacteristics.createVmsVersionTwo(2, brokerId);
 			vmlist.addAll(vmListVersionOne);
 			vmlist.addAll(highPerformanceVmList);
@@ -95,49 +94,9 @@ public class CloudSimExample3 {
 			//submit vm list to the broker
 			broker.submitGuestList(vmlist);
 
-
+			createCloudlets createCloudlets = new createCloudlets();
 			cloudletList = new ArrayList<>();
-			Random random = new Random();
-			//Cloudlet properties
-			int id = 1;
-			long length = 400;
-			long fileSize = 300;
-			long outputSize = 300;
-			int originalMin = 10000;    // Lower bound of the range
-	        int originalMax = 30000;    // Upper bound of the range
-			UtilizationModel utilizationModel = new UtilizationModelFull();
-			int[] numbers = {};
-			
-			String filePath = "C:\\Users\\ss4587s\\Desktop\\CloudSimCSVs\\Resources\\taskLength.txt";
-
-			// Use BufferedReader for line-by-line reading
-	         BufferedReader reader = new BufferedReader(new FileReader(filePath));
-	            
-	            // List to temporarily hold the numbers
-	            List<Integer> numberList = new ArrayList<>();
-	            
-	            String line;
-	            while ((line = reader.readLine()) != null) {
-	                // Parse each line as an integer and add to list
-	                numberList.add(Integer.parseInt(line.trim()));
-	            }
-	            reader.close();
-	            
-	            // Convert List to Array
-	            numbers = numberList.stream().mapToInt(i -> i).toArray();
-	            int pesNumber = 1; 
-	        for (int i = 0; i < numbers.length; i++) {
-//	        	 int randomNumber = random.nextInt(originalMax - originalMin + 1) + originalMin;
-	            Cloudlet cloudlet = new Cloudlet(i, numbers[i], pesNumber, fileSize, outputSize,
-	            									utilizationModel, utilizationModel, utilizationModel);
-	            
-	            // Set the user ID of the cloudlet to associate it with the broker
-	            cloudlet.setUserId(brokerId);
-
-	            cloudletList.add(cloudlet);
-	        }
-
-			//submit cloudlet list to the broker
+			cloudletList = createCloudlets.createTasks(brokerId, CloudSim.clock());
 			broker.submitCloudletList(cloudletList);
 			
 			CloudSim.startSimulation();
@@ -146,10 +105,10 @@ public class CloudSimExample3 {
 			// Final step: Print results when simulation is over
 			List<Cloudlet> newList = broker.getCloudletReceivedList();
 
-//			CloudSim.stopSimulation();
+			CloudSim.stopSimulation();
 
-			ShowResults.printCloudletList(newList, vmlist);
-//			ShowResults.writeCloudletDataToCsv(newList, vmlist, broker.loadBalancer.getName());
+//			ShowResults.printCloudletList(newList, vmlist);
+			ShowResults.writeCloudletDataToCsv(newList, vmlist, broker.loadBalancer.getName());
 
 			Log.println("CloudSimExample3 finished!");
 		}
@@ -162,53 +121,59 @@ public class CloudSimExample3 {
 	private static Datacenter createDatacenter(String name){
 
 		// Here are the steps needed to create a PowerDatacenter:
-		// 1. We need to create a list to store
-		//    our machine
+		// 1. We need to create a list to store one or more
+		//    Machines
 		List<Host> hostList = new ArrayList<>();
 
-		// 2. A Machine contains one or more PEs or CPUs/Cores.
-		// In this example, it will have only one core.
-		List<Pe> peList = new ArrayList<>();
+		// 2. A Machine contains one or more PEs or CPUs/Cores. Therefore, should
+		//    create a list to store these PEs before creating
+		//    a Machine.
+		List<Pe> peList1 = new ArrayList<>();
 
 		int mips = 1000;
 
-		// 3. Create PEs and add these into a list.
-		peList.add(new Pe(0, new PeProvisionerSimple(mips))); // need to store Pe id and MIPS Rating
+		// 3. Create PEs and add these into the list.
+		//for a quad-core machine, a list of 4 PEs is required:
+		peList1.add(new Pe(0, new PeProvisionerSimple(mips))); // need to store Pe id and MIPS Rating
+		peList1.add(new Pe(1, new PeProvisionerSimple(mips)));
+		peList1.add(new Pe(2, new PeProvisionerSimple(mips)));
+		peList1.add(new Pe(3, new PeProvisionerSimple(mips)));
 
-		//4. Create Hosts with its id and list of PEs and add them to the list of machines
-		int hostId=0;
-		int ram = 4096; //host memory (MB)
-		long storage = 1000000; //host storage
-		int bw = 10000;
-
-		hostList.add(
-    			new Host(
-    				hostId,
-    				new RamProvisionerSimple(ram),
-    				new BwProvisionerSimple(bw),
-    				storage,
-    				peList,
-    				new VmSchedulerTimeShared(peList)
-    			)
-    		); // This is our first machine
-
-		//create another machine in the Data center
+		//Another list, for a dual-core machine
 		List<Pe> peList2 = new ArrayList<>();
 
-		peList2.add(new Pe(0, new PeProvisionerSimple(mips*4)));
+		peList2.add(new Pe(0, new PeProvisionerSimple(mips)));
+		peList2.add(new Pe(1, new PeProvisionerSimple(mips)));
 
-		hostId++;
+		//4. Create Hosts with its id and list of PEs and add them to the list of machines
+				int hostId=0;
+				int ram = 8192; //host memory (MB)
+				long storage = 1000000; //host storage
+				int bw = 50000;
 
-		hostList.add(
-    			new Host(
-    				hostId,
-    				new RamProvisionerSimple(ram),
-    				new BwProvisionerSimple(bw),
-    				storage,
-    				peList2,
-    				new VmSchedulerTimeShared(peList2)
-    			)
-    		); // This is our second machine
+				hostList.add(
+		    			new Host(
+		    				hostId,
+		    				new RamProvisionerSimple(ram),
+		    				new BwProvisionerSimple(bw),
+		    				storage,
+		    				peList1,
+		    				new VmSchedulerTimeShared(peList1)
+		    			)
+		    		); // This is our first machine
+
+				hostId++;
+
+				hostList.add(
+		    			new Host(
+		    				hostId,
+		    				new RamProvisionerSimple(ram),
+		    				new BwProvisionerSimple(bw),
+		    				storage,
+		    				peList2,
+		    				new VmSchedulerTimeShared(peList2)
+		    			)
+		    		); // Second machine
 
 
 
@@ -254,59 +219,4 @@ public class CloudSimExample3 {
 		return broker;
 	}
 
-	/**
-	 * Prints the Cloudlet objects
-	 * @param list  list of Cloudlets
-	 */
-	private static void printCloudletList(List<Cloudlet> list) {
-		int size = list.size();
-		Cloudlet cloudlet;
-		Map<Integer, Integer> guestIdCountMap = new HashMap<>();
-
-		String indent = "    ";
-		Log.println();
-		Log.println("========== OUTPUT ==========");
-		Log.println("Cloudlet ID"
-					+ indent + indent + "STATUS"
-					+ indent + indent + "Task Length"
-//					+ indent + indent + "Datacenter ID"
-					+ indent + indent + "VM ID"
-					+ indent + indent + "RAM"
-					+ indent + indent + "Storage"
-					+ indent + indent + "Bandwidth"
-					+ indent + indent + "MIPS"
-					+ indent + indent + "Processing Time"
-					+ indent + indent + "Start Time"
-					+ indent + indent + "Finish Time");
-		
-		Log.println("");
-
-		DecimalFormat dft = new DecimalFormat("###.##");
-		for (Cloudlet value : list) {
-			cloudlet = value;
-			guestIdCountMap.put(cloudlet.getGuestId(), guestIdCountMap.getOrDefault(cloudlet.getGuestId(), 0) + 1);
-
-			if (cloudlet.getStatus() == Cloudlet.CloudletStatus.SUCCESS) {
-
-				Log.println(
-						indent + cloudlet.getCloudletId()
-						+ indent + indent + indent + "SUCCESS"
-						+ indent + indent + indent + cloudlet.getCloudletLength() 
-//						+ indent + indent + indent + cloudlet.getResourceId()
-						+ indent + indent + indent + cloudlet.getGuestId()
-						+ indent + indent + indent + vmlist.get(cloudlet.getGuestId()).getRam()
-						+ indent + indent +  vmlist.get(cloudlet.getGuestId()).getSize()
-						+ indent + indent + indent +  vmlist.get(cloudlet.getGuestId()).getBw()
-						+ indent + indent + indent + vmlist.get(cloudlet.getGuestId()).getMips()
-						+ indent + indent + indent + dft.format(cloudlet.getActualCPUTime())
-						+ indent + indent + indent + indent  + indent + dft.format(cloudlet.getExecStartTime())
-						+ indent + indent + indent +  dft.format(cloudlet.getExecFinishTime()));
-			}
-		}
-		
-		for (Map.Entry<Integer, Integer> entry : guestIdCountMap.entrySet()) {
-            System.out.println("VM ID: " + entry.getKey() + " ==> " + entry.getValue() + " Tasks");
-        }
-
-	}
 }

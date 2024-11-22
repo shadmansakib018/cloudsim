@@ -66,7 +66,7 @@ public class CloudSimExample6 {
 		Vm[] vm = new Vm[vms];
 
 		for(int i=0;i<vms;i++){
-			vm[i] = new Vm(i, userId, mips*((((i+1)%2)+1)*2), pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
+			vm[i] = new Vm(i, userId, mips, pesNumber, ram, bw, size, vmm, new CloudletSchedulerTimeShared());
 			//for creating a VM with a space shared scheduling policy for cloudlets:
 			//vm[i] = Vm(i, userId, mips, pesNumber, ram, bw, size, priority, vmm, new CloudletSchedulerSpaceShared());
 
@@ -82,7 +82,7 @@ public class CloudSimExample6 {
 		LinkedList<Cloudlet> list = new LinkedList<>();
 
 		//cloudlet parameters
-		long length = 1000;
+		long length = 400;
 		long fileSize = 300;
 		long outputSize = 300;
 		int pesNumber = 1;
@@ -129,8 +129,8 @@ public class CloudSimExample6 {
 			int brokerId = broker.getId();
 
 			//Fourth step: Create VMs and Cloudlets and send them to broker
-			vmlist = createVM(brokerId,8); //creating 20 vms
-			cloudletList = createCloudlet(brokerId,50); // creating 40 cloudlets
+			vmlist = createVM(brokerId,20); //creating 20 vms
+			cloudletList = createCloudlet(brokerId,40); // creating 40 cloudlets
 
 			broker.submitGuestList(vmlist);
 			broker.submitCloudletList(cloudletList);
@@ -145,7 +145,7 @@ public class CloudSimExample6 {
 
 //			printCloudletList(newList);
 			ShowResults.printCloudletList(newList, vmlist);
-			ShowResults.writeCloudletDataToCsv(newList, vmlist, broker.loadBalancer.getName());
+//			ShowResults.writeCloudletDataToCsv(newList, vmlist, broker.loadBalancer.getName());
 
 			Log.println("CloudSimExample6 finished!");
 		}

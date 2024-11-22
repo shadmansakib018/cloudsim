@@ -22,6 +22,8 @@ public class ShowResults {
     private static DecimalFormat dft = new DecimalFormat("###.##");
     
     public static void writeCloudletDataToCsv(List<Cloudlet> list, List<? extends GuestEntity> vmlist, String lb) {
+    	Map<Integer, Integer> guestIdCountMap = new HashMap<>();
+    	double totalResponseTime = 0;
         FileWriter fileWriter = null;
         BufferedWriter bufferedWriter = null;
         
@@ -56,6 +58,8 @@ public class ShowResults {
             for (Cloudlet cloudlet : list) {
                 // Assuming cloudlet.getStatus(), cloudlet.getCloudletId(), cloudlet.getGuestId(), etc. work as described
                 if (cloudlet.getStatus() == Cloudlet.CloudletStatus.SUCCESS) {
+                	guestIdCountMap.put(cloudlet.getGuestId(), guestIdCountMap.getOrDefault(cloudlet.getGuestId(), 0) + 1);
+                	totalResponseTime += (cloudlet.getActualCPUTime() + cloudlet.getExecStartTime());
                     StringBuilder row = new StringBuilder();
 
                     // Construct each row by appending the values with the same indent format
@@ -71,12 +75,15 @@ public class ShowResults {
                     .append(",").append(dft.format(cloudlet.getActualCPUTime()))
                     .append(",").append(dft.format(cloudlet.getExecStartTime()))
                     .append(",").append(dft.format(cloudlet.getExecFinishTime()));
-
                     // Write the row to the CSV
                     bufferedWriter.write(row.toString());
                     bufferedWriter.newLine();  // Move to the next line
                 }
             }
+            for (Map.Entry<Integer, Integer> entry : guestIdCountMap.entrySet()) {
+                System.out.println("VM ID: " + entry.getKey() + " ==> " + entry.getValue() + " Tasks");
+            }
+            System.out.println("Average Response Time: " + totalResponseTime /(list.size()*list.size()));
 
             System.out.println("CSV file created successfully at: " + DESKTOP_PATH + filename);
             OpenFileExample(DESKTOP_PATH + filename);
