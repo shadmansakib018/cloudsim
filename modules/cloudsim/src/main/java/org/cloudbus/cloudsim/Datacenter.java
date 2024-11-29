@@ -124,7 +124,7 @@ public class Datacenter extends SimEntity {
 	public void processEvent(SimEvent ev) {
 		int srcId = -1;
 		CloudSimTags tag = ev.getTag();
-
+//		System.out.println("****************** "+tag+" ***************");
         // Resource characteristics inquiry
         if (tag == CloudActionTags.RESOURCE_CHARACTERISTICS) {
             srcId = (Integer) ev.getData();
@@ -985,7 +985,7 @@ public class Datacenter extends SimEntity {
 	 * 
 	 * @return the datacenter characteristics
 	 */
-	protected DatacenterCharacteristics getCharacteristics() {
+	public DatacenterCharacteristics getCharacteristics() {
 		return characteristics;
 	}
 

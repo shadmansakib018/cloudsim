@@ -122,7 +122,7 @@ public class CloudSimExample7 {
 			//Third step: Create Broker
 			DatacenterBroker broker = createBroker("Broker_0");
 			int brokerId = broker.getId();
-
+			DatacenterBroker broker1 = createBroker("Broker_1");
 			//Fourth step: Create VMs and Cloudlets and send them to broker
 			vmlist = createVM(brokerId, 5, 0); //creating 5 vms
 			cloudletList = createCloudlet(brokerId, 10, 0); // creating 10 cloudlets
@@ -152,7 +152,7 @@ public class CloudSimExample7 {
 					e.printStackTrace();
 				}
 
-				DatacenterBroker broker1 = createBroker("Broker_1");
+				
 				int brokerId1 = broker1.getId();
 
 				//Create VMs and Cloudlets and send them to broker
@@ -173,10 +173,13 @@ public class CloudSimExample7 {
 
 			// Final step: Print results when simulation is over
 			List<Cloudlet> newList = broker.getCloudletReceivedList();
+			List<Cloudlet> newList1 = broker1.getCloudletReceivedList();
+
 
 			CloudSim.stopSimulation();
 
 			printCloudletList(newList);
+			printCloudletList(newList1);
 
 			Log.println("CloudSimExample7 finished!");
 		}

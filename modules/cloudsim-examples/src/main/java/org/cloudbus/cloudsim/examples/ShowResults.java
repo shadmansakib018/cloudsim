@@ -24,6 +24,8 @@ public class ShowResults {
     public static void writeCloudletDataToCsv(List<Cloudlet> list, List<? extends GuestEntity> vmlist, String lb) {
     	Map<Integer, Integer> guestIdCountMap = new HashMap<>();
     	double totalResponseTime = 0;
+    	double totalWaitingTime = 0;
+    	double totalExecTime = 0;
         FileWriter fileWriter = null;
         BufferedWriter bufferedWriter = null;
         
@@ -59,7 +61,9 @@ public class ShowResults {
                 // Assuming cloudlet.getStatus(), cloudlet.getCloudletId(), cloudlet.getGuestId(), etc. work as described
                 if (cloudlet.getStatus() == Cloudlet.CloudletStatus.SUCCESS) {
                 	guestIdCountMap.put(cloudlet.getGuestId(), guestIdCountMap.getOrDefault(cloudlet.getGuestId(), 0) + 1);
-                	totalResponseTime += (cloudlet.getActualCPUTime() + cloudlet.getExecStartTime());
+                	totalResponseTime += (cloudlet.getActualCPUTime() + (cloudlet.getExecStartTime()));
+                	totalWaitingTime = totalWaitingTime + cloudlet.getExecStartTime();
+                	totalExecTime += cloudlet.getActualCPUTime();
                     StringBuilder row = new StringBuilder();
 
                     // Construct each row by appending the values with the same indent format
@@ -83,8 +87,9 @@ public class ShowResults {
             for (Map.Entry<Integer, Integer> entry : guestIdCountMap.entrySet()) {
                 System.out.println("VM ID: " + entry.getKey() + " ==> " + entry.getValue() + " Tasks");
             }
-            System.out.println("Average Response Time: " + totalResponseTime /(list.size()*list.size()));
-
+            System.out.println("Average Response Time: " + totalResponseTime /(list.size()*1000));
+            System.out.println("Average Waiting Time: " + totalWaitingTime /(list.size()*1000));
+            System.out.println("Average Execution Time: " + totalExecTime /(list.size()*1000));
             System.out.println("CSV file created successfully at: " + DESKTOP_PATH + filename);
             OpenFileExample(DESKTOP_PATH + filename);
 

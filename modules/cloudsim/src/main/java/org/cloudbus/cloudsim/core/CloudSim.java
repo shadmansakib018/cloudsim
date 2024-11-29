@@ -180,6 +180,7 @@ public class CloudSim {
 	 */
 	public static double startSimulation() throws NullPointerException {
 		Log.printlnConcat("Starting CloudSim version ", CLOUDSIM_VERSION_STRING);
+
 		try {
 			double clock = run();
 
@@ -341,6 +342,7 @@ public class CloudSim {
 	 */
 	protected static void initialize() {
 		Log.println("Initialising...");
+
 		entities = new ArrayList<>();
 		entitiesByName = new LinkedHashMap<>();
 		future = new FutureQueue();
@@ -770,6 +772,8 @@ public class CloudSim {
 					throw new IllegalArgumentException("Attempt to send to a null entity detected.");
 				} else {
 					CloudSimTags tag = e.getTag();
+//					System.out.println("****************** "+tag+" ***************");
+
 					dest_ent = entities.get(dest);
 					if (dest_ent.getState() == SimEntity.WAITING) {
 						Integer destObj = dest;

@@ -13,8 +13,9 @@ import org.cloudbus.cloudsim.UtilizationModelFull;
 
 public class createCloudlets {
 	// Seed the Random object with a specific value (e.g., 12345)
-    long seed = 19L;  // You can use any long value as a seed
+    long seed = 1911L;  // You can use any long value as a seed
     Random random = new Random(seed);
+    int currentTaskId = 0;
 	
 	//Cloudlet properties
 	long length = 400;
@@ -28,14 +29,14 @@ public class createCloudlets {
 	public List<Cloudlet> createTasks(int brokerId, double submissionTime){
 		 List<Cloudlet> cloudletList =new ArrayList<>();
 //		 List<Integer> taskLengthList = new ArrayList<>();
-		 for(int i = 0; i < 20; i++) {
+		 for(int i = 0; i <20; i++) {
 			 	int randomNumber = random.nextInt(originalMax - originalMin + 1) + originalMin;
 //			 	System.out.println(randomNumber);
-	            Cloudlet cloudlet = new Cloudlet(i, randomNumber, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
+	            Cloudlet cloudlet = new Cloudlet(currentTaskId, randomNumber, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
 	            cloudlet.setUserId(brokerId);
-	            cloudlet.setSubmissionTime(submissionTime);
+//	            cloudlet.setSubmissionTime(submissionTime);
 	            cloudletList.add(cloudlet);
-	            
+	            currentTaskId+=1;
 		 }
 		 return cloudletList;
 	}

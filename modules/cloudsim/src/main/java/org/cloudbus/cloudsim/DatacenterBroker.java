@@ -96,7 +96,7 @@ public class DatacenterBroker extends SimEntity {
 	 */
 	public DatacenterBroker(String name) throws Exception {
 		super(name);
-
+		System.out.println("DCB Thread ID: " + Thread.currentThread().getId());
 		setGuestList(new ArrayList<>());
 		setGuestsCreatedList(new ArrayList<>());
 		setCloudletList(new ArrayList<>());
@@ -125,7 +125,8 @@ public class DatacenterBroker extends SimEntity {
         System.out.println("3. DynamicLB");
 
         // Read the user's input
-        int choice = scanner.nextInt();
+//        int choice = scanner.nextInt();
+        int choice =3;
 
         // Conditional logic based on user input
         switch (choice) {
@@ -178,6 +179,9 @@ public class DatacenterBroker extends SimEntity {
 	 */
 	public void submitCloudletList(List<? extends Cloudlet> list) {
 		getCloudletList().addAll(list);
+		// Add only the first 5 elements from the list
+//	    int endIndex = Math.min(5, list.size()); // Ensure we don't exceed the size of the list
+//	    getCloudletList().addAll(list.subList(0, endIndex));
 	}
 
 	/**
@@ -196,6 +200,7 @@ public class DatacenterBroker extends SimEntity {
 	@Override
 	public void processEvent(SimEvent ev) {
 		CloudSimTags tag = ev.getTag();
+//		System.out.println("****************** "+tag+" ***************");
         // Resource characteristics request
         if (tag == CloudActionTags.RESOURCE_CHARACTERISTICS_REQUEST) {
             processResourceCharacteristicsRequest(ev);
@@ -252,7 +257,7 @@ public class DatacenterBroker extends SimEntity {
 		setDatacenterIdsList(CloudSim.getCloudResourceList());
 		setDatacenterCharacteristicsList(new HashMap<>());
 
-		Log.printlnConcat(CloudSim.clock(), "DCBroker line:208 : ", getName(), ": Cloud Resource List received with ",
+		Log.printlnConcat(CloudSim.clock(), " DCBroker line:208 : ", getName(), ": Cloud Resource List received with ",
 				getDatacenterIdsList().size(), " datacenter(s)");
 
 		for (Integer datacenterId : getDatacenterIdsList()) {
@@ -278,12 +283,12 @@ public class DatacenterBroker extends SimEntity {
 		if (result == CloudSimTags.TRUE) {
 			getVmsToDatacentersMap().put(vmId, datacenterId);
 			getGuestsCreatedList().add(guest);
-			Log.printlnConcat(CloudSim.clock(), ": ", getName(), ": ", guest.getClassName(), " #", vmId,
+			Log.printlnConcat(CloudSim.clock(), " : ", getName(), ": ", guest.getClassName(), " #", vmId,
 					" has been created in Datacenter #", datacenterId, ", ", guest.getHost().getClassName(), " #",
 					guest.getHost().getId());
 			vmStatesList.put(vmId, VirtualMachineState.AVAILABLE);
 		} else {
-			Log.printlnConcat(CloudSim.clock(), ": ", getName(), ": Creation of ", guest.getClassName(), " #", vmId,
+			Log.printlnConcat(CloudSim.clock(), " : ", getName(), ": Creation of ", guest.getClassName(), " #", vmId,
 					" failed in Datacenter #", datacenterId);
 		}
 
@@ -329,13 +334,14 @@ public class DatacenterBroker extends SimEntity {
 			loadBalancer.releaseResources(cloudlet.getGuestId(), cloudlet);
 		}
 		getCloudletReceivedList().add(cloudlet);
-		Log.printlnConcat(CloudSim.clock(), ": ", getName(), ": ", cloudlet.getClass().getSimpleName(), " #", cloudlet.getCloudletId(),
+		Log.printlnConcat(CloudSim.clock(), " : ", getName(), " : ", cloudlet.getClass().getSimpleName(), " #", cloudlet.getCloudletId(),
 				" return received");
 		Log.printlnConcat(getName(), ": The number of finished Cloudlets is:", getCloudletReceivedList().size());
 		cloudletsSubmitted--;
-		submitWaitingCloudlet();
+//		submitWaitingCloudlet();
+		this.submitCloudlets();
 		
-//		if(getCloudletReceivedList().size() == 3 && once) {
+//		if(getCloudletReceivedList().size() == 2 && once) {
 //			System.out.println("******************adding new cloudlets");
 //		List<Cloudlet> cloudletList = new ArrayList<>();
 //		int pesNumber = 1;
@@ -343,21 +349,23 @@ public class DatacenterBroker extends SimEntity {
 //		long fileSize = 300;
 //		long outputSize = 300;
 //		UtilizationModel utilizationModel = new UtilizationModelFull();
-//		int numCloudlets = 6;
-//        for (int i = 6; i < numCloudlets; i++) {
+//		int numCloudlets = 10;
+//        for (int i = 5; i < numCloudlets; i++) {
 //            Cloudlet cloudletNew = new Cloudlet(i, length, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
 //            
 //            // Set the user ID of the cloudlet to associate it with the broker
-//            cloudlet.setUserId(this.getId());
+//            int brokerId = this.getId();
+//            cloudlet.setUserId(brokerId);
 //
 //            cloudletList.add(cloudletNew);
 //        }
 //        this.submitCloudletList(cloudletList);
+//        this.submitCloudlets();
 //        once = false;
 //		}
 		
 		if (getCloudletList().isEmpty() && cloudletsSubmitted == 0) { // all cloudlets executed
-			Log.printlnConcat(CloudSim.clock(), ": ", getName(), ": All Cloudlets executed. Finishing...");
+			Log.printlnConcat(CloudSim.clock(), " : ", getName(), ": All Cloudlets executed. Finishing...");
 			clearDatacenters();
 			finishExecution();
 		} else { // some cloudlets haven't finished yet
@@ -433,6 +441,17 @@ public class DatacenterBroker extends SimEntity {
 	 */
 	protected void submitCloudlets() {
 		List<Cloudlet> successfullySubmitted = new ArrayList<>();
+//		// Get the current cloudlet list
+//	    List<? extends Cloudlet> currentCloudletList = getCloudletList();
+//	    
+//	    // Ensure we don't go out of bounds (if the list has fewer than 5 elements)
+//	    int endIndex = Math.min(5, currentCloudletList.size());
+//	    
+//	    // Create a sublist containing the first 5 elements or fewer
+//	    List<? extends Cloudlet> slicedCloudletList = currentCloudletList.subList(0, endIndex);
+//	    
+//	    // Set the sliced list to the cloudlet list
+//	    setCloudletList(slicedCloudletList);
 		for (Cloudlet cloudlet : getCloudletList()) {
 			GuestEntity vm;
 			// if user didn't bind this cloudlet and it has not been executed yet
@@ -519,50 +538,6 @@ public class DatacenterBroker extends SimEntity {
 		return;
 
 	}
-	
-	/**
-	 * Load balancing algorithm to get best available Vm
-	 * 
-	 * @pre $none
-	 * @post $none
-	 */
-	protected int getAllocatedVmLB(List<Vm> vmList) {
-		int vmId = -1;
-		
-//		double TotalUtilizationOfCpu = 0.0;
-//		for(Vm vm : vmList) {
-//			double CPUutilization = vm.getTotalUtilizationOfCpu(CloudSim.clock());
-//			System.out.println(CloudSim.clock() + " Vm ID: #"+ vm.getId() + " CPU utilization: "
-//			+ CPUutilization + " ram"+ vm.getRam() + " ram req "+ vm.getCurrentRequestedRam());
-//			if(CPUutilization < TotalUtilizationOfCpu) {
-//				chosenVm = vm;
-//				TotalUtilizationOfCpu = CPUutilization;
-//			}
-//		}
-		
-		if (vmStatesList.size() > 0){
-			int temp;
-			for (Iterator<Integer> itr = vmStatesList.keySet().iterator(); itr.hasNext();){
-				temp = itr.next();
-				VirtualMachineState state = vmStatesList.get(temp); 
-				//VirtualMachine vm= (VirtualMachine) dcbLocal.get_VMlist().get(temp);
-//				System.out.println(vm.getBw());
-				// ((VirtualMachine) dcb.get_VMlist().get(ProcessAnt(false))).getVmId();
-//				
-				//System.out.println(temp + " state is " + state + " total vms " + vmStatesList.size());
-				if (state.equals(VirtualMachineState.AVAILABLE)){
-					vmId = temp;
-					break;
-				}
-			}
-		}
-		
-//		
-		
-		System.out.println("CHOSEN VM ID #"+vmId);
-		return vmId;
-	}
-	
 
 	/**
 	 * Destroy all virtual machines running in datacenters.
@@ -576,7 +551,7 @@ public class DatacenterBroker extends SimEntity {
 			sendNow(getVmsToDatacentersMap().get(vm.getId()), CloudActionTags.VM_DESTROY, vm);
 		}
 
-		getGuestsCreatedList().clear();
+//		getGuestsCreatedList().clear();
 	}
 
 	/**
@@ -834,5 +809,48 @@ public class DatacenterBroker extends SimEntity {
 	protected void setDatacenterRequestedIdsList(List<Integer> datacenterRequestedIdsList) {
 		this.datacenterRequestedIdsList = datacenterRequestedIdsList;
 	}
+	
+	public void getDataCenterCost() {
+//		CloudSim.getEntityList().forEach(entinty -> System.out.println(entinty.getName()));
+		
+		for(int id : this.getDatacenterRequestedIdsList()) {// for each datacenter
+			double totalHostCost = 0.0;
+			DatacenterCharacteristics characteristics = this.datacenterCharacteristicsList.get(id);
+			
+			for (HostEntity host : characteristics.getHostList()) {				
+	            double hostCost = 0.0;
+	            hostCost += host.getRam() * characteristics.getCostPerMem();
+	            hostCost += host.getStorage() * characteristics.getCostPerStorage(); 
+	            hostCost += host.getBw() * characteristics.getCostPerBw();
+
+	            totalHostCost += hostCost;
+	        }
+			System.out.println("Total Cost for datacenter #" + id + " $" + totalHostCost );
+		}
+	}
+	
+	public void getVmCost() {
+//		CloudSim.getEntityList().forEach(entinty -> System.out.println(entinty.getName()));
+		double totalHostCost = 0.0;
+		for(GuestEntity vm : this.getGuestsCreatedList()) {
+			
+			DatacenterCharacteristics characteristics = 
+		this.datacenterCharacteristicsList.get(this.getVmsToDatacentersMap().get(vm.getId()));
+	            double hostCost = 0.0;
+	            hostCost += vm.getRam() * characteristics.getCostPerMem();
+	            hostCost += vm.getSize() * characteristics.getCostPerStorage(); 
+	            hostCost += vm.getBw() * characteristics.getCostPerBw();
+	            totalHostCost += hostCost;
+			
+
+		}
+			System.out.println("Total Cost for " + this.getGuestsCreatedList().size() + " VMS $" + totalHostCost);
+			
+//			for(GuestEntity vm : this.getGuestsCreatedList()) {
+//				System.out.println(vm.getTotalUtilizationOfCpuMips(CloudSim.clock()));
+//			}
+	}
+	
+	
 
 }

@@ -392,7 +392,7 @@ public abstract class SimEntity implements Cloneable {
 	 * It should be responsible for starting the entity up.
 	 */
 	public void startEntity() {
-		Log.printlnConcat(CloudSim.clock(), "SimEntity line 395: ", getName(), " is starting...");
+		Log.printlnConcat(CloudSim.clock(), " SimEntity line 395: ", getName(), " is starting...");
 	}
 
 	/**

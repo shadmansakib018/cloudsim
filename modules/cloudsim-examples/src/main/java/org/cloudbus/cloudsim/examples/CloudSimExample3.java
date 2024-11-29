@@ -35,6 +35,7 @@ import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.VmAllocationPolicySimple;
 import org.cloudbus.cloudsim.VmSchedulerTimeShared;
 import org.cloudbus.cloudsim.core.CloudSim;
+import org.cloudbus.cloudsim.core.HostEntity;
 import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
@@ -53,6 +54,7 @@ public class CloudSimExample3 {
 
 	/** The cloudlet list. */
 	private static List<Cloudlet> cloudletList;
+	private static List<Cloudlet> cloudletList2;
 
 	/** The vmlist. */
 	private static List<Vm> vmlist;
@@ -65,6 +67,7 @@ public class CloudSimExample3 {
 		Log.println("Starting CloudSimExample3...");
 
 		try {
+			System.out.println("Thread ID: " + Thread.currentThread().getId());
 			// First step: Initialize the CloudSim package. It should be called
 			// before creating any entities.
 			int num_user = 1;   // number of cloud users
@@ -77,11 +80,12 @@ public class CloudSimExample3 {
 			// Second step: Create Datacenters
 			//Datacenters are the resource providers in CloudSim. We need at list one of them to run a CloudSim simulation
 			Datacenter datacenter0 = createDatacenter("Datacenter_0");
-
+//			Datacenter datacenter1 = createDatacenter("Datacenter_1");
 
 			//Third step: Create Broker
 			DatacenterBroker broker = createBroker();
 			int brokerId = broker.getId();
+			System.out.println("broker ID: " +brokerId);
 
 			vmlist = new ArrayList<>();
 
@@ -94,21 +98,21 @@ public class CloudSimExample3 {
 			//submit vm list to the broker
 			broker.submitGuestList(vmlist);
 
-			createCloudlets createCloudlets = new createCloudlets();
 			cloudletList = new ArrayList<>();
+			createCloudlets createCloudlets = new createCloudlets();
 			cloudletList = createCloudlets.createTasks(brokerId, CloudSim.clock());
 			broker.submitCloudletList(cloudletList);
 			
 			CloudSim.startSimulation();
 
 
-			// Final step: Print results when simulation is over
-			List<Cloudlet> newList = broker.getCloudletReceivedList();
-
-			CloudSim.stopSimulation();
-
-//			ShowResults.printCloudletList(newList, vmlist);
-			ShowResults.writeCloudletDataToCsv(newList, vmlist, broker.loadBalancer.getName());
+	        List<Cloudlet> newList = broker.getCloudletReceivedList();
+			ShowResults.printCloudletList(newList, vmlist);
+//			ShowResults.writeCloudletDataToCsv(newList, vmlist, broker.loadBalancer.getName());
+			
+//			System.out.println("Total Host Cost datacenter0: $" + calculateCost(datacenter0));
+			broker.getDataCenterCost();
+			broker.getVmCost();
 
 			Log.println("CloudSimExample3 finished!");
 		}
@@ -149,7 +153,7 @@ public class CloudSimExample3 {
 				int hostId=0;
 				int ram = 8192; //host memory (MB)
 				long storage = 1000000; //host storage
-				int bw = 50000;
+				int bw = 20000;
 
 				hostList.add(
 		    			new Host(
@@ -186,9 +190,9 @@ public class CloudSimExample3 {
 		String vmm = "Xen";
 		double time_zone = 10.0;         // time zone this resource located
 		double cost = 3.0;              // the cost of using processing in this resource
-		double costPerMem = 0.05;		// the cost of using memory in this resource
+		double costPerMem = 0.01;		// the cost of using memory in this resource
 		double costPerStorage = 0.001;	// the cost of using storage in this resource
-		double costPerBw = 0.0;			// the cost of using bw in this resource
+		double costPerBw = 0.1;			// the cost of using bw in this resource
 		LinkedList<Storage> storageList = new LinkedList<>();	//we are not adding SAN devices by now
 
         DatacenterCharacteristics characteristics = new DatacenterCharacteristics(
@@ -204,6 +208,27 @@ public class CloudSimExample3 {
 
 		return datacenter;
 	}
+	
+	private static double calculateCost(Datacenter datacenter) {
+		
+		double totalHostCost = 0.0;
+		DatacenterCharacteristics characteristics = datacenter.getCharacteristics();
+		
+		for (HostEntity host : datacenter.getHostList()) {
+			System.out.println(host.getId()+ " " + host.getRam()+ " " + host.getStorage() + " " + host.getBw());
+            // Calculate the cost of the host based on its usage
+            double hostCost = 0.0;
+            hostCost += host.getRam() * characteristics.getCostPerMem();  // Example: charge for memory
+            hostCost += host.getStorage() * characteristics.getCostPerStorage();  // Example: charge for storage
+            hostCost += host.getBw() * characteristics.getCostPerBw();  // Example: charge for Bandwidth
+
+            // More cost calculations can be added depending on other host parameters
+            totalHostCost += hostCost;
+        }
+		
+		
+		return totalHostCost;
+	}
 
 	//We strongly encourage users to develop their own broker policies, to submit vms and cloudlets according
 	//to the specific rules of the simulated scenario
@@ -211,12 +236,14 @@ public class CloudSimExample3 {
 
 		DatacenterBroker broker = null;
 		try {
-			broker = new DatacenterBroker("Broker");
+			broker = new DatacenterBroker("BrokerNum0");
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
 		return broker;
 	}
+	
+
 
 }
