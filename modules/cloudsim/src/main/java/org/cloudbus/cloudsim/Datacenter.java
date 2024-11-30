@@ -42,7 +42,7 @@ public class Datacenter extends SimEntity {
 	private VmAllocationPolicy vmAllocationPolicy;
 
 	/** The last time some cloudlet was processed in the datacenter. */
-	private double lastProcessTime;
+	public double lastProcessTime;
 
 	/** The storage list. */
 	private List<Storage> storageList;

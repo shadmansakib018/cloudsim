@@ -55,6 +55,8 @@ public class CloudSimExample3 {
 	/** The cloudlet list. */
 	private static List<Cloudlet> cloudletList;
 	private static List<Cloudlet> cloudletList2;
+	
+	private static List<Datacenter> DatacenterList;
 
 	/** The vmlist. */
 	private static List<Vm> vmlist;
@@ -80,7 +82,12 @@ public class CloudSimExample3 {
 			// Second step: Create Datacenters
 			//Datacenters are the resource providers in CloudSim. We need at list one of them to run a CloudSim simulation
 			Datacenter datacenter0 = createDatacenter("Datacenter_0");
-//			Datacenter datacenter1 = createDatacenter("Datacenter_1");
+			Datacenter datacenter1 = createDatacenter("Datacenter_1");
+			
+			DatacenterList = new ArrayList<>();
+			DatacenterList.add(datacenter0);
+			DatacenterList.add(datacenter1);
+
 
 			//Third step: Create Broker
 			DatacenterBroker broker = createBroker();
@@ -90,8 +97,8 @@ public class CloudSimExample3 {
 			vmlist = new ArrayList<>();
 
 			CreateVmCharacteristics CreateVmCharacteristics = new CreateVmCharacteristics();
-			List<Vm> vmListVersionOne = CreateVmCharacteristics.createVmsVersionOne(2, brokerId);
-			List<Vm> highPerformanceVmList = CreateVmCharacteristics.createVmsVersionTwo(2, brokerId);
+			List<Vm> vmListVersionOne = CreateVmCharacteristics.createVmsVersionOne(6, brokerId);
+			List<Vm> highPerformanceVmList = CreateVmCharacteristics.createVmsVersionTwo(6, brokerId);
 			vmlist.addAll(vmListVersionOne);
 			vmlist.addAll(highPerformanceVmList);
 			
@@ -107,11 +114,15 @@ public class CloudSimExample3 {
 
 
 	        List<Cloudlet> newList = broker.getCloudletReceivedList();
-			ShowResults.printCloudletList(newList, vmlist);
-//			ShowResults.writeCloudletDataToCsv(newList, vmlist, broker.loadBalancer.getName());
-			
-//			System.out.println("Total Host Cost datacenter0: $" + calculateCost(datacenter0));
-			broker.getDataCenterCost();
+	        Cloudlet lastCloudlet = newList.getLast();
+//			ShowResults.printCloudletList(newList, vmlist);
+	        
+			ShowResults.writeCloudletDataToCsv(newList, vmlist, broker.loadBalancer.getName());
+			for(Datacenter dc: DatacenterList) {
+				
+				System.out.println("Cost to run " + dc.getName() + ": $"+ (dc.lastProcessTime/1000) * dc.getCharacteristics().getCostPerSecond());
+			}
+			broker.getDataCenterCost(lastCloudlet);
 			broker.getVmCost();
 
 			Log.println("CloudSimExample3 finished!");

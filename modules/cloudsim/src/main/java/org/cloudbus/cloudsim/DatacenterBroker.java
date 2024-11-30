@@ -125,8 +125,8 @@ public class DatacenterBroker extends SimEntity {
         System.out.println("3. DynamicLB");
 
         // Read the user's input
-//        int choice = scanner.nextInt();
-        int choice =3;
+        int choice = scanner.nextInt();
+//        int choice =3;
 
         // Conditional logic based on user input
         switch (choice) {
@@ -338,8 +338,8 @@ public class DatacenterBroker extends SimEntity {
 				" return received");
 		Log.printlnConcat(getName(), ": The number of finished Cloudlets is:", getCloudletReceivedList().size());
 		cloudletsSubmitted--;
-//		submitWaitingCloudlet();
-		this.submitCloudlets();
+		submitWaitingCloudlet();
+//		this.submitCloudlets();
 		
 //		if(getCloudletReceivedList().size() == 2 && once) {
 //			System.out.println("******************adding new cloudlets");
@@ -459,7 +459,7 @@ public class DatacenterBroker extends SimEntity {
 				int vmid = loadBalancer.getNextAvailableVm(cloudlet);
 				if(vmid == -1) {
 					// add cloudlet to waiting list
-					System.out.println("all vms are busy, send task to waiting queue");
+//					System.out.println("all vms are busy, send task to waiting queue");
 					waitingQueue.add(cloudlet);	
 					queuedCount++;
 					continue;
@@ -810,7 +810,7 @@ public class DatacenterBroker extends SimEntity {
 		this.datacenterRequestedIdsList = datacenterRequestedIdsList;
 	}
 	
-	public void getDataCenterCost() {
+	public void getDataCenterCost(Cloudlet lastCl) {
 //		CloudSim.getEntityList().forEach(entinty -> System.out.println(entinty.getName()));
 		
 		for(int id : this.getDatacenterRequestedIdsList()) {// for each datacenter
@@ -825,6 +825,7 @@ public class DatacenterBroker extends SimEntity {
 
 	            totalHostCost += hostCost;
 	        }
+//			System.out.println("Total Cost to run datacenter #" + id + " $" + totalHostCost );
 			System.out.println("Total Cost for datacenter #" + id + " $" + totalHostCost );
 		}
 	}

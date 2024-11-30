@@ -9,8 +9,8 @@ public class CustomVm {
     private long size;   // Storage size capacity
     
     private double currentAllocatedMips; // Currently allocated MIPS
-    private int currentAllocatedRam;     // Currently allocated RAM
-    private long currentAllocatedBw;     // Currently allocated Bandwidth
+    private double currentAllocatedRam;     // Currently allocated RAM
+    private double currentAllocatedBw;     // Currently allocated Bandwidth
 
     public CustomVm(int id, int userId, double mips, int ram, long bw, long size) {
         this.id = id;
@@ -54,11 +54,11 @@ public class CustomVm {
         return currentAllocatedMips;
     }
 
-    public int getCurrentAllocatedRam() {
+    public double getCurrentAllocatedRam() {
         return currentAllocatedRam;
     }
 
-    public long getCurrentAllocatedBw() {
+    public double getCurrentAllocatedBw() {
         return currentAllocatedBw;
     }
 
@@ -67,11 +67,11 @@ public class CustomVm {
         this.currentAllocatedMips = currentAllocatedMips;
     }
 
-    public void setCurrentAllocatedRam(int currentAllocatedRam) {
+    public void setCurrentAllocatedRam(double currentAllocatedRam) {
         this.currentAllocatedRam = currentAllocatedRam;
     }
 
-    public void setCurrentAllocatedBw(long currentAllocatedBw) {
+    public void setCurrentAllocatedBw(double currentAllocatedBw) {
         this.currentAllocatedBw = currentAllocatedBw;
     }
 
