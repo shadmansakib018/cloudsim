@@ -121,6 +121,11 @@ public class Cloudlet {
      * execution time. Previous execution time are ignored.
      */
     private double execStartTime;
+    
+    /**
+     * The submission Time
+     */
+    private double submissionTime;
 
     /**
      * The time where this Cloudlet completes.
@@ -417,6 +422,7 @@ public class Cloudlet {
         this.cloudletId = cloudletId;
         numberOfPes = pesNumber;
 
+        submissionTime = CloudSim.clock();
         execStartTime = 0.0;
         execFinishTime = -1.0;    // meaning this Cloudlet hasn't finished yet
         classType = 0;
@@ -916,6 +922,10 @@ public class Cloudlet {
             return 0.0;
         }
         return resList.get(index).arrivalTime;
+    }
+    
+    public double getSubmissionTimeTwo() {
+        return submissionTime;
     }
 
     @Deprecated

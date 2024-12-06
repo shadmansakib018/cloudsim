@@ -17,7 +17,7 @@ import org.cloudbus.cloudsim.core.GuestEntity;
 
 public class ShowResults {
 
-	private static final String DESKTOP_PATH = System.getProperty("user.home") + "/Desktop/CloudSimCSVs/"; // Desktop path
+	private static final String DESKTOP_PATH = System.getProperty("user.home") + "/Desktop/CloudSimCSVs/100/"; // Desktop path
 	private static final String FILE_EXTENSION = ".csv";  // File extension
     private static DecimalFormat dft = new DecimalFormat("###.##");
     
@@ -52,7 +52,7 @@ public class ShowResults {
             
             // Write the header to the CSV file
 //            String indent = "    ";
-            String header = "Cloudlet ID,STATUS,Task Length,Datacenter ID,VM ID,RAM,Storage,Bandwidth,MIPS,Processing Time,Start Time,Finish Time";
+            String header = "Cloudlet ID,STATUS,Task Length,Datacenter ID,VM ID,RAM,Storage,Bandwidth,MIPS,Processing Time,Start Time,Finish Time, Submission Time";
             bufferedWriter.write(header);
             bufferedWriter.newLine();  // Move to the next line
             
@@ -61,8 +61,9 @@ public class ShowResults {
                 // Assuming cloudlet.getStatus(), cloudlet.getCloudletId(), cloudlet.getGuestId(), etc. work as described
                 if (cloudlet.getStatus() == Cloudlet.CloudletStatus.SUCCESS) {
                 	guestIdCountMap.put(cloudlet.getGuestId(), guestIdCountMap.getOrDefault(cloudlet.getGuestId(), 0) + 1);
-                	totalResponseTime += (cloudlet.getActualCPUTime() + (cloudlet.getExecStartTime()));
-                	totalWaitingTime = totalWaitingTime + cloudlet.getExecStartTime();
+                	totalWaitingTime = totalWaitingTime + (cloudlet.getExecStartTime()- cloudlet.getSubmissionTimeTwo());
+                	totalResponseTime += (cloudlet.getActualCPUTime() + (cloudlet.getExecStartTime()- cloudlet.getSubmissionTimeTwo()));
+                	
                 	totalExecTime += cloudlet.getActualCPUTime();
                     StringBuilder row = new StringBuilder();
 
@@ -78,7 +79,8 @@ public class ShowResults {
                     .append(",").append(vmlist.get(cloudlet.getGuestId()).getMips())
                     .append(",").append(dft.format(cloudlet.getActualCPUTime()))
                     .append(",").append(dft.format(cloudlet.getExecStartTime()))
-                    .append(",").append(dft.format(cloudlet.getExecFinishTime()));
+                    .append(",").append(dft.format(cloudlet.getExecFinishTime()))
+                    .append(",").append(dft.format(cloudlet.getSubmissionTimeTwo()));
                     // Write the row to the CSV
                     bufferedWriter.write(row.toString());
                     bufferedWriter.newLine();  // Move to the next line
@@ -87,11 +89,11 @@ public class ShowResults {
             for (Map.Entry<Integer, Integer> entry : guestIdCountMap.entrySet()) {
                 System.out.println("VM ID: " + entry.getKey() + " ==> " + entry.getValue() + " Tasks");
             }
-            System.out.println("Average Response Time: " + totalResponseTime /(list.size()*1000));
-            System.out.println("Average Waiting Time: " + totalWaitingTime /(list.size()*1000));
-            System.out.println("Average Execution Time: " + totalExecTime /(list.size()*1000));
+            System.out.println("Average Response Time: " + totalResponseTime /(list.size()));
+            System.out.println("Average Waiting Time: " + totalWaitingTime /(list.size()));
+            System.out.println("Average Execution Time: " + totalExecTime /(list.size()));
             System.out.println("CSV file created successfully at: " + DESKTOP_PATH + filename);
-            OpenFileExample(DESKTOP_PATH + filename);
+//            OpenFileExample(DESKTOP_PATH + filename);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -128,7 +130,8 @@ public class ShowResults {
 					+ indent + indent + "MIPS"
 					+ indent + indent + "Processing Time"
 					+ indent + indent + "Start Time"
-					+ indent + indent + "Finish Time");
+					+ indent + indent + "Finish Time"
+					+ indent + indent + "Submission Time");
 		
 		Log.println("");
 
@@ -156,7 +159,9 @@ public class ShowResults {
 						+ indent + indent + indent + vmlist.get(cloudlet.getGuestId()).getMips()
 						+ indent + indent + indent + dft.format(cloudlet.getActualCPUTime())
 						+ indent + indent + indent  + indent + dft.format(cloudlet.getExecStartTime())
-						+ indent + indent + indent +  dft.format(cloudlet.getExecFinishTime()));
+						+ indent + indent + indent +  dft.format(cloudlet.getExecFinishTime())
+				+ indent + indent + indent +  dft.format(cloudlet.getSubmissionTimeTwo()));
+				
 			}
 		}
 		

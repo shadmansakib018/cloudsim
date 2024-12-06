@@ -114,15 +114,14 @@ public class CloudSimExample3 {
 
 
 	        List<Cloudlet> newList = broker.getCloudletReceivedList();
-	        Cloudlet lastCloudlet = newList.getLast();
 //			ShowResults.printCloudletList(newList, vmlist);
-	        
 			ShowResults.writeCloudletDataToCsv(newList, vmlist, broker.loadBalancer.getName());
+			
 			for(Datacenter dc: DatacenterList) {
 				
 				System.out.println("Cost to run " + dc.getName() + ": $"+ (dc.lastProcessTime/1000) * dc.getCharacteristics().getCostPerSecond());
 			}
-			broker.getDataCenterCost(lastCloudlet);
+			broker.getDataCenterCost();
 			broker.getVmCost();
 
 			Log.println("CloudSimExample3 finished!");

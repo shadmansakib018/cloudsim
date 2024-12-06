@@ -19,6 +19,7 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
     int originalMax = 50000;    // Maximum value of the original range
     int targetMin = 1;         // Minimum value of the target range
 //    int targetMax = 500;       // Maximum value of the target range
+    double allocAmount = 18;
 
     int lastVmIdAssigned = -1;
 
@@ -85,11 +86,11 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
         double availableMips = vm.getMips() - vm.getCurrentAllocatedMips();
         double availableRam = vm.getRam() - vm.getCurrentAllocatedRam();
         double availableBw = vm.getBw() - vm.getCurrentAllocatedBw();
-//
-//        System.out.println("Checking VM ID: " + vm.getId());
-//        System.out.println("Available MIPS: " + availableMips);
-//        System.out.println("Available RAM: " + availableRam);
-//        System.out.println("Available BW: " + availableBw);
+        
+        System.out.println("Checking VM ID: " + vm.getId());
+        System.out.println("Available MIPS: " + availableMips);
+        System.out.println("Available RAM: " + availableRam);
+        System.out.println("Available BW: " + availableBw);
 
         // If any resource is insufficient, the VM is considered overloaded
         if (availableMips <= 0 || availableRam <= 0 || availableBw <= 0) {
@@ -98,7 +99,7 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
 
         // Score is a weighted sum of available resources, higher score = better VM
         double score = availableMips + availableRam + availableBw;
-//        System.out.println("VM ID: " + vm.getId() + " Score: " + score);
+        System.out.println("VM ID: " + vm.getId() + " Score: " + score);
         return score;
     }
 
@@ -110,19 +111,29 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
         if (selectedVm != null) {
             // Allocate resources to the selected VM based on Cloudlet requirements
         	
+        	System.out.println("total MIPS: "+ (long)selectedVm.getMips());
+        	int normalizedMIPS = normalize(cloudletLength, originalMin, originalMax, targetMin, (long)selectedVm.getMips());
+        	int normalizedRAM = normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getRam());
+        	int normalizedBW = normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getBw());
+            System.out.println("Amount to be used up for MIPS: " + normalizedMIPS);
+
+            System.out.println("Amount to be used up for RAM: " + normalizedRAM);
+
+            System.out.println("Amount to be used up for BW: " + normalizedBW);
+
+        	
             selectedVm.setCurrentAllocatedMips
-//            (selectedVm.getCurrentAllocatedMips() + normalize(cloudletLength, originalMin, originalMax, targetMin, (long)selectedVm.getMips()));
-            (selectedVm.getCurrentAllocatedMips() + selectedVm.getMips()/1.75);
+            (selectedVm.getCurrentAllocatedMips() + normalizedMIPS);
+//            (selectedVm.getCurrentAllocatedMips() + selectedVm.getMips()*allocAmount/100);
             
             selectedVm.setCurrentAllocatedRam
-//            (selectedVm.getCurrentAllocatedRam() + normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getRam()));
-            (selectedVm.getCurrentAllocatedRam() + selectedVm.getRam()/1.75);
+            (selectedVm.getCurrentAllocatedRam() + normalizedRAM);
+//            (selectedVm.getCurrentAllocatedRam() + selectedVm.getRam()*allocAmount/100);
             
             selectedVm.setCurrentAllocatedBw
-//            (selectedVm.getCurrentAllocatedBw() + normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getBw()));
-            (selectedVm.getCurrentAllocatedBw() + selectedVm.getBw()/1.75);
+            (selectedVm.getCurrentAllocatedBw() + normalizedBW);
+//            (selectedVm.getCurrentAllocatedBw() + selectedVm.getBw()*allocAmount/100);
 
-//            System.out.println("Resources allocated to VM ID: " + selectedVm.getId());
         }
     }
     
@@ -130,22 +141,27 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
     public void releaseResources(int vmId, Cloudlet cl) {
     	CustomVm selectedVm = customVmList.get(vmId);
         long cloudletLength = cl.getCloudletLength();
+        
 
         if (selectedVm != null) {
             // Release resources allocated to the Cloudlet
+        	
+        	int normalizedMIPS = normalize(cloudletLength, originalMin, originalMax, targetMin, (long)selectedVm.getMips());
+        	int normalizedRAM = normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getRam());
+        	int normalizedBW = normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getBw());
+        	
             selectedVm.setCurrentAllocatedMips
-//            (selectedVm.getCurrentAllocatedMips() - normalize(cloudletLength, originalMin, originalMax, targetMin, (long)selectedVm.getMips()));
-            (selectedVm.getCurrentAllocatedMips() - selectedVm.getMips()/1.75);
+            (selectedVm.getCurrentAllocatedMips() - normalizedMIPS);
+//            (selectedVm.getCurrentAllocatedMips() - selectedVm.getMips()*allocAmount/100);
             
             selectedVm.setCurrentAllocatedRam
-//            (selectedVm.getCurrentAllocatedRam() - normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getRam()));
-            (selectedVm.getCurrentAllocatedRam() - selectedVm.getRam()/1.75);
+            (selectedVm.getCurrentAllocatedRam() - normalizedRAM);
+//            (selectedVm.getCurrentAllocatedRam() - selectedVm.getRam()*allocAmount/100);
             
             selectedVm.setCurrentAllocatedBw
-//            (selectedVm.getCurrentAllocatedBw() - normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getBw()));
-            (selectedVm.getCurrentAllocatedBw() - selectedVm.getBw()/1.75);
+            (selectedVm.getCurrentAllocatedBw() - normalizedBW);
+//            (selectedVm.getCurrentAllocatedBw() - selectedVm.getBw()*allocAmount/100);
 
-//            System.out.println("Resources released from VM ID: " + selectedVm.getId());
         }
     }
     

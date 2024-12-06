@@ -667,6 +667,7 @@ public class Datacenter extends SimEntity {
 
 			int userId = cl.getUserId();
 			int vmId = cl.getGuestId();
+//			System.out.println(cl.getCloudletId()  + " " + userId + " " + vmId);
 
 			// time to transfer the files
 			double fileTransferTime = predictFileTransferTime(cl.getRequiredFiles());

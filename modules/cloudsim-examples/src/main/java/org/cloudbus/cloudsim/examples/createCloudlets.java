@@ -28,15 +28,12 @@ public class createCloudlets {
 	
 	public List<Cloudlet> createTasks(int brokerId, double submissionTime){
 		 List<Cloudlet> cloudletList =new ArrayList<>();
-//		 List<Integer> taskLengthList = new ArrayList<>();
-		 for(int i = 0; i <10; i++) {
+		 for(int i = 0; i <90; i++) {
 			 	int randomNumber = random.nextInt(originalMax - originalMin + 1) + originalMin;
-//			 	System.out.println(randomNumber);
 	            Cloudlet cloudlet = new Cloudlet(currentTaskId, randomNumber, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
 	            cloudlet.setUserId(brokerId);
-//	            cloudlet.setSubmissionTime(submissionTime);
 	            cloudletList.add(cloudlet);
-	            currentTaskId+=1;
+	            currentTaskId++;
 		 }
 		 return cloudletList;
 	}
