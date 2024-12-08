@@ -129,8 +129,8 @@ public class DatacenterBroker extends SimEntity {
         System.out.println("3. DynamicLB");
 
         // Read the user's input
-//        int choice = scanner.nextInt();
-        int choice =3;
+        int choice = scanner.nextInt();
+//        int choice =2;
 
         // Conditional logic based on user input
         switch (choice) {
@@ -343,20 +343,23 @@ public class DatacenterBroker extends SimEntity {
 		Log.printlnConcat(getName(), ": The number of finished Cloudlets is:", getCloudletReceivedList().size());
 		cloudletsSubmitted--;
 		submitWaitingCloudlet();
-		int randomNumberToSubmit = random.nextInt(46) + 45;
-		if(getCloudletReceivedList().size() == randomNumberToSubmit && batch <= 3) {
+//		int randomNumberToSubmit = random.nextInt(46) + 45;
+		if(getCloudletReceivedList().size()==(batch * 85) && batch <=200) {
 			System.out.println("sending batch number: " + batch + " when this many c");
 		List<Cloudlet> cloudletList = new ArrayList<>();
 		int pesNumber = 1;
-		int originalMin = 20000;
-	    int originalMax = 50000;
-		long fileSize = 300;
-		long outputSize = 300;
+		int originalMin = 400;
+	    int originalMax = 4000;
+		int fileSize = 300;
+		int outputSize = 2000;
 		UtilizationModel utilizationModel = new UtilizationModelFull();
 		int numCloudlets = 90;
         for (int i = 90*batch; i < numCloudlets+(90*batch); i++) {
+        	int randomNumberFileSize = random.nextInt(outputSize - fileSize + 1) + fileSize;
         	int randomNumber = random.nextInt(originalMax - originalMin + 1) + originalMin;
-            Cloudlet cloudletNew = new Cloudlet(i, randomNumber, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
+
+            Cloudlet cloudletNew = new Cloudlet(i, randomNumber, pesNumber, fileSize, fileSize, 
+            		utilizationModel, utilizationModel, utilizationModel);
             cloudletNew.setUserId(this.getId());
             cloudletList.add(cloudletNew);
         }

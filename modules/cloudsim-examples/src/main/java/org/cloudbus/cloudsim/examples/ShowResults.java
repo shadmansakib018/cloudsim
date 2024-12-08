@@ -20,6 +20,7 @@ public class ShowResults {
 	private static final String DESKTOP_PATH = System.getProperty("user.home") + "/Desktop/CloudSimCSVs/100/"; // Desktop path
 	private static final String FILE_EXTENSION = ".csv";  // File extension
     private static DecimalFormat dft = new DecimalFormat("###.##");
+    private static DecimalFormat dft2 = new DecimalFormat("###.####");
     
     public static void writeCloudletDataToCsv(List<Cloudlet> list, List<? extends GuestEntity> vmlist, String lb) {
     	Map<Integer, Integer> guestIdCountMap = new HashMap<>();
@@ -89,9 +90,9 @@ public class ShowResults {
             for (Map.Entry<Integer, Integer> entry : guestIdCountMap.entrySet()) {
                 System.out.println("VM ID: " + entry.getKey() + " ==> " + entry.getValue() + " Tasks");
             }
-            System.out.println("Average Response Time: " + totalResponseTime /(list.size()));
-            System.out.println("Average Waiting Time: " + totalWaitingTime /(list.size()));
-            System.out.println("Average Execution Time: " + totalExecTime /(list.size()));
+            System.out.println("Average Response Time: " + dft2.format(totalResponseTime /(list.size())));
+            System.out.println("Average Waiting Time: " + dft2.format(totalWaitingTime /(list.size())));
+            System.out.println("Average Execution Time: " + dft2.format(totalExecTime /(list.size())));
             System.out.println("CSV file created successfully at: " + DESKTOP_PATH + filename);
 //            OpenFileExample(DESKTOP_PATH + filename);
 

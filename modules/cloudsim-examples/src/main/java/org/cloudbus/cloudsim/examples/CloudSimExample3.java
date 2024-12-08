@@ -81,12 +81,14 @@ public class CloudSimExample3 {
 
 			// Second step: Create Datacenters
 			//Datacenters are the resource providers in CloudSim. We need at list one of them to run a CloudSim simulation
-			Datacenter datacenter0 = createDatacenter("Datacenter_0");
-			Datacenter datacenter1 = createDatacenter("Datacenter_1");
+			Datacenter datacenter0 = createDatacenter("Datacenter_0", 10.0);
+//			Datacenter datacenter1 = createDatacenter("Datacenter_1");
+//			Datacenter datacenter2 = createDatacenter("Datacenter_2");
 			
 			DatacenterList = new ArrayList<>();
 			DatacenterList.add(datacenter0);
-			DatacenterList.add(datacenter1);
+//			DatacenterList.add(datacenter1);
+//			DatacenterList.add(datacenter2);
 
 
 			//Third step: Create Broker
@@ -97,10 +99,12 @@ public class CloudSimExample3 {
 			vmlist = new ArrayList<>();
 
 			CreateVmCharacteristics CreateVmCharacteristics = new CreateVmCharacteristics();
-			List<Vm> vmListVersionOne = CreateVmCharacteristics.createVmsVersionOne(6, brokerId);
-			List<Vm> highPerformanceVmList = CreateVmCharacteristics.createVmsVersionTwo(6, brokerId);
+			List<Vm> vmListVersionOne = CreateVmCharacteristics.createVmsVersionOne(4, brokerId);
+//			List<Vm> vmListVersionOne1 = CreateVmCharacteristics.createVmsVersionOne(3, brokerId);
+//			List<Vm> highPerformanceVmList = CreateVmCharacteristics.createVmsVersionTwo(4, brokerId);
 			vmlist.addAll(vmListVersionOne);
-			vmlist.addAll(highPerformanceVmList);
+//			vmlist.addAll(vmListVersionOne1);
+//			vmlist.addAll(highPerformanceVmList);
 			
 			//submit vm list to the broker
 			broker.submitGuestList(vmlist);
@@ -132,7 +136,7 @@ public class CloudSimExample3 {
 		}
 	}
 
-	private static Datacenter createDatacenter(String name){
+	private static Datacenter createDatacenter(String name, double time_zone){
 
 		// Here are the steps needed to create a PowerDatacenter:
 		// 1. We need to create a list to store one or more
@@ -158,6 +162,8 @@ public class CloudSimExample3 {
 
 		peList2.add(new Pe(0, new PeProvisionerSimple(mips)));
 		peList2.add(new Pe(1, new PeProvisionerSimple(mips)));
+		peList2.add(new Pe(2, new PeProvisionerSimple(mips)));
+		peList2.add(new Pe(3, new PeProvisionerSimple(mips)));
 
 		//4. Create Hosts with its id and list of PEs and add them to the list of machines
 				int hostId=0;
@@ -198,7 +204,7 @@ public class CloudSimExample3 {
 		String arch = "x86";      // system architecture
 		String os = "Linux";          // operating system
 		String vmm = "Xen";
-		double time_zone = 10.0;         // time zone this resource located
+//		double time_zone = 10.0;         // time zone this resource located
 		double cost = 3.0;              // the cost of using processing in this resource
 		double costPerMem = 0.01;		// the cost of using memory in this resource
 		double costPerStorage = 0.001;	// the cost of using storage in this resource

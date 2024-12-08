@@ -15,11 +15,11 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
 	private List<? extends GuestEntity> vmList;
 	public boolean once = true;
 	private List<CustomVm> customVmList;
-	int originalMin = 20000;    // Minimum value of the original range
-    int originalMax = 50000;    // Maximum value of the original range
+	int originalMin = 400;    // Minimum value of the original range
+    int originalMax = 4000;    // Maximum value of the original range
     int targetMin = 1;         // Minimum value of the target range
 //    int targetMax = 500;       // Maximum value of the target range
-    double allocAmount = 18;
+    double allocAmount = 0.09;
 
     int lastVmIdAssigned = -1;
 
@@ -69,7 +69,7 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
         }
 
         if (bestVmId == -1) {
-//            System.out.println("No suitable VM found........................");
+            System.out.println("No suitable VM found........................");
         } else {
         	
 //            System.out.println("Best VM ID selected: " + bestVmId);
@@ -87,10 +87,10 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
         double availableRam = vm.getRam() - vm.getCurrentAllocatedRam();
         double availableBw = vm.getBw() - vm.getCurrentAllocatedBw();
         
-        System.out.println("Checking VM ID: " + vm.getId());
-        System.out.println("Available MIPS: " + availableMips);
-        System.out.println("Available RAM: " + availableRam);
-        System.out.println("Available BW: " + availableBw);
+//        System.out.println("Checking VM ID: " + vm.getId());
+//        System.out.println("Available MIPS: " + availableMips);
+//        System.out.println("Available RAM: " + availableRam);
+//        System.out.println("Available BW: " + availableBw);
 
         // If any resource is insufficient, the VM is considered overloaded
         if (availableMips <= 0 || availableRam <= 0 || availableBw <= 0) {
@@ -99,7 +99,7 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
 
         // Score is a weighted sum of available resources, higher score = better VM
         double score = availableMips + availableRam + availableBw;
-        System.out.println("VM ID: " + vm.getId() + " Score: " + score);
+//        System.out.println("VM ID: " + vm.getId() + " Score: " + score);
         return score;
     }
 
@@ -111,28 +111,28 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
         if (selectedVm != null) {
             // Allocate resources to the selected VM based on Cloudlet requirements
         	
-        	System.out.println("total MIPS: "+ (long)selectedVm.getMips());
+//        	System.out.println("total MIPS: "+ selectedVm.getMips() + " cloudlet length: " + cloudletLength);
         	int normalizedMIPS = normalize(cloudletLength, originalMin, originalMax, targetMin, (long)selectedVm.getMips());
         	int normalizedRAM = normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getRam());
         	int normalizedBW = normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getBw());
-            System.out.println("Amount to be used up for MIPS: " + normalizedMIPS);
+//            System.out.println("Amount to be used up for MIPS: " + normalizedMIPS + " this amount of allocation: " + allocAmount);
 
-            System.out.println("Amount to be used up for RAM: " + normalizedRAM);
-
-            System.out.println("Amount to be used up for BW: " + normalizedBW);
+//            System.out.println("Amount to be used up for RAM: " + selectedVm.getRam()*allocAmount);
+//
+//            System.out.println("Amount to be used up for BW: " + selectedVm.getBw()*allocAmount);
 
         	
             selectedVm.setCurrentAllocatedMips
             (selectedVm.getCurrentAllocatedMips() + normalizedMIPS);
-//            (selectedVm.getCurrentAllocatedMips() + selectedVm.getMips()*allocAmount/100);
+//            (selectedVm.getCurrentAllocatedMips() + selectedVm.getMips()*allocAmount);
             
             selectedVm.setCurrentAllocatedRam
             (selectedVm.getCurrentAllocatedRam() + normalizedRAM);
-//            (selectedVm.getCurrentAllocatedRam() + selectedVm.getRam()*allocAmount/100);
+//            (selectedVm.getCurrentAllocatedRam() + selectedVm.getRam()*allocAmount);
             
             selectedVm.setCurrentAllocatedBw
             (selectedVm.getCurrentAllocatedBw() + normalizedBW);
-//            (selectedVm.getCurrentAllocatedBw() + selectedVm.getBw()*allocAmount/100);
+//            (selectedVm.getCurrentAllocatedBw() + selectedVm.getBw()*allocAmount);
 
         }
     }
@@ -152,15 +152,15 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
         	
             selectedVm.setCurrentAllocatedMips
             (selectedVm.getCurrentAllocatedMips() - normalizedMIPS);
-//            (selectedVm.getCurrentAllocatedMips() - selectedVm.getMips()*allocAmount/100);
+//            (selectedVm.getCurrentAllocatedMips() - selectedVm.getMips()*allocAmount);
             
             selectedVm.setCurrentAllocatedRam
             (selectedVm.getCurrentAllocatedRam() - normalizedRAM);
-//            (selectedVm.getCurrentAllocatedRam() - selectedVm.getRam()*allocAmount/100);
+//            (selectedVm.getCurrentAllocatedRam() - selectedVm.getRam()*allocAmount);
             
             selectedVm.setCurrentAllocatedBw
             (selectedVm.getCurrentAllocatedBw() - normalizedBW);
-//            (selectedVm.getCurrentAllocatedBw() - selectedVm.getBw()*allocAmount/100);
+//            (selectedVm.getCurrentAllocatedBw() - selectedVm.getBw()*allocAmount);
 
         }
     }

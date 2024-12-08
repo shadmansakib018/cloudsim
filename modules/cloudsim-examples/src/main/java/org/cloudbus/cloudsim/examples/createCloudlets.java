@@ -19,18 +19,19 @@ public class createCloudlets {
 	
 	//Cloudlet properties
 	long length = 400;
-	long fileSize = 300;
-	long outputSize = 300;
-	int originalMin = 20000;    // Lower bound of the range
-    int originalMax = 50000;    // Upper bound of the range
+	int fileSize = 300;
+	int outputSize = 2000;
+	int originalMin = 400;    // Lower bound of the range
+    int originalMax = 4000;    // Upper bound of the range
     int pesNumber = 1;
 	UtilizationModel utilizationModel = new UtilizationModelFull();
 	
 	public List<Cloudlet> createTasks(int brokerId, double submissionTime){
 		 List<Cloudlet> cloudletList =new ArrayList<>();
 		 for(int i = 0; i <90; i++) {
+			 int randomNumberFileSize = random.nextInt(outputSize - fileSize + 1) + fileSize;
 			 	int randomNumber = random.nextInt(originalMax - originalMin + 1) + originalMin;
-	            Cloudlet cloudlet = new Cloudlet(currentTaskId, randomNumber, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
+	            Cloudlet cloudlet = new Cloudlet(currentTaskId, randomNumber, pesNumber, fileSize, fileSize, utilizationModel, utilizationModel, utilizationModel);
 	            cloudlet.setUserId(brokerId);
 	            cloudletList.add(cloudlet);
 	            currentTaskId++;
