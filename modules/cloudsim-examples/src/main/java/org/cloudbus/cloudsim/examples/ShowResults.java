@@ -17,10 +17,10 @@ import org.cloudbus.cloudsim.core.GuestEntity;
 
 public class ShowResults {
 
+	private static DecimalFormat dft = new DecimalFormat("###.##");
+	private static DecimalFormat dft2 = new DecimalFormat("###.####");
 	private static final String DESKTOP_PATH = System.getProperty("user.home") + "/Desktop/CloudSimCSVs/100/"; // Desktop path
 	private static final String FILE_EXTENSION = ".csv";  // File extension
-    private static DecimalFormat dft = new DecimalFormat("###.##");
-    private static DecimalFormat dft2 = new DecimalFormat("###.####");
     
     public static void writeCloudletDataToCsv(List<Cloudlet> list, List<? extends GuestEntity> vmlist, String lb) {
     	Map<Integer, Integer> guestIdCountMap = new HashMap<>();
@@ -43,23 +43,12 @@ public class ShowResults {
             fileWriter = new FileWriter(file);
             bufferedWriter = new BufferedWriter(fileWriter);
             
-//            bufferedWriter.write("===============================================");
-//            bufferedWriter.newLine();
-//            bufferedWriter.write(lb);
-//            bufferedWriter.newLine();
-//            bufferedWriter.write("===============================================");
-//            bufferedWriter.newLine();
-//            bufferedWriter.newLine();  // Add an extra line to separate from the CSV header
-            
-            // Write the header to the CSV file
-//            String indent = "    ";
             String header = "Cloudlet ID,STATUS,Task Length,Datacenter ID,VM ID,RAM,Storage,Bandwidth,MIPS,Processing Time,Start Time,Finish Time, Submission Time";
             bufferedWriter.write(header);
             bufferedWriter.newLine();  // Move to the next line
             
             // Loop through the list of Cloudlets and write each one
             for (Cloudlet cloudlet : list) {
-                // Assuming cloudlet.getStatus(), cloudlet.getCloudletId(), cloudlet.getGuestId(), etc. work as described
                 if (cloudlet.getStatus() == Cloudlet.CloudletStatus.SUCCESS) {
                 	guestIdCountMap.put(cloudlet.getGuestId(), guestIdCountMap.getOrDefault(cloudlet.getGuestId(), 0) + 1);
                 	totalWaitingTime = totalWaitingTime + (cloudlet.getExecStartTime()- cloudlet.getSubmissionTimeTwo());
@@ -93,7 +82,7 @@ public class ShowResults {
             System.out.println("Average Response Time: " + dft2.format(totalResponseTime /(list.size())));
             System.out.println("Average Waiting Time: " + dft2.format(totalWaitingTime /(list.size())));
             System.out.println("Average Execution Time: " + dft2.format(totalExecTime /(list.size())));
-            System.out.println("CSV file created successfully at: " + DESKTOP_PATH + filename);
+//            System.out.println("CSV file created successfully at: " + DESKTOP_PATH + filename);
 //            OpenFileExample(DESKTOP_PATH + filename);
 
         } catch (IOException e) {

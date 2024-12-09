@@ -33,6 +33,7 @@ import org.cloudbus.cloudsim.UtilizationModel;
 import org.cloudbus.cloudsim.UtilizationModelFull;
 import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.VmAllocationPolicySimple;
+import org.cloudbus.cloudsim.VmAllocationPolicySimpler;
 import org.cloudbus.cloudsim.VmSchedulerTimeShared;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.HostEntity;
@@ -54,7 +55,6 @@ public class CloudSimExample3 {
 
 	/** The cloudlet list. */
 	private static List<Cloudlet> cloudletList;
-	private static List<Cloudlet> cloudletList2;
 	
 	private static List<Datacenter> DatacenterList;
 
@@ -81,14 +81,35 @@ public class CloudSimExample3 {
 
 			// Second step: Create Datacenters
 			//Datacenters are the resource providers in CloudSim. We need at list one of them to run a CloudSim simulation
-			Datacenter datacenter0 = createDatacenter("Datacenter_0", 10.0);
-//			Datacenter datacenter1 = createDatacenter("Datacenter_1");
-//			Datacenter datacenter2 = createDatacenter("Datacenter_2");
 			
+			//east coast e.g new york
+			Datacenter datacenter0 = createDatacenter("Datacenter_0", -5.0);
+			//west coast e.g california
+			Datacenter datacenter1 = createDatacenter("Datacenter_1", -8.0);
+//			// asia: east asia eg japan
+			Datacenter datacenter2 = createDatacenter("Datacenter_2", 9.0);
+//			// asia: south east asia eg singapore
+//			Datacenter datacenter3 = createDatacenter("Datacenter_3", 8.0);
+//			// europe central europe eg germany
+//			Datacenter datacenter4 = createDatacenter("Datacenter_4", 1.0);
+//			// australia e.g sydney
+//			Datacenter datacenter5 = createDatacenter("Datacenter_5", 10.0);
+//			// south america eg brazil
+//			Datacenter datacenter6 = createDatacenter("Datacenter_6", -3.0);
+//			// africa eg soouth afirca
+//			Datacenter datacenter7 = createDatacenter("Datacenter_7", 2.0);
+	
 			DatacenterList = new ArrayList<>();
 			DatacenterList.add(datacenter0);
-//			DatacenterList.add(datacenter1);
-//			DatacenterList.add(datacenter2);
+			DatacenterList.add(datacenter1);
+			DatacenterList.add(datacenter2);
+//			DatacenterList.add(datacenter3);
+//			DatacenterList.add(datacenter4);
+//			DatacenterList.add(datacenter5);
+//			DatacenterList.add(datacenter6);
+//			DatacenterList.add(datacenter7);
+			
+
 
 
 			//Third step: Create Broker
@@ -99,12 +120,17 @@ public class CloudSimExample3 {
 			vmlist = new ArrayList<>();
 
 			CreateVmCharacteristics CreateVmCharacteristics = new CreateVmCharacteristics();
-			List<Vm> vmListVersionOne = CreateVmCharacteristics.createVmsVersionOne(4, brokerId);
-//			List<Vm> vmListVersionOne1 = CreateVmCharacteristics.createVmsVersionOne(3, brokerId);
-//			List<Vm> highPerformanceVmList = CreateVmCharacteristics.createVmsVersionTwo(4, brokerId);
-			vmlist.addAll(vmListVersionOne);
-//			vmlist.addAll(vmListVersionOne1);
-//			vmlist.addAll(highPerformanceVmList);
+			
+			// Loop for 8 times (assuming 8 data centers)
+			for (int i = 0; i < 3; i++) {
+			    // Create VMs for version one and version two
+			    List<Vm> vmListVersionOne = CreateVmCharacteristics.createVmsVersionOne(10, brokerId);
+			    List<Vm> highPerformanceVmList = CreateVmCharacteristics.createVmsVersionTwo(10, brokerId);
+
+			    // Add to the main list
+			    vmlist.addAll(vmListVersionOne);
+			    vmlist.addAll(highPerformanceVmList);
+			}
 			
 			//submit vm list to the broker
 			broker.submitGuestList(vmlist);
@@ -152,23 +178,22 @@ public class CloudSimExample3 {
 
 		// 3. Create PEs and add these into the list.
 		//for a quad-core machine, a list of 4 PEs is required:
-		peList1.add(new Pe(0, new PeProvisionerSimple(mips))); // need to store Pe id and MIPS Rating
-		peList1.add(new Pe(1, new PeProvisionerSimple(mips)));
-		peList1.add(new Pe(2, new PeProvisionerSimple(mips)));
-		peList1.add(new Pe(3, new PeProvisionerSimple(mips)));
+		for (int i = 0; i < 5; i++) {
+		    peList1.add(new Pe(i, new PeProvisionerSimple(mips)));  // Store Pe ID and MIPS rating
+		}
 
-		//Another list, for a dual-core machine
+
 		List<Pe> peList2 = new ArrayList<>();
 
-		peList2.add(new Pe(0, new PeProvisionerSimple(mips)));
-		peList2.add(new Pe(1, new PeProvisionerSimple(mips)));
-		peList2.add(new Pe(2, new PeProvisionerSimple(mips)));
-		peList2.add(new Pe(3, new PeProvisionerSimple(mips)));
+		for (int i = 0; i < 20; i++) {
+		    peList2.add(new Pe(i, new PeProvisionerSimple(mips)));
+		}
+
 
 		//4. Create Hosts with its id and list of PEs and add them to the list of machines
 				int hostId=0;
-				int ram = 8192; //host memory (MB)
-				long storage = 1000000; //host storage
+				int ram = 20480; //host memory (MB)
+				long storage = 200000; //host storage
 				int bw = 20000;
 
 				hostList.add(
@@ -187,8 +212,8 @@ public class CloudSimExample3 {
 				hostList.add(
 		    			new Host(
 		    				hostId,
-		    				new RamProvisionerSimple(ram),
-		    				new BwProvisionerSimple(bw),
+		    				new RamProvisionerSimple(ram*2),
+		    				new BwProvisionerSimple(bw*2),
 		    				storage,
 		    				peList2,
 		    				new VmSchedulerTimeShared(peList2)
@@ -217,7 +242,7 @@ public class CloudSimExample3 {
 		// 6. Finally, we need to create a PowerDatacenter object.
 		Datacenter datacenter = null;
 		try {
-			datacenter = new Datacenter(name, characteristics, new VmAllocationPolicySimple(hostList), storageList, 0);
+			datacenter = new Datacenter(name, characteristics, new VmAllocationPolicySimpler(hostList), storageList, 0);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -225,26 +250,6 @@ public class CloudSimExample3 {
 		return datacenter;
 	}
 	
-	private static double calculateCost(Datacenter datacenter) {
-		
-		double totalHostCost = 0.0;
-		DatacenterCharacteristics characteristics = datacenter.getCharacteristics();
-		
-		for (HostEntity host : datacenter.getHostList()) {
-			System.out.println(host.getId()+ " " + host.getRam()+ " " + host.getStorage() + " " + host.getBw());
-            // Calculate the cost of the host based on its usage
-            double hostCost = 0.0;
-            hostCost += host.getRam() * characteristics.getCostPerMem();  // Example: charge for memory
-            hostCost += host.getStorage() * characteristics.getCostPerStorage();  // Example: charge for storage
-            hostCost += host.getBw() * characteristics.getCostPerBw();  // Example: charge for Bandwidth
-
-            // More cost calculations can be added depending on other host parameters
-            totalHostCost += hostCost;
-        }
-		
-		
-		return totalHostCost;
-	}
 
 	//We strongly encourage users to develop their own broker policies, to submit vms and cloudlets according
 	//to the specific rules of the simulated scenario

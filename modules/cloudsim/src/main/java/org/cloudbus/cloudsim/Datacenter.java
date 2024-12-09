@@ -395,7 +395,7 @@ public class Datacenter extends SimEntity {
 	 * @post $none
 	 */
 	protected void processVmCreate(SimEvent ev, boolean ack) {
-		System.out.println("creating Vms in datacenter line 398");
+//		System.out.println("creating Vms in datacenter line 398");
 		GuestEntity vm = (GuestEntity) ev.getData();
 
 		boolean result = getVmAllocationPolicy().allocateHostForGuest(vm);

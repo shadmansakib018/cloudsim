@@ -338,27 +338,26 @@ public class DatacenterBroker extends SimEntity {
 			loadBalancer.releaseResources(cloudlet.getGuestId(), cloudlet);
 		}
 		getCloudletReceivedList().add(cloudlet);
-		Log.printlnConcat(CloudSim.clock(), " : ", getName(), " : ", cloudlet.getClass().getSimpleName(), " #", cloudlet.getCloudletId(),
-				" return received");
-		Log.printlnConcat(getName(), ": The number of finished Cloudlets is:", getCloudletReceivedList().size());
+//		Log.printlnConcat(CloudSim.clock(), " : ", getName(), " : ", cloudlet.getClass().getSimpleName(), " #", cloudlet.getCloudletId(),
+//				" return received");
+//		Log.printlnConcat(getName(), ": The number of finished Cloudlets is:", getCloudletReceivedList().size());
 		cloudletsSubmitted--;
 		submitWaitingCloudlet();
-//		int randomNumberToSubmit = random.nextInt(46) + 45;
-		if(getCloudletReceivedList().size()==(batch * 85) && batch <=200) {
-			System.out.println("sending batch number: " + batch + " when this many c");
+		
+		
+		
+		if(getCloudletReceivedList().size()==(batch * Constants.batchSize) && batch < Constants.totalBatches) {
+			System.out.println("sending batch number: "+ batch + " number of finished cloudlets are: " + getCloudletReceivedList().size());
 		List<Cloudlet> cloudletList = new ArrayList<>();
 		int pesNumber = 1;
-		int originalMin = 400;
-	    int originalMax = 4000;
 		int fileSize = 300;
-		int outputSize = 2000;
+		int outputSize = 300;
 		UtilizationModel utilizationModel = new UtilizationModelFull();
-		int numCloudlets = 90;
-        for (int i = 90*batch; i < numCloudlets+(90*batch); i++) {
-        	int randomNumberFileSize = random.nextInt(outputSize - fileSize + 1) + fileSize;
-        	int randomNumber = random.nextInt(originalMax - originalMin + 1) + originalMin;
+		int numCloudlets = Constants.batchSize;
+        for (int i = numCloudlets*batch; i < numCloudlets*(batch+1); i++) {
+        	int randomNumber = random.nextInt(Constants.originalMax - Constants.originalMin + 1) + Constants.originalMin;
 
-            Cloudlet cloudletNew = new Cloudlet(i, randomNumber, pesNumber, fileSize, fileSize, 
+            Cloudlet cloudletNew = new Cloudlet(i, randomNumber, pesNumber, fileSize, outputSize, 
             		utilizationModel, utilizationModel, utilizationModel);
             cloudletNew.setUserId(this.getId());
             cloudletList.add(cloudletNew);
@@ -370,12 +369,12 @@ public class DatacenterBroker extends SimEntity {
         batch++;
 		}
 		
-		if (getCloudletList().isEmpty() && cloudletsSubmitted == 0) { // all cloudlets executed
+		if (getCloudletList().isEmpty() && cloudletsSubmitted == 0 && batch==Constants.totalBatches) { // all cloudlets executed
 			Log.printlnConcat(CloudSim.clock(), " : ", getName(), ": All Cloudlets executed. Finishing...");
 			clearDatacenters();
 			finishExecution();
 		} else { // some cloudlets haven't finished yet
-			if (!getCloudletList().isEmpty() && cloudletsSubmitted == 0) {
+			if (!getCloudletList().isEmpty() && cloudletsSubmitted == 0 && batch==Constants.totalBatches) {
 				// all the cloudlets sent finished. It means that some bount
 				// cloudlet is waiting its VM be created
 				clearDatacenters();
@@ -449,7 +448,7 @@ public class DatacenterBroker extends SimEntity {
 		List<Cloudlet> successfullySubmitted = new ArrayList<>();
 
 		for (Cloudlet cloudlet : getCloudletList()) {
-			System.out.println("checking clooudlet submission for cloudlet id #" + cloudlet.getCloudletId());
+//			System.out.println("checking clooudlet submission for cloudlet id #" + cloudlet.getCloudletId());
 			GuestEntity vm;
 			// if user didn't bind this cloudlet and it has not been executed yet
 			if (cloudlet.getGuestId() == -1) {
@@ -482,10 +481,10 @@ public class DatacenterBroker extends SimEntity {
 				}
 			}
 
-			if (!Log.isDisabled()) {
-				Log.printlnConcat(CloudSim.clock(), ": ", getName(), ": Sending ", cloudlet.getClass().getSimpleName(),
-						" #", cloudlet.getCloudletId(), " to " + vm.getClassName() + " #", vm.getId());
-			}
+//			if (!Log.isDisabled()) {
+//				Log.printlnConcat(CloudSim.clock(), ": ", getName(), ": Sending ", cloudlet.getClass().getSimpleName(),
+//						" #", cloudlet.getCloudletId(), " to " + vm.getClassName() + " #", vm.getId());
+//			}
 			
 			cloudlet.setGuestId(vm.getId());
 			sendNow(getVmsToDatacentersMap().get(vm.getId()), CloudActionTags.CLOUDLET_SUBMIT, cloudlet);
@@ -521,10 +520,10 @@ public class DatacenterBroker extends SimEntity {
 				List<Cloudlet> successfullySubmitted = new ArrayList<>();
 				GuestEntity vm = getGuestsCreatedList().get(vmId);
 				vmStatesList.put(vmId, VirtualMachineState.BUSY);
-				if (!Log.isDisabled()) {
-					Log.printlnConcat(CloudSim.clock(), ": ", getName(), ": Sending ", cloudlet.getClass().getSimpleName(),
-							" #", cloudlet.getCloudletId(), " to " + vm.getClassName() + " #", vm.getId());
-				}
+//				if (!Log.isDisabled()) {
+//					Log.printlnConcat(CloudSim.clock(), ": ", getName(), ": Sending ", cloudlet.getClass().getSimpleName(),
+//							" #", cloudlet.getCloudletId(), " to " + vm.getClassName() + " #", vm.getId());
+//				}
 				
 				cloudlet.setGuestId(vm.getId());
 				sendNow(getVmsToDatacentersMap().get(vm.getId()), CloudActionTags.CLOUDLET_SUBMIT, cloudlet);

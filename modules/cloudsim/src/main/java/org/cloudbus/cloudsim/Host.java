@@ -129,7 +129,7 @@ public class Host implements HostEntity {
 	 * @return true, if is suitable for vm
 	 */
 	public boolean isSuitableForGuest(GuestEntity guest) {
-		System.out.println("isSuitableForGuest in host.java line 131; checking to find host for vm#" + guest.getId() + " in "+ this.getClassName() + " #" + this.getId());
+//		System.out.println("isSuitableForGuest in host.java line 131; checking to find host for vm#" + guest.getId() + " in "+ this.getClassName() + " #" + this.getId());
 		return (getGuestScheduler().getPeCapacity() >= guest.getCurrentRequestedMaxMips()
 				&& getGuestScheduler().getAvailableMips() >= guest.getCurrentRequestedTotalMips()
 				&& getGuestRamProvisioner().isSuitableForGuest(guest, guest.getCurrentRequestedRam()) && getGuestBwProvisioner()
