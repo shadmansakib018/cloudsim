@@ -129,8 +129,8 @@ public class DatacenterBroker extends SimEntity {
         System.out.println("3. DynamicLB");
 
         // Read the user's input
-        int choice = scanner.nextInt();
-//        int choice =2;
+//        int choice = scanner.nextInt();
+        int choice =3;
 
         // Conditional logic based on user input
         switch (choice) {
@@ -292,8 +292,8 @@ public class DatacenterBroker extends SimEntity {
 					guest.getHost().getId());
 			vmStatesList.put(vmId, VirtualMachineState.AVAILABLE);
 		} else {
-			Log.printlnConcat(CloudSim.clock(), " : ", getName(), ": Creation of ", guest.getClassName(), " #", vmId,
-					" failed in Datacenter #", datacenterId);
+//			Log.printlnConcat(CloudSim.clock(), " : ", getName(), ": Creation of ", guest.getClassName(), " #", vmId,
+//					" failed in Datacenter #", datacenterId);
 		}
 
 		incrementVmsAcks();
@@ -417,15 +417,15 @@ public class DatacenterBroker extends SimEntity {
          * @see #submitGuestList(List)
 	 */
 	protected void createVmsInDatacenter(int datacenterId) {
-		Log.printlnConcat("createVmsInDatacenter from DCB");
+//		Log.printlnConcat("createVmsInDatacenter from DCB");
 		// send as much vms as possible for this datacenter before trying the next one
 		int requestedVms = 0;
 		String datacenterName = CloudSim.getEntityName(datacenterId);
-		Log.printlnConcat("DCBroker line: 334; data center name ", datacenterName);
+//		Log.printlnConcat("DCBroker line: 334; data center name ", datacenterName);
 		for (GuestEntity vm : getGuestList()) {
 			if (!getVmsToDatacentersMap().containsKey(vm.getId())) {
-				Log.printlnConcat(CloudSim.clock(), ": ", getName(), ": Trying to Create ", vm.getClassName(),
-						" #", vm.getId(), " in ", datacenterName);
+//				Log.printlnConcat(CloudSim.clock(), ": ", getName(), ": Trying to Create ", vm.getClassName(),
+//						" #", vm.getId(), " in ", datacenterName);
 				sendNow(datacenterId, CloudActionTags.VM_CREATE_ACK, vm);
 				requestedVms++;
 			}
@@ -548,12 +548,13 @@ public class DatacenterBroker extends SimEntity {
 	 * @post $none
 	 */
 	protected void clearDatacenters() {
+		System.out.println("DESTROYING ALL VMS");
 		for (GuestEntity vm : getGuestsCreatedList()) {
-			Log.printlnConcat(CloudSim.clock(), ": ", getName(), ": Destroying ", vm.getClassName(), " #", vm.getId());
+//			Log.printlnConcat(CloudSim.clock(), ": ", getName(), ": Destroying ", vm.getClassName(), " #", vm.getId());
 			sendNow(getVmsToDatacentersMap().get(vm.getId()), CloudActionTags.VM_DESTROY, vm);
 		}
 
-//		getGuestsCreatedList().clear();
+		getGuestsCreatedList().clear();
 	}
 
 	/**
@@ -812,46 +813,47 @@ public class DatacenterBroker extends SimEntity {
 		this.datacenterRequestedIdsList = datacenterRequestedIdsList;
 	}
 	
-	public void getDataCenterCost() {
-//		CloudSim.getEntityList().forEach(entinty -> System.out.println(entinty.getName()));
-		
-		for(int id : this.getDatacenterRequestedIdsList()) {// for each datacenter
-			double totalHostCost = 0.0;
-			DatacenterCharacteristics characteristics = this.datacenterCharacteristicsList.get(id);
-			
-			for (HostEntity host : characteristics.getHostList()) {				
+	public List<Double> getDataCenterCost() {
+	    List<Double> totalHostCostList = new ArrayList<>();
+
+	    for (int id : this.getDatacenterRequestedIdsList()) {  // For each datacenter
+	        double totalHostCost = 0.0;
+	        DatacenterCharacteristics characteristics = this.datacenterCharacteristicsList.get(id);
+
+	        for (HostEntity host : characteristics.getHostList()) {
 	            double hostCost = 0.0;
 	            hostCost += host.getRam() * characteristics.getCostPerMem();
-	            hostCost += host.getStorage() * characteristics.getCostPerStorage(); 
+	            hostCost += host.getStorage() * characteristics.getCostPerStorage();
 	            hostCost += host.getBw() * characteristics.getCostPerBw();
 
 	            totalHostCost += hostCost;
 	        }
-//			System.out.println("Total Cost to run datacenter #" + id + " $" + totalHostCost );
-			System.out.println("Total Cost for datacenter #" + id + " $" + totalHostCost );
-		}
+
+	        System.out.println("Total Cost for datacenter #" + id + " $" + totalHostCost);
+	        totalHostCostList.add(totalHostCost);
+	    }
+
+	    return totalHostCostList;
 	}
+
 	
-	public void getVmCost() {
+	public Double getVmCost() {
 //		CloudSim.getEntityList().forEach(entinty -> System.out.println(entinty.getName()));
-		double totalHostCost = 0.0;
+		double totalVmCost = 0.0;
 		for(GuestEntity vm : this.getGuestsCreatedList()) {
 			
 			DatacenterCharacteristics characteristics = 
 		this.datacenterCharacteristicsList.get(this.getVmsToDatacentersMap().get(vm.getId()));
-	            double hostCost = 0.0;
-	            hostCost += vm.getRam() * characteristics.getCostPerMem();
-	            hostCost += vm.getSize() * characteristics.getCostPerStorage(); 
-	            hostCost += vm.getBw() * characteristics.getCostPerBw();
-	            totalHostCost += hostCost;
+	            double vmCost = 0.0;
+	            vmCost += vm.getRam() * characteristics.getCostPerMem();
+	            vmCost += vm.getSize() * characteristics.getCostPerStorage(); 
+	            vmCost += vm.getBw() * characteristics.getCostPerBw();
+	            totalVmCost += vmCost;
 			
 
 		}
-			System.out.println("Total Cost for " + this.getGuestsCreatedList().size() + " VMS $" + totalHostCost);
-			
-//			for(GuestEntity vm : this.getGuestsCreatedList()) {
-//				System.out.println(vm.getTotalUtilizationOfCpuMips(CloudSim.clock()));
-//			}
+			System.out.println("Total Cost for " + this.getGuestsCreatedList().size() + " VMS $" + totalVmCost);
+			return totalVmCost;
 	}
 	
 	

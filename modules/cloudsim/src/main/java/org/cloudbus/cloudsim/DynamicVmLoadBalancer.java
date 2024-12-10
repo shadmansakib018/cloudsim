@@ -18,7 +18,7 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
 	int originalMin = Constants.originalMin;    // Minimum value of the original range
     int originalMax = Constants.originalMax;    // Maximum value of the original range
     int targetMin = 1;         // Minimum value of the target range
-    boolean useProportion = false;
+    boolean useProportion = true;
     double allocAmount = 0.5;
 
 
@@ -27,6 +27,8 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
 //		this.vmStatesList = dcb.vmStatesList;
 		this.vmList = dcb.getGuestsCreatedList(); 
 		this.customVmList = new ArrayList<>();
+	    System.out.println(originalMin + " " + originalMax);
+
 		
 	}
 	
@@ -78,9 +80,9 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
 
     // Function to calculate the score of a VM based on available resources
     private double getCurrentScore(CustomVm vm, Cloudlet cl) {
-    	int normalizedMIPS =0;
-    	int normalizedRAM =0;
-    	int normalizedBW =0;
+    	int reqMIPS =0;
+    	int reqRAM =0;
+    	int reqBW =0;
 
         // Calculate the remaining available resources
         double availableMips = vm.getMips() - vm.getCurrentAllocatedMips();
@@ -92,15 +94,15 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
 //        System.out.println("Available RAM: " + availableRam);
 //        System.out.println("Available BW: " + availableBw);
         
-//    	if(useProportion) {
-//    		long cloudletLength = cl.getCloudletLength();
-//        	 normalizedMIPS = normalize(cloudletLength, originalMin, originalMax, targetMin, (long)vm.getMips());
-//        	 normalizedRAM = normalize(cloudletLength, originalMin, originalMax, targetMin, vm.getRam());
-//        	 normalizedBW = normalize(cloudletLength, originalMin, originalMax, targetMin, vm.getBw());
-//    	}
+    	if(useProportion) {
+    		long cloudletLength = cl.getCloudletLength();
+    		reqMIPS = normalize(cloudletLength, originalMin, originalMax, targetMin, (long)vm.getMips());
+    		reqRAM = normalize(cloudletLength, originalMin, originalMax, targetMin, vm.getRam());
+    		reqBW = normalize(cloudletLength, originalMin, originalMax, targetMin, vm.getBw());
+    	}
 
         // If any resource is insufficient, the VM is considered overloaded
-        if (availableMips <= normalizedMIPS || availableRam <= normalizedRAM || availableBw <= normalizedBW) {
+        if (availableMips < reqMIPS || availableRam < reqRAM || availableBw < reqBW) {
             return -1; // VM is overloaded
         }
 
@@ -121,6 +123,7 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
             	int normalizedMIPS = normalize(cloudletLength, originalMin, originalMax, targetMin, (long)selectedVm.getMips());
             	int normalizedRAM = normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getRam());
             	int normalizedBW = normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getBw());
+//            	System.out.println(cloudletLength + " " + normalizedMIPS+ " " + normalizedRAM + " " + normalizedBW);
             	            	
                 selectedVm.setCurrentAllocatedMips(selectedVm.getCurrentAllocatedMips() + normalizedMIPS);
                 selectedVm.setCurrentAllocatedRam(selectedVm.getCurrentAllocatedRam() + normalizedRAM);

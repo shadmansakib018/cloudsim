@@ -97,7 +97,7 @@ public abstract class VmAllocationPolicy {
 	 */
 	public boolean allocateHostForGuest(GuestEntity guest, HostEntity host) {
 		if(host == null) {
-			System.out.println("unable to find host for this guest vm#" + guest.getId());
+//			System.out.println("unable to find host for this guest vm#" + guest.getId());
 			return false;
 		}
 		String datacenterName = host.getDatacenter().getName();
@@ -115,7 +115,7 @@ public abstract class VmAllocationPolicy {
 
 		if (host.guestCreate(guest)) { // if vm has been successfully created in the host
 			getGuestTable().put(guest.getUid(), host);
-			Log.printlnConcat(CloudSim.clock(), ": ", datacenterName, guest.getClassName(), " #", guest.getId(), " has been allocated to ", host.getClassName(), " #", host.getId());
+//			Log.printlnConcat(CloudSim.clock(), ": ", datacenterName, guest.getClassName(), " #", guest.getId(), " has been allocated to ", host.getClassName(), " #", host.getId());
 			return true;
 		}
 

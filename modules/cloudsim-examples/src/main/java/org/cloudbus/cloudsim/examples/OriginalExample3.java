@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -53,33 +52,68 @@ import java.util.Random;
  * to complete the execution depending on
  * the requested VM performance.
  */
-public class CloudSimExample3 {
-	public static String LoadBalancerName;
+public class OriginalExample3 {
 
+	/** The cloudlet list. */
+	private static List<Cloudlet> cloudletList;
+	
+	private static List<Datacenter> DatacenterList;
+
+	/** The vmlist. */
+	private static List<Vm> vmlist;
+
+	/**
+	 * Creates main() to run this example
+	 */
 	public static void main(String[] args) {
-		List<Double> AvgResponseTimeList = new ArrayList<>();
-	     List<Double> AvgWaitingTimeList = new ArrayList<>();
-	     List<Double> AvgExecutionTimeList = new ArrayList<>();
+
+		Log.println("Starting CloudSimExample3...");
+
 		try {
-			for(int i =0; i < 8; i++) {
-			List<Cloudlet> cloudletList;
-			List<Vm> vmlist;
-				
-			Log.println("Starting CloudSimExample3... RUN NUMBER: " + i);
-			int num_user = 1;
+			System.out.println("Thread ID: " + Thread.currentThread().getId());
+			// First step: Initialize the CloudSim package. It should be called
+			// before creating any entities.
+			int num_user = 1;   // number of cloud users
 			Calendar calendar = Calendar.getInstance();
-			boolean trace_flag = false; 
+			boolean trace_flag = false;  // mean trace events
+
+			// Initialize the CloudSim library
 			CloudSim.init(num_user, calendar, trace_flag);
-			
-			double[] gmtOffsets = {-5.0, -8.0, 9.0, 8.0, 1.0, 10.0, -3.0, 2.0};
 
-			List<Datacenter> datacenterList = new ArrayList<>();
-
-			for (int j = 0; j <= i; j++) {
-			    Datacenter datacenter = createDatacenter("Datacenter_" + j, gmtOffsets[j]);
-			    datacenterList.add(datacenter);
-			}
+			// Second step: Create Datacenters
+			//Datacenters are the resource providers in CloudSim. We need at list one of them to run a CloudSim simulation
 			
+			//east coast e.g new york
+			Datacenter datacenter0 = createDatacenter("Datacenter_0", -5.0);
+			//west coast e.g california
+//			Datacenter datacenter1 = createDatacenter("Datacenter_1", -8.0);
+//			// asia: east asia eg japan
+//			Datacenter datacenter2 = createDatacenter("Datacenter_2", 9.0);
+//			// asia: south east asia eg singapore
+//			Datacenter datacenter3 = createDatacenter("Datacenter_3", 8.0);
+//			// europe central europe eg germany
+//			Datacenter datacenter4 = createDatacenter("Datacenter_4", 1.0);
+//			// australia e.g sydney
+//			Datacenter datacenter5 = createDatacenter("Datacenter_5", 10.0);
+//			// south america eg brazil
+//			Datacenter datacenter6 = createDatacenter("Datacenter_6", -3.0);
+//			// africa eg soouth afirca
+//			Datacenter datacenter7 = createDatacenter("Datacenter_7", 2.0);
+	
+			DatacenterList = new ArrayList<>();
+			DatacenterList.add(datacenter0);
+//			DatacenterList.add(datacenter1);
+//			DatacenterList.add(datacenter2);
+//			DatacenterList.add(datacenter3);
+//			DatacenterList.add(datacenter4);
+//			DatacenterList.add(datacenter5);
+//			DatacenterList.add(datacenter6);
+//			DatacenterList.add(datacenter7);
+			
+
+
+
+			//Third step: Create Broker
 			DatacenterBroker broker = createBroker();
 			int brokerId = broker.getId();
 			System.out.println("broker ID: " +brokerId);
@@ -88,13 +122,19 @@ public class CloudSimExample3 {
 
 			CreateVmCharacteristics CreateVmCharacteristics = new CreateVmCharacteristics();
 			
-			for (int k = 0; k <= i; k++) {
-			    List<Vm> vmListVersionOne = CreateVmCharacteristics.createVmsVersionOne(10, brokerId);
-			    List<Vm> highPerformanceVmList = CreateVmCharacteristics.createVmsVersionTwo(10, brokerId);
+			// Loop for 8 times (assuming 8 data centers)
+			for (int i = 0; i < 1; i++) {
+			    // Create VMs for version one and version two
+				int numberOfVmsPerDc = Constants.numberOfVmsPerDC;
+			    List<Vm> vmListVersionOne = CreateVmCharacteristics.createVmsVersionOne(numberOfVmsPerDc/2, brokerId);
+			    List<Vm> highPerformanceVmList = CreateVmCharacteristics.createVmsVersionTwo(numberOfVmsPerDc/2, brokerId);
+
+			    // Add to the main list
 			    vmlist.addAll(vmListVersionOne);
 			    vmlist.addAll(highPerformanceVmList);
 			}
 			
+			//submit vm list to the broker
 			broker.submitGuestList(vmlist);
 
 			cloudletList = new ArrayList<>();
@@ -106,39 +146,17 @@ public class CloudSimExample3 {
 
 
 	        List<Cloudlet> newList = broker.getCloudletReceivedList();
-	        System.out.println("Number of Finsihed Cloudlets " + newList.size());
 //			ShowResults.printCloudletList(newList, vmlist);
-//	        List<Double> listOfDcCost = broker.getDataCenterCost();
-//			double vmCost = broker.getVmCost();
-			Map<Integer, Integer> guestIdCountMap = new HashMap<>();
-	    	double totalResponseTime = 0;
-	    	double totalWaitingTime = 0;
-	    	double totalExecTime = 0;
-			for (Cloudlet cloudlet : newList) {
-                if (cloudlet.getStatus() == Cloudlet.CloudletStatus.SUCCESS) {
-                	guestIdCountMap.put(cloudlet.getGuestId(), guestIdCountMap.getOrDefault(cloudlet.getGuestId(), 0) + 1);
-                	totalWaitingTime = totalWaitingTime + (cloudlet.getExecStartTime()- cloudlet.getSubmissionTimeTwo());
-                	totalResponseTime = totalResponseTime + (cloudlet.getActualCPUTime() + (cloudlet.getExecStartTime()- cloudlet.getSubmissionTimeTwo()));
-                	totalExecTime = totalExecTime + cloudlet.getActualCPUTime();
-                }
-            }
-			AvgResponseTimeList.add(totalResponseTime /(newList.size()));
-			AvgWaitingTimeList.add(totalWaitingTime /(newList.size()));
-			AvgExecutionTimeList.add(totalExecTime /(newList.size()));
-			LoadBalancerName = broker.loadBalancer.getName();
+			ShowResults.writeCloudletDataToCsv(newList, vmlist, broker.loadBalancer.getName());
 			
-			
-//			for(Datacenter dc: DatacenterList) {
-//				
-//				System.out.println("Cost to run " + dc.getName()+ " for this many seconds: " + (dc.lastProcessTime/1000)+ ": $"+ (dc.lastProcessTime/1000) * dc.getCharacteristics().getCostPerSecond());
-//			}
-			
+			for(Datacenter dc: DatacenterList) {
+				
+				System.out.println("Cost to run " + dc.getName() + ": $"+ (dc.lastProcessTime/1000) * dc.getCharacteristics().getCostPerSecond());
+			}
+			broker.getDataCenterCost();
+			broker.getVmCost();
 
 			Log.println("CloudSimExample3 finished!");
-			}
-			ShowResults.writeResultsDataToCsv(AvgResponseTimeList,AvgWaitingTimeList,AvgExecutionTimeList,LoadBalancerName);
-
-			
 		}
 		catch (Exception e) {
 			e.printStackTrace();

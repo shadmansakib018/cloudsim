@@ -180,4 +180,60 @@ public class ShowResults {
 	    
 	}
 	
+	
+	public static void writeResultsDataToCsv(List<Double> AvgResponseTimeList,
+			List<Double> AvgWaitingTimeList,
+			List<Double> AvgExecutionTimeList,String lb
+			) {
+    	
+        FileWriter fileWriter = null;
+        BufferedWriter bufferedWriter = null;
+        
+    	String FILE_PREFIX = lb+"_AllRuns"+"_";  // File prefix (name)
+
+        String timestamp = new SimpleDateFormat("HHmmss").format(new Date());
+        String filename = FILE_PREFIX + timestamp + FILE_EXTENSION; 
+        
+        try {
+            // Create a File object for the CSV file on the Desktop
+            File file = new File(DESKTOP_PATH + filename);
+            
+            // Create FileWriter and BufferedWriter to write to the file
+            fileWriter = new FileWriter(file);
+            bufferedWriter = new BufferedWriter(fileWriter);
+            
+            String header = "Avgerage Response Time, Average Waiting Time, Average Execution Time";
+            
+            bufferedWriter.write(header);
+            bufferedWriter.newLine();  // Move to the next line
+            
+            for (int i = 0; i < AvgResponseTimeList.size(); i++) {
+            	StringBuilder row = new StringBuilder();
+                row.append(dft2.format(AvgResponseTimeList.get(i)))
+                .append(",").append( dft2.format(AvgWaitingTimeList.get(i)))
+                .append(",").append(dft2.format(AvgExecutionTimeList.get(i)));
+                
+                bufferedWriter.write(row.toString());
+                bufferedWriter.newLine();
+                
+            }
+            
+//            System.out.println("CSV file created successfully at: " + DESKTOP_PATH + filename);
+            OpenFileExample(DESKTOP_PATH + filename);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (bufferedWriter != null) {
+                    bufferedWriter.close();
+                }
+                if (fileWriter != null) {
+                    fileWriter.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
