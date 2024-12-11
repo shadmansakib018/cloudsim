@@ -3,164 +3,128 @@ package org.cloudbus.cloudsim;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.CustomVm;
 import org.cloudbus.cloudsim.core.GuestEntity;
 
 public class DynamicVmLoadBalancer extends VmLoadBalancer {
-	private Map<Integer, VirtualMachineState> vmStatesList;
-//	private int currVm = -1;
-	private List<? extends GuestEntity> vmList;
-	public boolean once = true;
-	private List<CustomVm> customVmList;
-	int originalMin = Constants.originalMin;    // Minimum value of the original range
-    int originalMax = Constants.originalMax;    // Maximum value of the original range
-    int targetMin = 1;         // Minimum value of the target range
-    boolean useProportion = true;
-    double allocAmount = 0.5;
+    private Map<Integer, VirtualMachineState> vmStatesList;
+    private List<? extends GuestEntity> vmList;
+    private List<CustomVm> customVmList;
+    private boolean once = true;
+    private int originalMin = Constants.originalMin;    
+    private int originalMax = Constants.originalMax;    
+    private int targetMin = 1;         
+    private boolean useProportion = true;
+    private double allocAmount = 0.5;
 
+    public DynamicVmLoadBalancer(DatacenterBroker dcb) {
+        setName("DynamicVmLoadBalancer");
+        this.vmList = dcb.getGuestsCreatedList(); 
+        this.customVmList = new ArrayList<>();
+        System.out.println(originalMin + " " + originalMax);
+    }
 
-	public DynamicVmLoadBalancer(DatacenterBroker dcb) {
-		setName("DynamicVmLoadBalancer");
-//		this.vmStatesList = dcb.vmStatesList;
-		this.vmList = dcb.getGuestsCreatedList(); 
-		this.customVmList = new ArrayList<>();
-	    System.out.println(originalMin + " " + originalMax);
-
-		
-	}
-	
-	public void createCustomVm(List<? extends GuestEntity> vmList) {
-		for (GuestEntity vm : vmList) {
+    public void createCustomVm(List<? extends GuestEntity> vmList) {
+        for (GuestEntity vm : vmList) {
             CustomVm customVm = new CustomVm(
-                vm.getId(),
-                vm.getUserId(),
-                vm.getMips(),
-                vm.getRam(),
-                vm.getBw(),
-                vm.getSize()
+            		 vm.getId(),
+            	        vm.getUserId(),
+            	        vm.getMips(),
+            	        (double) vm.getRam(),      // Convert to double
+            	        (double) vm.getBw(),       // Convert to double
+            	        (double) vm.getSize()      // Convert to double
             );
             customVmList.add(customVm);
         }
-	}
-	
-    // Function to get the next available VM
+    }
+
     public int getNextAvailableVm(Cloudlet cl) {
-    	if(once) {
-    		createCustomVm(vmList);
-    		once = false;
-    	}
+        if (once) {
+            createCustomVm(vmList);
+            once = false;
+        }
         int bestVmId = -1;
         double bestScore = -1;
-        
 
-        // Check each VM for the best available one
         for (CustomVm vm : customVmList) {
-
-//        	System.out.println("getTotalUtilizationOfCpuMips for vm id #" + vm.getId() +" "+vmList.get(vm.getId()).getTotalUtilizationOfCpuMips(CloudSim.clock()));
             double score = getCurrentScore(vm, cl);
             if (score > bestScore) {
                 bestScore = score;
                 bestVmId = vm.getId();
             }
         }
-
-        if (bestVmId == -1) {
-//            System.out.println("No suitable VM found........................");
-        } else {
-        	
-//            System.out.println("Best VM ID selected: " + bestVmId);
+        if (bestVmId != -1) {
             allocateResourcesToVm(bestVmId, cl);
         }
-//        lastVmIdAssigned = bestVmId;
         return bestVmId;
     }
 
-    // Function to calculate the score of a VM based on available resources
     private double getCurrentScore(CustomVm vm, Cloudlet cl) {
-    	int reqMIPS =0;
-    	int reqRAM =0;
-    	int reqBW =0;
+        double reqMIPS = 0;
+        double reqRAM = 0;
+        double reqBW = 0;
 
-        // Calculate the remaining available resources
         double availableMips = vm.getMips() - vm.getCurrentAllocatedMips();
         double availableRam = vm.getRam() - vm.getCurrentAllocatedRam();
         double availableBw = vm.getBw() - vm.getCurrentAllocatedBw();
-        
-//        System.out.println("Checking VM ID: " + vm.getId());
-//        System.out.println("Available MIPS: " + availableMips);
-//        System.out.println("Available RAM: " + availableRam);
-//        System.out.println("Available BW: " + availableBw);
-        
-    	if(useProportion) {
-    		long cloudletLength = cl.getCloudletLength();
-    		reqMIPS = normalize(cloudletLength, originalMin, originalMax, targetMin, (long)vm.getMips());
-    		reqRAM = normalize(cloudletLength, originalMin, originalMax, targetMin, vm.getRam());
-    		reqBW = normalize(cloudletLength, originalMin, originalMax, targetMin, vm.getBw());
-    	}
 
-        // If any resource is insufficient, the VM is considered overloaded
-        if (availableMips < reqMIPS || availableRam < reqRAM || availableBw < reqBW) {
-            return -1; // VM is overloaded
+        if (useProportion) {
+            long cloudletLength = cl.getCloudletLength();
+            reqMIPS = normalize(cloudletLength, originalMin, originalMax, targetMin, vm.getMips());
+            reqRAM = normalize(cloudletLength, originalMin, originalMax, targetMin, vm.getRam());
+            reqBW = normalize(cloudletLength, originalMin, originalMax, targetMin, vm.getBw());
         }
 
-        // Score is a weighted sum of available resources, higher score = better VM
-        double score = availableMips + availableRam + availableBw;
-//        System.out.println("VM ID: " + vm.getId() + " Score: " + score);
-        return score;
+        if (availableMips < reqMIPS || availableRam < reqRAM || availableBw < reqBW) {
+            return -1; 
+        }
+
+        return availableMips + availableRam + availableBw;
     }
 
-    // Function to allocate resources to the selected VM
     private void allocateResourcesToVm(int vmId, Cloudlet cl) {
         CustomVm selectedVm = customVmList.get(vmId);
-        
 
-        if (selectedVm != null) {        	
-        	if(useProportion) {
-        		long cloudletLength = cl.getCloudletLength();
-            	int normalizedMIPS = normalize(cloudletLength, originalMin, originalMax, targetMin, (long)selectedVm.getMips());
-            	int normalizedRAM = normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getRam());
-            	int normalizedBW = normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getBw());
-//            	System.out.println(cloudletLength + " " + normalizedMIPS+ " " + normalizedRAM + " " + normalizedBW);
-            	            	
+        if (selectedVm != null) {         
+            if (useProportion) {
+                long cloudletLength = cl.getCloudletLength();
+                double normalizedMIPS = normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getMips());
+                double normalizedRAM = normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getRam());
+                double normalizedBW = normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getBw());
+                
                 selectedVm.setCurrentAllocatedMips(selectedVm.getCurrentAllocatedMips() + normalizedMIPS);
                 selectedVm.setCurrentAllocatedRam(selectedVm.getCurrentAllocatedRam() + normalizedRAM);
                 selectedVm.setCurrentAllocatedBw(selectedVm.getCurrentAllocatedBw() + normalizedBW);
-        	}else {
-        		 selectedVm.setCurrentAllocatedMips(selectedVm.getCurrentAllocatedMips() + selectedVm.getMips()*allocAmount);
-                 selectedVm.setCurrentAllocatedRam(selectedVm.getCurrentAllocatedRam() + selectedVm.getRam()*allocAmount);
-                 selectedVm.setCurrentAllocatedBw(selectedVm.getCurrentAllocatedBw() + selectedVm.getBw()*allocAmount);
-        	}
+            } else {
+                selectedVm.setCurrentAllocatedMips(selectedVm.getCurrentAllocatedMips() + selectedVm.getMips() * allocAmount);
+                selectedVm.setCurrentAllocatedRam(selectedVm.getCurrentAllocatedRam() + selectedVm.getRam() * allocAmount);
+                selectedVm.setCurrentAllocatedBw(selectedVm.getCurrentAllocatedBw() + selectedVm.getBw() * allocAmount);
+            }
         }
     }
-    
+
     public void releaseResources(int vmId, Cloudlet cl) {
-    	CustomVm selectedVm = customVmList.get(vmId);        
-        if (selectedVm != null) {        	
-        	if(useProportion) {
-        		long cloudletLength = cl.getCloudletLength();
-            	int normalizedMIPS = normalize(cloudletLength, originalMin, originalMax, targetMin, (long)selectedVm.getMips());
-            	int normalizedRAM = normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getRam());
-            	int normalizedBW = normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getBw());
-            	
+        CustomVm selectedVm = customVmList.get(vmId);        
+        if (selectedVm != null) {        
+            if (useProportion) {
+                long cloudletLength = cl.getCloudletLength();
+                double normalizedMIPS = normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getMips());
+                double normalizedRAM = normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getRam());
+                double normalizedBW = normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getBw());
+
                 selectedVm.setCurrentAllocatedMips(selectedVm.getCurrentAllocatedMips() - normalizedMIPS);
                 selectedVm.setCurrentAllocatedRam(selectedVm.getCurrentAllocatedRam() - normalizedRAM);
                 selectedVm.setCurrentAllocatedBw(selectedVm.getCurrentAllocatedBw() - normalizedBW);
-        	}else {
-        		 selectedVm.setCurrentAllocatedMips(selectedVm.getCurrentAllocatedMips() - selectedVm.getMips()*allocAmount);
-                 selectedVm.setCurrentAllocatedRam(selectedVm.getCurrentAllocatedRam() - selectedVm.getRam()*allocAmount);
-                 selectedVm.setCurrentAllocatedBw(selectedVm.getCurrentAllocatedBw() - selectedVm.getBw()*allocAmount);
-        	}
+            } else {
+                selectedVm.setCurrentAllocatedMips(selectedVm.getCurrentAllocatedMips() - selectedVm.getMips() * allocAmount);
+                selectedVm.setCurrentAllocatedRam(selectedVm.getCurrentAllocatedRam() - selectedVm.getRam() * allocAmount);
+                selectedVm.setCurrentAllocatedBw(selectedVm.getCurrentAllocatedBw() - selectedVm.getBw() * allocAmount);
+            }
         }
     }
-    
-    // Method to normalize a value from one range to another
-    public static int normalize(long x, int min_x, int max_x, int min_y, long max_y) {
-        // Apply the normalization formula
-        return (int) ((double) (x - min_x) / (max_x - min_x) * (max_y - min_y) + min_y);
+
+    public static double normalize(long x, int min_x, int max_x, int min_y, double max_y) {
+        return ((double)(x - min_x) / (max_x - min_x) * (max_y - min_y) + min_y);
     }
-
-
-}
+} 

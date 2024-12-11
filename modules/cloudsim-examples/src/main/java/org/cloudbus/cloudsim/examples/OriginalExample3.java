@@ -178,6 +178,9 @@ public class OriginalExample3 {
 
 		int mips = 1000;
 		int numberOfVmsPerDc = Constants.numberOfVmsPerDC;
+		double halfVms = (double) numberOfVmsPerDc / 2;
+		int halfVmsRoundedUp = (int) Math.ceil(halfVms);
+		
 		double result = (double) numberOfVmsPerDc / 4;
 		int roundedUp = (int) Math.ceil(result);
 		
@@ -198,9 +201,9 @@ public class OriginalExample3 {
 
 		//4. Create Hosts with its id and list of PEs and add them to the list of machines
 				int hostId=0;
-				int ram = 20480; //host memory (MB)
-				long storage = 200000; //host storage
-				int bw = 20000;
+				int ram = 1024*halfVmsRoundedUp; //host memory (MB)
+				long storage = 10000*halfVmsRoundedUp; //host storage
+				int bw = 1000*halfVmsRoundedUp;
 
 				hostList.add(
 		    			new Host(
@@ -218,9 +221,9 @@ public class OriginalExample3 {
 				hostList.add(
 		    			new Host(
 		    				hostId,
-		    				new RamProvisionerSimple(ram*2),
-		    				new BwProvisionerSimple(bw*2),
-		    				storage,
+		    				new RamProvisionerSimple(ram*2*halfVmsRoundedUp),
+		    				new BwProvisionerSimple(bw*2*halfVmsRoundedUp),
+		    				storage*2,
 		    				peList2,
 		    				new VmSchedulerTimeShared(peList2)
 		    			)

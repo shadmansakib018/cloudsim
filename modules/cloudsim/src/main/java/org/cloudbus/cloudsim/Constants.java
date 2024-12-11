@@ -10,9 +10,9 @@ public final class Constants {
 	public static final int originalMin = 9000;    // Lower bound of the range
 	public static final int originalMax = 10000;    // Upper bound of the range
 	
-	public static final int totalBatches = 500;
-	public static final int batchSize = 500;
+	public static final int totalBatches = 200;
+	public static final int batchSize = 100;
 	
-	public static final int numberOfVmsPerDC = 20;
+	public static final int numberOfVmsPerDC = 40;
 
 }

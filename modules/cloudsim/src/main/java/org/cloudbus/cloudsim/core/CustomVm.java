@@ -4,15 +4,15 @@ public class CustomVm {
     private int id;
     private int userId;
     private double mips; // Maximum MIPS capacity
-    private int ram;     // Maximum RAM capacity
-    private long bw;     // Maximum Bandwidth capacity
-    private long size;   // Storage size capacity
-    
-    private double currentAllocatedMips; // Currently allocated MIPS
-    private double currentAllocatedRam;     // Currently allocated RAM
-    private double currentAllocatedBw;     // Currently allocated Bandwidth
+    private double ram;     // Maximum RAM capacity
+    private double bw;     // Maximum Bandwidth capacity
+    private double size;   // Storage size capacity
 
-    public CustomVm(int id, int userId, double mips, int ram, long bw, long size) {
+    private double currentAllocatedMips; // Currently allocated MIPS
+    private double currentAllocatedRam;  // Currently allocated RAM
+    private double currentAllocatedBw;   // Currently allocated Bandwidth
+
+    public CustomVm(int id, int userId, double mips, double ram, double bw, double size) {
         this.id = id;
         this.userId = userId;
         this.mips = mips;
@@ -37,15 +37,15 @@ public class CustomVm {
         return mips;
     }
 
-    public int getRam() {
+    public double getRam() {
         return ram;
     }
 
-    public long getBw() {
+    public double getBw() {
         return bw;
     }
 
-    public long getSize() {
+    public double getSize() {
         return size;
     }
     
