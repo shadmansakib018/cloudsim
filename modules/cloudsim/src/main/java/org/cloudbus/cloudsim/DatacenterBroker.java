@@ -9,6 +9,7 @@
 package org.cloudbus.cloudsim;
 
 import java.util.ArrayList;
+import java.util.Collections;
 //import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -130,7 +131,7 @@ public class DatacenterBroker extends SimEntity {
 
         // Read the user's input
 //        int choice = scanner.nextInt();
-        int choice =3;
+        int choice =2;
 
         // Conditional logic based on user input
         switch (choice) {
@@ -338,9 +339,9 @@ public class DatacenterBroker extends SimEntity {
 			loadBalancer.releaseResources(cloudlet.getGuestId(), cloudlet);
 		}
 		getCloudletReceivedList().add(cloudlet);
-//		Log.printlnConcat(CloudSim.clock(), " : ", getName(), " : ", cloudlet.getClass().getSimpleName(), " #", cloudlet.getCloudletId(),
-//				" return received");
-//		Log.printlnConcat(getName(), ": The number of finished Cloudlets is:", getCloudletReceivedList().size());
+		Log.printlnConcat(CloudSim.clock(), " : ", getName(), " : ", cloudlet.getClass().getSimpleName(), " #", cloudlet.getCloudletId(),
+				" return received");
+		Log.printlnConcat(getName(), ": The number of finished Cloudlets is:", getCloudletReceivedList().size());
 		cloudletsSubmitted--;
 		submitWaitingCloudlet();
 		
@@ -348,22 +349,67 @@ public class DatacenterBroker extends SimEntity {
 		
 		if(getCloudletReceivedList().size()==(batch * Constants.batchSize) && batch < Constants.totalBatches) {
 			System.out.println("sending batch number: "+ batch + " number of finished cloudlets are: " + getCloudletReceivedList().size());
-		List<Cloudlet> cloudletList = new ArrayList<>();
+		List<Cloudlet> newcloudletList = new ArrayList<>();
 		int pesNumber = 1;
 		int fileSize = 300;
 		int outputSize = 300;
 		UtilizationModel utilizationModel = new UtilizationModelFull();
 		int numCloudlets = Constants.batchSize;
-        for (int i = numCloudlets*batch; i < numCloudlets*(batch+1); i++) {
-        	int randomNumber = random.nextInt(Constants.originalMax - Constants.originalMin + 1) + Constants.originalMin;
+		int currentTaskId = numCloudlets*batch;
+//        for (int i = numCloudlets*batch; i < numCloudlets*(batch+1); i++) {
+//        	int randomNumber = random.nextInt(Constants.originalMax - Constants.originalMin + 1) + Constants.originalMin;
+//
+//            Cloudlet cloudletNew = new Cloudlet(i, randomNumber, pesNumber, fileSize, outputSize, 
+//            		utilizationModel, utilizationModel, utilizationModel);
+//            cloudletNew.setUserId(this.getId());
+//            cloudletList.add(cloudletNew);
+//        }
+        /////////////////////
+        // Calculate the number of cloudlets per category
+        int videoCloudlets = (int) (Constants.batchSize * Constants.VideoPercentage);
+        int imageCloudlets = (int) (Constants.batchSize * Constants.ImagePercentage);
+        int textCloudlets = Constants.batchSize - videoCloudlets - imageCloudlets;
 
-            Cloudlet cloudletNew = new Cloudlet(i, randomNumber, pesNumber, fileSize, outputSize, 
-            		utilizationModel, utilizationModel, utilizationModel);
-            cloudletNew.setUserId(this.getId());
-            cloudletList.add(cloudletNew);
+        // Temporary lists for each type of cloudlet
+        List<Cloudlet> videoCloudletsList = new ArrayList<>();
+        List<Cloudlet> imageCloudletsList = new ArrayList<>();
+        List<Cloudlet> textCloudletsList = new ArrayList<>();
+
+        // Create Video Cloudlets
+        for (int i = 0; i < videoCloudlets; i++) {
+            int length = getRandomMips(Constants.VideoMipsLowerBound, Constants.VideoMipsUpperBound);
+            Cloudlet cloudletV = new Cloudlet(currentTaskId++, length, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
+            cloudletV.setUserId(this.getId());
+            videoCloudletsList.add(cloudletV);
         }
+
+        // Create Image Cloudlets
+        for (int i = 0; i < imageCloudlets; i++) {
+            int length = getRandomMips(Constants.ImageMipsLowerBound, Constants.ImageMipsUpperBound);
+            Cloudlet cloudletI = new Cloudlet(currentTaskId++, length, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
+            cloudletI.setUserId(this.getId());
+            imageCloudletsList.add(cloudletI);
+        }
+
+        // Create Text Cloudlets
+        for (int i = 0; i < textCloudlets; i++) {
+            int length = getRandomMips(Constants.TextMipsLowerBound, Constants.TextMipsUpperBound);
+            Cloudlet cloudletT = new Cloudlet(currentTaskId++, length, pesNumber, fileSize, outputSize, utilizationModel, utilizationModel, utilizationModel);
+            cloudletT.setUserId(this.getId());
+            textCloudletsList.add(cloudletT);
+        }
+
+        // Combine all the cloudlets into one list
+        newcloudletList.addAll(videoCloudletsList);
+        newcloudletList.addAll(imageCloudletsList);
+        newcloudletList.addAll(textCloudletsList);
+
+        // Shuffle the list to mix the cloudlets randomly
+        Collections.shuffle(newcloudletList, random);
+
+        /////////////////////
         this.cloudletList.clear();
-        this.submitCloudletList(cloudletList);
+        this.submitCloudletList(newcloudletList);
         this.submitCloudlets();
         
         batch++;
@@ -386,6 +432,10 @@ public class DatacenterBroker extends SimEntity {
 
 		}
 	}
+	
+    private int getRandomMips(int lowerBound, int upperBound) {
+        return random.nextInt(upperBound - lowerBound + 1) + lowerBound;
+    }
 
 	/**
 	 * Process non-default received events that aren't processed by
@@ -448,7 +498,7 @@ public class DatacenterBroker extends SimEntity {
 		List<Cloudlet> successfullySubmitted = new ArrayList<>();
 
 		for (Cloudlet cloudlet : getCloudletList()) {
-//			System.out.println("checking clooudlet submission for cloudlet id #" + cloudlet.getCloudletId());
+			System.out.println("checking clooudlet submission for cloudlet id #" + cloudlet.getCloudletId());
 			GuestEntity vm;
 			// if user didn't bind this cloudlet and it has not been executed yet
 			if (cloudlet.getGuestId() == -1) {
@@ -511,7 +561,7 @@ public class DatacenterBroker extends SimEntity {
 	private void submitWaitingCloudlet(){
 		if(waitingQueue.size() > 0){
 			Cloudlet cloudlet = waitingQueue.remove(0);
-//			System.out.println("pop from waiting list: task ID:  " + cloudlet.getCloudletId());
+			System.out.println("pop from waiting list: task ID:  " + cloudlet.getCloudletId());
 			int vmId =  loadBalancer.getNextAvailableVm(cloudlet);
 			if (vmId == -1){
 				waitingQueue.add(cloudlet);
@@ -554,7 +604,7 @@ public class DatacenterBroker extends SimEntity {
 			sendNow(getVmsToDatacentersMap().get(vm.getId()), CloudActionTags.VM_DESTROY, vm);
 		}
 
-		getGuestsCreatedList().clear();
+//		getGuestsCreatedList().clear();
 	}
 
 	/**
@@ -813,11 +863,11 @@ public class DatacenterBroker extends SimEntity {
 		this.datacenterRequestedIdsList = datacenterRequestedIdsList;
 	}
 	
-	public List<Double> getDataCenterCost() {
-	    List<Double> totalHostCostList = new ArrayList<>();
-
+	public Double getDataCenterCost() {
+//	    List<Double> totalHostCostList = new ArrayList<>();
+	    double totalHostCost = 0.0;
 	    for (int id : this.getDatacenterRequestedIdsList()) {  // For each datacenter
-	        double totalHostCost = 0.0;
+	        
 	        DatacenterCharacteristics characteristics = this.datacenterCharacteristicsList.get(id);
 
 	        for (HostEntity host : characteristics.getHostList()) {
@@ -829,11 +879,11 @@ public class DatacenterBroker extends SimEntity {
 	            totalHostCost += hostCost;
 	        }
 
-	        System.out.println("Total Cost for datacenter #" + id + " $" + totalHostCost);
-	        totalHostCostList.add(totalHostCost);
+//	        totalHostCostList.add(totalHostCost);
 	    }
+        System.out.println("Total Cost for datacenters" + " $" + totalHostCost);
 
-	    return totalHostCostList;
+	    return totalHostCost;
 	}
 
 	

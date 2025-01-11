@@ -7,12 +7,22 @@ public final class Constants {
 	}
 	
 	 // Define constants
-	public static final int originalMin = 9000;    // Lower bound of the range
-	public static final int originalMax = 10000;    // Upper bound of the range
+	public static final int VideoMipsLowerBound = 100000;    
+	public static final int VideoMipsUpperBound = 500000;
+	public static final double VideoPercentage = 0.6;
 	
-	public static final int totalBatches = 200;
-	public static final int batchSize = 100;
+	public static final int ImageMipsLowerBound = 500;  
+	public static final int ImageMipsUpperBound = 3000;  
+	public static final double ImagePercentage = 0.3;
+	
+	public static final int TextMipsLowerBound = 5;   
+	public static final int TextMipsUpperBound = 50; 
+	public static final double TextPercentage = 0.1;
+	
+	public static final int totalBatches = 50;
+	public static final int batchSize = 2000;
 	
 	public static final int numberOfVmsPerDC = 40;
+	public static final int numberOfDcs = 8;
 
 }

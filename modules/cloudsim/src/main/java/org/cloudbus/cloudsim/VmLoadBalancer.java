@@ -56,4 +56,20 @@ abstract public class VmLoadBalancer {
 	}
 
 	protected abstract void releaseResources(int vmId, Cloudlet cl);
+	
+	 // Method to allocate a task to a VM
+    public void allocateTask(int vmId) {
+        vmAllocationCounts.put(vmId, vmAllocationCounts.getOrDefault(vmId, 0) + 1);
+//        System.out.println("Task allocated to VM: " + vmId);
+    }
+
+    // Method to finish a task on a VM
+    public void finishTask(int vmId) {
+        if (vmAllocationCounts.containsKey(vmId) && vmAllocationCounts.get(vmId) > 0) {
+            vmAllocationCounts.put(vmId, vmAllocationCounts.get(vmId) - 1);
+//            System.out.println("Task finished on VM: " + vmId);
+        } else {
+//            System.out.println("No tasks running on VM: " + vmId);
+        }
+    }
 }

@@ -60,8 +60,10 @@ public class CloudSimExample3 {
 		List<Double> AvgResponseTimeList = new ArrayList<>();
 	     List<Double> AvgWaitingTimeList = new ArrayList<>();
 	     List<Double> AvgExecutionTimeList = new ArrayList<>();
+	     List<Double> DcRunCostList = new ArrayList<>();
+	     List<Double> DcSetupCostList = new ArrayList<>();
 		try {
-			for(int i =0; i < 8; i++) {
+			for(int i =0; i < Constants.numberOfDcs; i++) {
 			List<Cloudlet> cloudletList;
 			List<Vm> vmlist;
 				
@@ -71,7 +73,27 @@ public class CloudSimExample3 {
 			boolean trace_flag = false; 
 			CloudSim.init(num_user, calendar, trace_flag);
 			
-			double[] gmtOffsets = {-5.0, -8.0, 9.0, 8.0, 1.0, 10.0, -3.0, 2.0};
+//			double[] gmtOffsets = {-5.0, -8.0, 9.0, 8.0, 1.0, 10.0, -3.0, 2.0};
+//			double[] gmtOffsets = {
+//			-5.0,  // Eastern Standard Time (EST)
+//            -6.0,  // Central Standard Time (CST)
+//            -7.0,  // Mountain Standard Time (MST)
+//            -8.0,  // Pacific Standard Time (PST)
+//            -9.0,  // Alaska Standard Time (AKST)
+//            -10.0, // Hawaii-Aleutian Standard Time (HST)
+//            -4.0,  // Atlantic Standard Time (AST)
+//            1.0   // Central European Time (CET)
+//			};
+			double[] gmtOffsets = {
+					-5.0,
+					-5.0,
+					-6.0,
+					7.0,
+					8.0,
+					9.0,
+					10.0,
+					-4.0
+					};
 
 			List<Datacenter> datacenterList = new ArrayList<>();
 
@@ -87,10 +109,11 @@ public class CloudSimExample3 {
 			vmlist = new ArrayList<>();
 
 			CreateVmCharacteristics CreateVmCharacteristics = new CreateVmCharacteristics();
+			int numberofVmsHalf = Constants.numberOfVmsPerDC/2;
 			
 			for (int k = 0; k <= i; k++) {
-			    List<Vm> vmListVersionOne = CreateVmCharacteristics.createVmsVersionOne(10, brokerId);
-			    List<Vm> highPerformanceVmList = CreateVmCharacteristics.createVmsVersionTwo(10, brokerId);
+			    List<Vm> vmListVersionOne = CreateVmCharacteristics.createVmsVersionOne(numberofVmsHalf, brokerId);
+			    List<Vm> highPerformanceVmList = CreateVmCharacteristics.createVmsVersionTwo(numberofVmsHalf, brokerId);
 			    vmlist.addAll(vmListVersionOne);
 			    vmlist.addAll(highPerformanceVmList);
 			}
@@ -99,7 +122,7 @@ public class CloudSimExample3 {
 
 			cloudletList = new ArrayList<>();
 			createCloudlets createCloudlets = new createCloudlets();
-			cloudletList = createCloudlets.createTasks(brokerId, CloudSim.clock());
+			cloudletList = createCloudlets.createTasks(brokerId);
 			broker.submitCloudletList(cloudletList);
 			
 			CloudSim.startSimulation();
@@ -108,7 +131,8 @@ public class CloudSimExample3 {
 	        List<Cloudlet> newList = broker.getCloudletReceivedList();
 	        System.out.println("Number of Finsihed Cloudlets " + newList.size());
 //			ShowResults.printCloudletList(newList, vmlist);
-//	        List<Double> listOfDcCost = broker.getDataCenterCost();
+	        Double totalDCCost = broker.getDataCenterCost();
+	        DcSetupCostList.add(totalDCCost);
 //			double vmCost = broker.getVmCost();
 			Map<Integer, Integer> guestIdCountMap = new HashMap<>();
 	    	double totalResponseTime = 0;
@@ -118,27 +142,31 @@ public class CloudSimExample3 {
                 if (cloudlet.getStatus() == Cloudlet.CloudletStatus.SUCCESS) {
                 	guestIdCountMap.put(cloudlet.getGuestId(), guestIdCountMap.getOrDefault(cloudlet.getGuestId(), 0) + 1);
                 	totalWaitingTime = totalWaitingTime + (cloudlet.getExecStartTime()- cloudlet.getSubmissionTimeTwo());
-                	totalResponseTime = totalResponseTime + (cloudlet.getActualCPUTime() + (cloudlet.getExecStartTime()- cloudlet.getSubmissionTimeTwo()));
+                	totalResponseTime = totalResponseTime + (cloudlet.getActualCPUTime() + (cloudlet.getExecStartTime() - cloudlet.getSubmissionTimeTwo()));
                 	totalExecTime = totalExecTime + cloudlet.getActualCPUTime();
                 }
             }
+			
 			AvgResponseTimeList.add(totalResponseTime /(newList.size()));
 			AvgWaitingTimeList.add(totalWaitingTime /(newList.size()));
 			AvgExecutionTimeList.add(totalExecTime /(newList.size()));
 			LoadBalancerName = broker.loadBalancer.getName();
-			
-			
-//			for(Datacenter dc: DatacenterList) {
-//				
-//				System.out.println("Cost to run " + dc.getName()+ " for this many seconds: " + (dc.lastProcessTime/1000)+ ": $"+ (dc.lastProcessTime/1000) * dc.getCharacteristics().getCostPerSecond());
-//			}
-			
-
-			Log.println("CloudSimExample3 finished!");
+			for (Map.Entry<Integer, Integer> entry : guestIdCountMap.entrySet()) {
+                System.out.println("VM ID: " + entry.getKey() + " ==> " + entry.getValue() + " Tasks");
+            }
+			double CostToRunDC = 0.0;
+			for(Datacenter dc: datacenterList) {
+				CostToRunDC += (dc.lastProcessTime/1000) * dc.getCharacteristics().getCostPerSecond();
+				System.out.println("Cost to run " + dc.getName()+ " for this many seconds: " + (dc.lastProcessTime/1000)+ ": $"+ (dc.lastProcessTime/1000) * dc.getCharacteristics().getCostPerSecond());
 			}
-			ShowResults.writeResultsDataToCsv(AvgResponseTimeList,AvgWaitingTimeList,AvgExecutionTimeList,LoadBalancerName);
-
+			System.out.println("Total Cost to run DC(Vm cost): "+ CostToRunDC);
+			DcRunCostList.add(CostToRunDC);
+			Log.println("**************************************************************");
 			
+			}
+			
+			ShowResults.writeResultsDataToCsv
+			(AvgResponseTimeList,AvgWaitingTimeList,AvgExecutionTimeList, DcRunCostList, DcSetupCostList, LoadBalancerName);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -222,9 +250,9 @@ public class CloudSimExample3 {
 		String vmm = "Xen";
 //		double time_zone = 10.0;         // time zone this resource located
 		double cost = 3.0;              // the cost of using processing in this resource
-		double costPerMem = 0.01;		// the cost of using memory in this resource
-		double costPerStorage = 0.001;	// the cost of using storage in this resource
-		double costPerBw = 0.1;			// the cost of using bw in this resource
+		double costPerMem = 0.004;		// the cost of using memory in this resource
+		double costPerStorage = 0.0001;	// the cost of using storage in this resource
+		double costPerBw = 0.01;			// the cost of using bw in this resource
 		LinkedList<Storage> storageList = new LinkedList<>();	//we are not adding SAN devices by now
 
         DatacenterCharacteristics characteristics = new DatacenterCharacteristics(

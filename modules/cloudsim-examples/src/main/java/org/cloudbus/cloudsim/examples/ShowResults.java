@@ -77,17 +77,27 @@ public class ShowResults {
                 }
             }
             for (Map.Entry<Integer, Integer> entry : guestIdCountMap.entrySet()) {
-                System.out.println("VM ID: " + entry.getKey() + " ==> " + entry.getValue() + " Tasks");
+//                System.out.println("VM ID: " + entry.getKey() + " ==> " + entry.getValue() + " Tasks");
+            	System.out.println(entry.getKey());
+//            	System.out.println(entry.getValue());
             }
+            System.out.println("***********************************");
+            for (Map.Entry<Integer, Integer> entry : guestIdCountMap.entrySet()) {
+//              System.out.println("VM ID: " + entry.getKey() + " ==> " + entry.getValue() + " Tasks");
+//          	System.out.println(entry.getKey());
+          	System.out.println(entry.getValue());
+          }
             System.out.println("Average Response Time: " + dft2.format(totalResponseTime /(list.size())));
             System.out.println("Average Waiting Time: " + dft2.format(totalWaitingTime /(list.size())));
             System.out.println("Average Execution Time: " + dft2.format(totalExecTime /(list.size())));
-//            System.out.println("CSV file created successfully at: " + DESKTOP_PATH + filename);
-//            OpenFileExample(DESKTOP_PATH + filename);
+            System.out.println("CSV file created successfully at: " + DESKTOP_PATH + filename);
+            OpenFileExample(DESKTOP_PATH + filename);
 
-        } catch (IOException e) {
+        } 
+        catch (IOException e) {
             e.printStackTrace();
-        } finally {
+        } 
+        finally {
             try {
                 if (bufferedWriter != null) {
                     bufferedWriter.close();
@@ -183,7 +193,7 @@ public class ShowResults {
 	
 	public static void writeResultsDataToCsv(List<Double> AvgResponseTimeList,
 			List<Double> AvgWaitingTimeList,
-			List<Double> AvgExecutionTimeList,String lb
+			List<Double> AvgExecutionTimeList,List<Double> DcRunCostList,List<Double> DcSetupCostList,String lb
 			) {
     	
         FileWriter fileWriter = null;
@@ -202,7 +212,7 @@ public class ShowResults {
             fileWriter = new FileWriter(file);
             bufferedWriter = new BufferedWriter(fileWriter);
             
-            String header = "Avgerage Response Time, Average Waiting Time, Average Execution Time";
+            String header = "Avgerage Response Time, Average Waiting Time, Average Execution Time, VM Cost, Dc setup Cost";
             
             bufferedWriter.write(header);
             bufferedWriter.newLine();  // Move to the next line
@@ -211,7 +221,9 @@ public class ShowResults {
             	StringBuilder row = new StringBuilder();
                 row.append(dft2.format(AvgResponseTimeList.get(i)))
                 .append(",").append( dft2.format(AvgWaitingTimeList.get(i)))
-                .append(",").append(dft2.format(AvgExecutionTimeList.get(i)));
+                .append(",").append(dft2.format(AvgExecutionTimeList.get(i)))
+                .append(",").append(dft2.format(DcRunCostList.get(i)))
+                .append(",").append(dft2.format(DcSetupCostList.get(i)));
                 
                 bufferedWriter.write(row.toString());
                 bufferedWriter.newLine();
@@ -219,7 +231,7 @@ public class ShowResults {
             }
             
 //            System.out.println("CSV file created successfully at: " + DESKTOP_PATH + filename);
-            OpenFileExample(DESKTOP_PATH + filename);
+//            OpenFileExample(DESKTOP_PATH + filename);
 
         } catch (IOException e) {
             e.printStackTrace();

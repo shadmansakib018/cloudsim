@@ -58,6 +58,7 @@ public class OriginalExample3 {
 	private static List<Cloudlet> cloudletList;
 	
 	private static List<Datacenter> DatacenterList;
+	private static List<Datacenter> CopyDatacenterList;
 
 	/** The vmlist. */
 	private static List<Vm> vmlist;
@@ -82,9 +83,30 @@ public class OriginalExample3 {
 
 			// Second step: Create Datacenters
 			//Datacenters are the resource providers in CloudSim. We need at list one of them to run a CloudSim simulation
+//			double[] gmtOffsets = {-5.0, -8.0, 9.0, 8.0, 1.0, 10.0, -3.0, 2.0};
+//			double[] gmtOffsets = {
+//					-5.0,  // Eastern Standard Time (EST)
+//		            -6.0,  // Central Standard Time (CST)
+//		            -7.0,  // Mountain Standard Time (MST)
+//		            -8.0,  // Pacific Standard Time (PST)
+//		            -9.0,  // Alaska Standard Time (AKST)
+//		            -10.0, // Hawaii-Aleutian Standard Time (HST)
+//		            -4.0,  // Atlantic Standard Time (AST)
+//		            1.0   // Central European Time (CET)
+//					};
+			double[] gmtOffsets = {
+					-5.0,
+					-5.0,
+					-6.0,
+					7.0,
+					8.0,
+					9.0,
+					10.0,
+					-4.0
+					};
 			
 			//east coast e.g new york
-			Datacenter datacenter0 = createDatacenter("Datacenter_0", -5.0);
+//			Datacenter datacenter0 = createDatacenter("Datacenter_0", -5.0);
 			//west coast e.g california
 //			Datacenter datacenter1 = createDatacenter("Datacenter_1", -8.0);
 //			// asia: east asia eg japan
@@ -100,8 +122,8 @@ public class OriginalExample3 {
 //			// africa eg soouth afirca
 //			Datacenter datacenter7 = createDatacenter("Datacenter_7", 2.0);
 	
-			DatacenterList = new ArrayList<>();
-			DatacenterList.add(datacenter0);
+//			DatacenterList = new ArrayList<>();
+//			DatacenterList.add(datacenter0);
 //			DatacenterList.add(datacenter1);
 //			DatacenterList.add(datacenter2);
 //			DatacenterList.add(datacenter3);
@@ -109,6 +131,14 @@ public class OriginalExample3 {
 //			DatacenterList.add(datacenter5);
 //			DatacenterList.add(datacenter6);
 //			DatacenterList.add(datacenter7);
+			
+			DatacenterList = new ArrayList<>();
+
+			for (int j = 0; j < 8; j++) {
+			    Datacenter datacenter = createDatacenter("Datacenter_" + j, gmtOffsets[j]);
+			    DatacenterList.add(datacenter);
+			}
+//			CopyDatacenterList = new ArrayList<>(DatacenterList);
 			
 
 
@@ -123,7 +153,7 @@ public class OriginalExample3 {
 			CreateVmCharacteristics CreateVmCharacteristics = new CreateVmCharacteristics();
 			
 			// Loop for 8 times (assuming 8 data centers)
-			for (int i = 0; i < 1; i++) {
+			for (int i = 0; i < 8; i++) {
 			    // Create VMs for version one and version two
 				int numberOfVmsPerDc = Constants.numberOfVmsPerDC;
 			    List<Vm> vmListVersionOne = CreateVmCharacteristics.createVmsVersionOne(numberOfVmsPerDc/2, brokerId);
@@ -139,7 +169,7 @@ public class OriginalExample3 {
 
 			cloudletList = new ArrayList<>();
 			createCloudlets createCloudlets = new createCloudlets();
-			cloudletList = createCloudlets.createTasks(brokerId, CloudSim.clock());
+			cloudletList = createCloudlets.createTasks(brokerId);
 			broker.submitCloudletList(cloudletList);
 			
 			CloudSim.startSimulation();
@@ -151,10 +181,10 @@ public class OriginalExample3 {
 			
 			for(Datacenter dc: DatacenterList) {
 				
-				System.out.println("Cost to run " + dc.getName() + ": $"+ (dc.lastProcessTime/1000) * dc.getCharacteristics().getCostPerSecond());
+				System.out.println("Cost to run " + dc.getName() + " for "+ dc.lastProcessTime/1000 + " seconds : $"+ (dc.lastProcessTime/1000) * dc.getCharacteristics().getCostPerSecond());
 			}
 			broker.getDataCenterCost();
-			broker.getVmCost();
+//			broker.getVmCost();
 
 			Log.println("CloudSimExample3 finished!");
 		}
@@ -238,11 +268,10 @@ public class OriginalExample3 {
 		String arch = "x86";      // system architecture
 		String os = "Linux";          // operating system
 		String vmm = "Xen";
-//		double time_zone = 10.0;         // time zone this resource located
 		double cost = 3.0;              // the cost of using processing in this resource
-		double costPerMem = 0.01;		// the cost of using memory in this resource
-		double costPerStorage = 0.001;	// the cost of using storage in this resource
-		double costPerBw = 0.1;			// the cost of using bw in this resource
+		double costPerMem = 0.004;		// the cost of using memory in this resource
+		double costPerStorage = 0.0001;	// the cost of using storage in this resource
+		double costPerBw = 0.01;			// the cost of using bw in this resource
 		LinkedList<Storage> storageList = new LinkedList<>();	//we are not adding SAN devices by now
 
         DatacenterCharacteristics characteristics = new DatacenterCharacteristics(
