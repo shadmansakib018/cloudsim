@@ -131,7 +131,7 @@ public class DatacenterBroker extends SimEntity {
 
         // Read the user's input
 //        int choice = scanner.nextInt();
-        int choice =2;
+        int choice =3;
 
         // Conditional logic based on user input
         switch (choice) {

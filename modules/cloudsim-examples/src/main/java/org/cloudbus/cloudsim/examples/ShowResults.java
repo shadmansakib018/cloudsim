@@ -41,11 +41,11 @@ public class ShowResults {
             
             // Create FileWriter and BufferedWriter to write to the file
             fileWriter = new FileWriter(file);
-            bufferedWriter = new BufferedWriter(fileWriter);
+//            bufferedWriter = new BufferedWriter(fileWriter);
             
             String header = "Cloudlet ID,STATUS,Task Length,Datacenter ID,VM ID,RAM,Storage,Bandwidth,MIPS,Processing Time,Start Time,Finish Time, Submission Time";
-            bufferedWriter.write(header);
-            bufferedWriter.newLine();  // Move to the next line
+//            bufferedWriter.write(header);
+//            bufferedWriter.newLine();  // Move to the next line
             
             // Loop through the list of Cloudlets and write each one
             for (Cloudlet cloudlet : list) {
@@ -55,43 +55,40 @@ public class ShowResults {
                 	totalResponseTime += (cloudlet.getActualCPUTime() + (cloudlet.getExecStartTime()- cloudlet.getSubmissionTimeTwo()));
                 	
                 	totalExecTime += cloudlet.getActualCPUTime();
-                    StringBuilder row = new StringBuilder();
-
-                    // Construct each row by appending the values with the same indent format
-                    row.append(cloudlet.getCloudletId())
-                    .append(",").append("SUCCESS")
-                    .append(",").append(cloudlet.getCloudletLength())
-                    .append(",").append(cloudlet.getResourceId())
-                    .append(",").append(cloudlet.getGuestId())
-                    .append(",").append(vmlist.get(cloudlet.getGuestId()).getRam())
-                    .append(",").append(vmlist.get(cloudlet.getGuestId()).getSize())
-                    .append(",").append(vmlist.get(cloudlet.getGuestId()).getBw())
-                    .append(",").append(vmlist.get(cloudlet.getGuestId()).getMips())
-                    .append(",").append(dft.format(cloudlet.getActualCPUTime()))
-                    .append(",").append(dft.format(cloudlet.getExecStartTime()))
-                    .append(",").append(dft.format(cloudlet.getExecFinishTime()))
-                    .append(",").append(dft.format(cloudlet.getSubmissionTimeTwo()));
-                    // Write the row to the CSV
-                    bufferedWriter.write(row.toString());
-                    bufferedWriter.newLine();  // Move to the next line
+                	
+//                    StringBuilder row = new StringBuilder();
+//
+//                    row.append(cloudlet.getCloudletId())
+//                    .append(",").append("SUCCESS")
+//                    .append(",").append(cloudlet.getCloudletLength())
+//                    .append(",").append(cloudlet.getResourceId())
+//                    .append(",").append(cloudlet.getGuestId())
+//                    .append(",").append(vmlist.get(cloudlet.getGuestId()).getRam())
+//                    .append(",").append(vmlist.get(cloudlet.getGuestId()).getSize())
+//                    .append(",").append(vmlist.get(cloudlet.getGuestId()).getBw())
+//                    .append(",").append(vmlist.get(cloudlet.getGuestId()).getMips())
+//                    .append(",").append(dft.format(cloudlet.getActualCPUTime()))
+//                    .append(",").append(dft.format(cloudlet.getExecStartTime()))
+//                    .append(",").append(dft.format(cloudlet.getExecFinishTime()))
+//                    .append(",").append(dft.format(cloudlet.getSubmissionTimeTwo()));
+                	
+//                    bufferedWriter.write(row.toString());
+//                    bufferedWriter.newLine();
                 }
-            }
-            for (Map.Entry<Integer, Integer> entry : guestIdCountMap.entrySet()) {
-//                System.out.println("VM ID: " + entry.getKey() + " ==> " + entry.getValue() + " Tasks");
-            	System.out.println(entry.getKey());
-//            	System.out.println(entry.getValue());
             }
             System.out.println("***********************************");
             for (Map.Entry<Integer, Integer> entry : guestIdCountMap.entrySet()) {
-//              System.out.println("VM ID: " + entry.getKey() + " ==> " + entry.getValue() + " Tasks");
-//          	System.out.println(entry.getKey());
-          	System.out.println(entry.getValue());
-          }
+//                System.out.println("VM ID: " + entry.getKey() + " ==> " + entry.getValue() + " Tasks");
+//            	System.out.println(entry.getKey());
+            	System.out.println(entry.getValue());
+            }
+            
+            
             System.out.println("Average Response Time: " + dft2.format(totalResponseTime /(list.size())));
             System.out.println("Average Waiting Time: " + dft2.format(totalWaitingTime /(list.size())));
             System.out.println("Average Execution Time: " + dft2.format(totalExecTime /(list.size())));
             System.out.println("CSV file created successfully at: " + DESKTOP_PATH + filename);
-            OpenFileExample(DESKTOP_PATH + filename);
+//            OpenFileExample(DESKTOP_PATH + filename);
 
         } 
         catch (IOException e) {
@@ -193,7 +190,7 @@ public class ShowResults {
 	
 	public static void writeResultsDataToCsv(List<Double> AvgResponseTimeList,
 			List<Double> AvgWaitingTimeList,
-			List<Double> AvgExecutionTimeList,List<Double> DcRunCostList,List<Double> DcSetupCostList,String lb
+			List<Double> AvgExecutionTimeList,List<Double> DcRunCostList,List<Double> DcSetupCostList,List<Double> AvgDcProcessingTime,String lb
 			) {
     	
         FileWriter fileWriter = null;
@@ -212,7 +209,7 @@ public class ShowResults {
             fileWriter = new FileWriter(file);
             bufferedWriter = new BufferedWriter(fileWriter);
             
-            String header = "Avgerage Response Time, Average Waiting Time, Average Execution Time, VM Cost, Dc setup Cost";
+            String header = "Avgerage Response Time, Average Waiting Time, Average Execution Time, VM Cost, Dc setup Cost, Avg DC Processing Time";
             
             bufferedWriter.write(header);
             bufferedWriter.newLine();  // Move to the next line
@@ -223,7 +220,8 @@ public class ShowResults {
                 .append(",").append( dft2.format(AvgWaitingTimeList.get(i)))
                 .append(",").append(dft2.format(AvgExecutionTimeList.get(i)))
                 .append(",").append(dft2.format(DcRunCostList.get(i)))
-                .append(",").append(dft2.format(DcSetupCostList.get(i)));
+                .append(",").append(dft2.format(DcSetupCostList.get(i)))
+                .append(",").append(dft2.format(AvgDcProcessingTime.get(i)));
                 
                 bufferedWriter.write(row.toString());
                 bufferedWriter.newLine();

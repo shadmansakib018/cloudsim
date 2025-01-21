@@ -134,7 +134,7 @@ public class OriginalExample3 {
 			
 			DatacenterList = new ArrayList<>();
 
-			for (int j = 0; j < 8; j++) {
+			for (int j = 0; j < 3; j++) {
 			    Datacenter datacenter = createDatacenter("Datacenter_" + j, gmtOffsets[j]);
 			    DatacenterList.add(datacenter);
 			}
@@ -153,7 +153,7 @@ public class OriginalExample3 {
 			CreateVmCharacteristics CreateVmCharacteristics = new CreateVmCharacteristics();
 			
 			// Loop for 8 times (assuming 8 data centers)
-			for (int i = 0; i < 8; i++) {
+			for (int i = 0; i < 3; i++) {
 			    // Create VMs for version one and version two
 				int numberOfVmsPerDc = Constants.numberOfVmsPerDC;
 			    List<Vm> vmListVersionOne = CreateVmCharacteristics.createVmsVersionOne(numberOfVmsPerDc/2, brokerId);
@@ -178,11 +178,12 @@ public class OriginalExample3 {
 	        List<Cloudlet> newList = broker.getCloudletReceivedList();
 //			ShowResults.printCloudletList(newList, vmlist);
 			ShowResults.writeCloudletDataToCsv(newList, vmlist, broker.loadBalancer.getName());
-			
+			double totalDcProcessingTime = 0.0;
 			for(Datacenter dc: DatacenterList) {
-				
+				totalDcProcessingTime += (dc.lastProcessTime/1000);
 				System.out.println("Cost to run " + dc.getName() + " for "+ dc.lastProcessTime/1000 + " seconds : $"+ (dc.lastProcessTime/1000) * dc.getCharacteristics().getCostPerSecond());
 			}
+			System.out.println(totalDcProcessingTime/DatacenterList.size());
 			broker.getDataCenterCost();
 //			broker.getVmCost();
 

@@ -62,6 +62,8 @@ public class CloudSimExample3 {
 	     List<Double> AvgExecutionTimeList = new ArrayList<>();
 	     List<Double> DcRunCostList = new ArrayList<>();
 	     List<Double> DcSetupCostList = new ArrayList<>();
+	     List<Double> AvgDcProcessingTime = new ArrayList<>();
+
 		try {
 			for(int i =0; i < Constants.numberOfDcs; i++) {
 			List<Cloudlet> cloudletList;
@@ -155,10 +157,13 @@ public class CloudSimExample3 {
                 System.out.println("VM ID: " + entry.getKey() + " ==> " + entry.getValue() + " Tasks");
             }
 			double CostToRunDC = 0.0;
+			double totalDcProcessingTime = 0.0;
 			for(Datacenter dc: datacenterList) {
+				totalDcProcessingTime += (dc.lastProcessTime/1000);
 				CostToRunDC += (dc.lastProcessTime/1000) * dc.getCharacteristics().getCostPerSecond();
 				System.out.println("Cost to run " + dc.getName()+ " for this many seconds: " + (dc.lastProcessTime/1000)+ ": $"+ (dc.lastProcessTime/1000) * dc.getCharacteristics().getCostPerSecond());
 			}
+			AvgDcProcessingTime.add(totalDcProcessingTime/datacenterList.size());
 			System.out.println("Total Cost to run DC(Vm cost): "+ CostToRunDC);
 			DcRunCostList.add(CostToRunDC);
 			Log.println("**************************************************************");
@@ -166,7 +171,7 @@ public class CloudSimExample3 {
 			}
 			
 			ShowResults.writeResultsDataToCsv
-			(AvgResponseTimeList,AvgWaitingTimeList,AvgExecutionTimeList, DcRunCostList, DcSetupCostList, LoadBalancerName);
+			(AvgResponseTimeList,AvgWaitingTimeList,AvgExecutionTimeList, DcRunCostList, DcSetupCostList,AvgDcProcessingTime, LoadBalancerName);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
