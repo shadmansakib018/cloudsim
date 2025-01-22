@@ -131,7 +131,7 @@ public class DatacenterBroker extends SimEntity {
 
         // Read the user's input
 //        int choice = scanner.nextInt();
-        int choice =3;
+        int choice =2;
 
         // Conditional logic based on user input
         switch (choice) {
@@ -364,7 +364,7 @@ public class DatacenterBroker extends SimEntity {
 //            cloudletNew.setUserId(this.getId());
 //            cloudletList.add(cloudletNew);
 //        }
-        /////////////////////
+        //
         // Calculate the number of cloudlets per category
         int videoCloudlets = (int) (Constants.batchSize * Constants.VideoPercentage);
         int imageCloudlets = (int) (Constants.batchSize * Constants.ImagePercentage);
@@ -421,11 +421,11 @@ public class DatacenterBroker extends SimEntity {
 			finishExecution();
 		} else { // some cloudlets haven't finished yet
 			if (!getCloudletList().isEmpty() && cloudletsSubmitted == 0 && batch==Constants.totalBatches) {
-				// all the cloudlets sent finished. It means that some bount
+				// all the cloudlets sent finished.
 				// cloudlet is waiting its VM be created
 				clearDatacenters();
 				// changed here
-//				createVmsInDatacenter(0);
+				// createVmsInDatacenter(0);
 				System.out.println("edited line 295 in DCB");
 				createVmsInDatacenter(getDatacenterIdsList().get(0)); // TODO: Remo Andreoli: why datacentedId = 0 ?? should iterate over all the datacenters
 			}

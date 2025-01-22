@@ -8,7 +8,7 @@ import org.cloudbus.cloudsim.core.CustomVm;
 import org.cloudbus.cloudsim.core.GuestEntity;
 
 public class DynamicVmLoadBalancer extends VmLoadBalancer {
-    private Map<Integer, VirtualMachineState> vmStatesList;
+//    private Map<Integer, VirtualMachineState> vmStatesList;
     private List<? extends GuestEntity> vmList;
     private List<CustomVm> customVmList;
     private boolean once = true;
@@ -27,7 +27,7 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
     public void createCustomVm(List<? extends GuestEntity> vmList) {
         for (GuestEntity vm : vmList) {
             CustomVm customVm = new CustomVm(
-            		 vm.getId(),
+            		 	vm.getId(),
             	        vm.getUserId(),
             	        vm.getMips(),
             	        (double) vm.getRam(),      // Convert to double
