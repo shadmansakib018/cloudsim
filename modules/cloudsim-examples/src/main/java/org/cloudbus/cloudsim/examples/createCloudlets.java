@@ -14,8 +14,8 @@ import org.cloudbus.cloudsim.UtilizationModel;
 import org.cloudbus.cloudsim.UtilizationModelFull;
 
 public class createCloudlets {
-    long seed = 111L; 
-    Random random = new Random(seed);
+//    long seed = 111L; 
+    Random random = new Random(Constants.seed);
     int currentTaskId = 0;
 	
 	//Cloudlet properties

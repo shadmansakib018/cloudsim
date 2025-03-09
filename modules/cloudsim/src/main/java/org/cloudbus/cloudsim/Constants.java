@@ -19,10 +19,11 @@ public final class Constants {
 	public static final int TextMipsUpperBound = 50; 
 	public static final double TextPercentage = 0.1;
 	
-	public static final int totalBatches = 250;
-	public static final int batchSize = 2000;
-	
-	public static final int numberOfVmsPerDC = 40;
+	public static int totalBatches = 8;
+	public static int batchSize = 2000;
+	public static long seed = 88L;
+		
+	public static final int numberOfVmsPerDC = 60;
 	public static final int numberOfDcs = 8;
 
 }

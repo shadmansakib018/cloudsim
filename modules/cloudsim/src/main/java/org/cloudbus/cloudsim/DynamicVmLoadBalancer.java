@@ -45,14 +45,14 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
         }
         int bestVmId = -1;
         double bestScore = -1;
-        int VmCap = 4;
-        if(customVmList.size() <= 40 && Constants.totalBatches >= 200) {
-        	VmCap = 3;
-        }
+//        int VmCap = 4;
+//        if(customVmList.size() <= 40 && Constants.totalBatches >= 200) {
+//        	VmCap = 3;
+//        }
 
         for (CustomVm vm : customVmList) {
         	
-        	if (vmAllocationCounts.containsKey(vm.getId()) && vmAllocationCounts.get(vm.getId()) > VmCap) {
+        	if (vmAllocationCounts.containsKey(vm.getId()) && vmAllocationCounts.get(vm.getId()) > 3) {
         		continue;
         	}
             double score = getCurrentScore(vm, cl);

@@ -57,7 +57,7 @@ public class CloudSimExample3 {
 	public static String LoadBalancerName;
 
 	public static void main(String[] args) {
-		List<Double> AvgResponseTimeList = new ArrayList<>();
+		 List<Double> AvgResponseTimeList = new ArrayList<>();
 	     List<Double> AvgWaitingTimeList = new ArrayList<>();
 	     List<Double> AvgExecutionTimeList = new ArrayList<>();
 	     List<Double> DcRunCostList = new ArrayList<>();
@@ -171,7 +171,8 @@ public class CloudSimExample3 {
 			}
 			
 			ShowResults.writeResultsDataToCsv
-			(AvgResponseTimeList,AvgWaitingTimeList,AvgExecutionTimeList, DcRunCostList, DcSetupCostList,AvgDcProcessingTime, LoadBalancerName);
+			(AvgResponseTimeList,AvgWaitingTimeList,AvgExecutionTimeList, DcRunCostList, 
+					DcSetupCostList,AvgDcProcessingTime, LoadBalancerName);
 		}
 		catch (Exception e) {
 			e.printStackTrace();

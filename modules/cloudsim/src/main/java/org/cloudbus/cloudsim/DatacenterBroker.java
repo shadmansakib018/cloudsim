@@ -41,8 +41,8 @@ public class DatacenterBroker extends SimEntity {
 	
 	public int batch = 1;
 	// Seed the Random object with a specific value (e.g., 12345)
-    long seed = 111L;  // You can use any long value as a seed
-    Random random = new Random(seed);
+//    long seed = 111L;  // You can use any long value as a seed
+    Random random = new Random(Constants.seed);
 
 	/** The list of VMs submitted to be managed by the broker. */
 	protected List<? extends GuestEntity> vmList;
@@ -288,9 +288,9 @@ public class DatacenterBroker extends SimEntity {
 		if (result == CloudSimTags.TRUE) {
 			getVmsToDatacentersMap().put(vmId, datacenterId);
 			getGuestsCreatedList().add(guest);
-			Log.printlnConcat(CloudSim.clock(), " : ", getName(), ": ", guest.getClassName(), " #", vmId,
-					" has been created in Datacenter #", datacenterId, ", ", guest.getHost().getClassName(), " #",
-					guest.getHost().getId());
+//			Log.printlnConcat(CloudSim.clock(), " : ", getName(), ": ", guest.getClassName(), " #", vmId,
+//					" has been created in Datacenter #", datacenterId, ", ", guest.getHost().getClassName(), " #",
+//					guest.getHost().getId());
 			vmStatesList.put(vmId, VirtualMachineState.AVAILABLE);
 		} else {
 //			Log.printlnConcat(CloudSim.clock(), " : ", getName(), ": Creation of ", guest.getClassName(), " #", vmId,
@@ -339,9 +339,8 @@ public class DatacenterBroker extends SimEntity {
 			loadBalancer.releaseResources(cloudlet.getGuestId(), cloudlet);
 		}
 		getCloudletReceivedList().add(cloudlet);
-		Log.printlnConcat(CloudSim.clock(), " : ", getName(), " : ", cloudlet.getClass().getSimpleName(), " #", cloudlet.getCloudletId(),
-				" return received");
-		Log.printlnConcat(getName(), ": The number of finished Cloudlets is:", getCloudletReceivedList().size());
+//		Log.printlnConcat(CloudSim.clock(), " : ", getName(), " : ", cloudlet.getClass().getSimpleName(), " #", cloudlet.getCloudletId()," return received");
+//		Log.printlnConcat(getName(), ": The number of finished Cloudlets is:", getCloudletReceivedList().size());
 		cloudletsSubmitted--;
 		submitWaitingCloudlet();
 		
@@ -498,7 +497,7 @@ public class DatacenterBroker extends SimEntity {
 		List<Cloudlet> successfullySubmitted = new ArrayList<>();
 
 		for (Cloudlet cloudlet : getCloudletList()) {
-			System.out.println("checking clooudlet submission for cloudlet id #" + cloudlet.getCloudletId());
+//			System.out.println("checking clooudlet submission for cloudlet id #" + cloudlet.getCloudletId());
 			GuestEntity vm;
 			// if user didn't bind this cloudlet and it has not been executed yet
 			if (cloudlet.getGuestId() == -1) {
@@ -561,7 +560,7 @@ public class DatacenterBroker extends SimEntity {
 	private void submitWaitingCloudlet(){
 		if(waitingQueue.size() > 0){
 			Cloudlet cloudlet = waitingQueue.remove(0);
-			System.out.println("pop from waiting list: task ID:  " + cloudlet.getCloudletId());
+//			System.out.println("pop from waiting list: task ID:  " + cloudlet.getCloudletId());
 			int vmId =  loadBalancer.getNextAvailableVm(cloudlet);
 			if (vmId == -1){
 				waitingQueue.add(cloudlet);
@@ -881,7 +880,7 @@ public class DatacenterBroker extends SimEntity {
 
 //	        totalHostCostList.add(totalHostCost);
 	    }
-        System.out.println("Total Cost for datacenters" + " $" + totalHostCost);
+//        System.out.println("Total Cost for datacenters" + " $" + totalHostCost);
 
 	    return totalHostCost;
 	}
