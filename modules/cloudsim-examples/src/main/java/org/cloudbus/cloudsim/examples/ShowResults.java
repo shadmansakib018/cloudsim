@@ -217,10 +217,10 @@ public class ShowResults {
             for (int i = 0; i < AvgResponseTimeList.size(); i++) {
             	StringBuilder row = new StringBuilder();
                 row.append(dft2.format(AvgResponseTimeList.get(i)))
-                .append(",").append( dft2.format(AvgWaitingTimeList.get(i)))
-                .append(",").append(dft2.format(AvgExecutionTimeList.get(i)))
+                .append(",").append("-")
+                .append(",").append("-")
                 .append(",").append(dft2.format(DcRunCostList.get(i)))
-                .append(",").append(dft2.format(DcSetupCostList.get(i)))
+                .append(",").append("-")
                 .append(",").append(dft2.format(AvgDcProcessingTime.get(i)));
                 
                 bufferedWriter.write(row.toString());

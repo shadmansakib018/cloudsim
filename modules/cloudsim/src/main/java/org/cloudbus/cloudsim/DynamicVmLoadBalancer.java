@@ -52,9 +52,9 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
 
         for (CustomVm vm : customVmList) {
         	
-        	if (vmAllocationCounts.containsKey(vm.getId()) && vmAllocationCounts.get(vm.getId()) > 3) {
-        		continue;
-        	}
+//        	if (vmAllocationCounts.containsKey(vm.getId()) && vmAllocationCounts.get(vm.getId()) > 5) {
+//        		continue;
+//        	}
             double score = getCurrentScore(vm, cl);
             if (score > bestScore) {
                 bestScore = score;
