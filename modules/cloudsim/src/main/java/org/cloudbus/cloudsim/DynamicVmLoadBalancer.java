@@ -2,8 +2,6 @@ package org.cloudbus.cloudsim;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.CustomVm;
 import org.cloudbus.cloudsim.core.GuestEntity;
 
@@ -14,7 +12,7 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
     private boolean once = true;
     private int originalMin = 0;    
     private int originalMax = 0;    
-    private int targetMin = 1;         
+    private int targetMin = 0;         
     private boolean useProportion = true;
     private double allocAmount = 0.5;
 
@@ -43,6 +41,7 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
             createCustomVm(vmList);
             once = false;
         }
+//        System.out.println("cl length ===>" + cl.getCloudletLength());
         int bestVmId = -1;
         double bestScore = -1;
 //        int VmCap = 4;
@@ -62,12 +61,10 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
             }
         }
         if (bestVmId != -1) {
-//        	System.out.println("**********************************");
 //        	System.out.println("best Vm chosen is vm # " + bestVmId);
             allocateResourcesToVm(bestVmId, cl);
         }else {
-//        	System.out.println("**********************************");
-//        	System.out.println("all Vms busy, Bestscore: " + bestScore + " bestVmId: " + bestVmId + " cl ID " + cl.getCloudletId());
+//        	System.out.println("not enough resources, Bestscore: " + bestScore + " bestVmId: " + bestVmId + " cl length " + cl.getCloudletLength());
         }
         return bestVmId;
     }
@@ -83,25 +80,20 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
 
         if (useProportion) {
         	long cloudletLength = cl.getCloudletLength();
-
-        	// Check which range the cloudlet length falls under
         	if (cloudletLength >= Constants.VideoMipsLowerBound && cloudletLength <= Constants.VideoMipsUpperBound) {
-        	    // Cloudlet is in the Video range
         	    originalMin = Constants.VideoMipsLowerBound;
         	    originalMax = Constants.VideoMipsUpperBound;
+        	    
         	} else if (cloudletLength >= Constants.ImageMipsLowerBound && cloudletLength <= Constants.ImageMipsUpperBound) {
-        	    // Cloudlet is in the Image range
         	    originalMin = Constants.ImageMipsLowerBound;
         	    originalMax = Constants.ImageMipsUpperBound;
+        	    
         	} else if (cloudletLength >= Constants.TextMipsLowerBound && cloudletLength <= Constants.TextMipsUpperBound) {
-        	    // Cloudlet is in the Text range
         	    originalMin = Constants.TextMipsLowerBound;
         	    originalMax = Constants.TextMipsUpperBound;
+        	    
         	} else {
-        	    // Optionally, handle the case where cloudletLength is outside the defined ranges
-        	    // For example, set default values or throw an error
         	    System.out.println("Cloudlet length is outside of defined ranges.");
-        	    // Optionally set originalMin and originalMax to default values if needed
         	    originalMin = 0;
         	    originalMax = 0;
         	}
@@ -109,14 +101,6 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
             reqRAM = normalize(cloudletLength, originalMin, originalMax, targetMin, vm.getRam());
             reqBW = normalize(cloudletLength, originalMin, originalMax, targetMin, vm.getBw());
         }
-//        System.out.println("**********************************");
-//        System.out.println("checking for VM ID# "+ vm.getId() + " cloudlet ID: " + cl.getCloudletId() + " cloudlet length: " + cl.getCloudletLength());
-//        System.out.println("required MIPS: "+reqMIPS + " available MIPS: " + availableMips);
-//        System.out.println(reqRAM + " available RAM: " + availableRam);
-//        System.out.println(reqBW + " available BW: " + availableBw);
-
-
-
         if (availableMips < reqMIPS || availableRam < reqRAM || availableBw < reqBW) {
             return -1; 
         }
@@ -130,24 +114,20 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
         if (selectedVm != null) {         
             if (useProportion) {
                 long cloudletLength = cl.getCloudletLength();
-             // Check which range the cloudlet length falls under
             	if (cloudletLength >= Constants.VideoMipsLowerBound && cloudletLength <= Constants.VideoMipsUpperBound) {
-            	    // Cloudlet is in the Video range
             	    originalMin = Constants.VideoMipsLowerBound;
             	    originalMax = Constants.VideoMipsUpperBound;
+            	    
             	} else if (cloudletLength >= Constants.ImageMipsLowerBound && cloudletLength <= Constants.ImageMipsUpperBound) {
-            	    // Cloudlet is in the Image range
             	    originalMin = Constants.ImageMipsLowerBound;
             	    originalMax = Constants.ImageMipsUpperBound;
+            	    
             	} else if (cloudletLength >= Constants.TextMipsLowerBound && cloudletLength <= Constants.TextMipsUpperBound) {
-            	    // Cloudlet is in the Text range
             	    originalMin = Constants.TextMipsLowerBound;
             	    originalMax = Constants.TextMipsUpperBound;
+            	    
             	} else {
-            	    // Optionally, handle the case where cloudletLength is outside the defined ranges
-            	    // For example, set default values or throw an error
             	    System.out.println("Cloudlet length is outside of defined ranges.");
-            	    // Optionally set originalMin and originalMax to default values if needed
             	    originalMin = 0;
             	    originalMax = 0;
             	}
@@ -172,24 +152,20 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
         if (selectedVm != null) {        
             if (useProportion) {
                 long cloudletLength = cl.getCloudletLength();
-             // Check which range the cloudlet length falls under
             	if (cloudletLength >= Constants.VideoMipsLowerBound && cloudletLength <= Constants.VideoMipsUpperBound) {
-            	    // Cloudlet is in the Video range
             	    originalMin = Constants.VideoMipsLowerBound;
             	    originalMax = Constants.VideoMipsUpperBound;
+            	    
             	} else if (cloudletLength >= Constants.ImageMipsLowerBound && cloudletLength <= Constants.ImageMipsUpperBound) {
-            	    // Cloudlet is in the Image range
             	    originalMin = Constants.ImageMipsLowerBound;
             	    originalMax = Constants.ImageMipsUpperBound;
+            	    
             	} else if (cloudletLength >= Constants.TextMipsLowerBound && cloudletLength <= Constants.TextMipsUpperBound) {
-            	    // Cloudlet is in the Text range
             	    originalMin = Constants.TextMipsLowerBound;
             	    originalMax = Constants.TextMipsUpperBound;
+            	    
             	} else {
-            	    // Optionally, handle the case where cloudletLength is outside the defined ranges
-            	    // For example, set default values or throw an error
             	    System.out.println("Cloudlet length is outside of defined ranges.");
-            	    // Optionally set originalMin and originalMax to default values if needed
             	    originalMin = 0;
             	    originalMax = 0;
             	}
@@ -212,4 +188,16 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
     public static double normalize(long x, int min_x, int max_x, int min_y, double max_y) {
         return ((double)(x - min_x) / (max_x - min_x) * (max_y - min_y) + min_y);
     }
+
+	@Override
+	public void sendLongTermReward(double avgRT) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void callTrain() {
+		// TODO Auto-generated method stub
+		
+	}
 } 

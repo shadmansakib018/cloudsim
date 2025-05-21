@@ -74,18 +74,7 @@ public class CloudSimExample3 {
 			Calendar calendar = Calendar.getInstance();
 			boolean trace_flag = false; 
 			CloudSim.init(num_user, calendar, trace_flag);
-			
-//			double[] gmtOffsets = {-5.0, -8.0, 9.0, 8.0, 1.0, 10.0, -3.0, 2.0};
-//			double[] gmtOffsets = {
-//			-5.0,  // Eastern Standard Time (EST)
-//            -6.0,  // Central Standard Time (CST)
-//            -7.0,  // Mountain Standard Time (MST)
-//            -8.0,  // Pacific Standard Time (PST)
-//            -9.0,  // Alaska Standard Time (AKST)
-//            -10.0, // Hawaii-Aleutian Standard Time (HST)
-//            -4.0,  // Atlantic Standard Time (AST)
-//            1.0   // Central European Time (CET)
-//			};
+
 			double[] gmtOffsets = {
 					-5.0,
 					-5.0,
@@ -143,15 +132,15 @@ public class CloudSimExample3 {
 			for (Cloudlet cloudlet : newList) {
                 if (cloudlet.getStatus() == Cloudlet.CloudletStatus.SUCCESS) {
                 	guestIdCountMap.put(cloudlet.getGuestId(), guestIdCountMap.getOrDefault(cloudlet.getGuestId(), 0) + 1);
-                	totalWaitingTime = totalWaitingTime + (cloudlet.getExecStartTime()- cloudlet.getSubmissionTimeTwo());
+//                	totalWaitingTime = totalWaitingTime + (cloudlet.getExecStartTime()- cloudlet.getSubmissionTimeTwo());
                 	totalResponseTime = totalResponseTime + (cloudlet.getActualCPUTime() + (cloudlet.getExecStartTime() - cloudlet.getSubmissionTimeTwo()));
-                	totalExecTime = totalExecTime + cloudlet.getActualCPUTime();
+//                	totalExecTime = totalExecTime + cloudlet.getActualCPUTime();
                 }
             }
 			
 			AvgResponseTimeList.add(totalResponseTime /(newList.size()));
-			AvgWaitingTimeList.add(totalWaitingTime /(newList.size()));
-			AvgExecutionTimeList.add(totalExecTime /(newList.size()));
+//			AvgWaitingTimeList.add(totalWaitingTime /(newList.size()));
+//			AvgExecutionTimeList.add(totalExecTime /(newList.size()));
 			LoadBalancerName = broker.loadBalancer.getName();
 			for (Map.Entry<Integer, Integer> entry : guestIdCountMap.entrySet()) {
                 System.out.println("VM ID: " + entry.getKey() + " ==> " + entry.getValue() + " Tasks");
@@ -164,15 +153,14 @@ public class CloudSimExample3 {
 				System.out.println("Cost to run " + dc.getName()+ " for this many seconds: " + (dc.lastProcessTime/1000)+ ": $"+ (dc.lastProcessTime/1000) * dc.getCharacteristics().getCostPerSecond());
 			}
 			AvgDcProcessingTime.add(totalDcProcessingTime/datacenterList.size());
-			System.out.println("Total Cost to run DC(Vm cost): "+ CostToRunDC);
+			System.out.println("Total Cost to run DC(DC operating cost): "+ CostToRunDC);
 			DcRunCostList.add(CostToRunDC);
 			Log.println("**************************************************************");
 			
 			}
 			
 			ShowResults.writeResultsDataToCsv
-			(AvgResponseTimeList,AvgWaitingTimeList,AvgExecutionTimeList, DcRunCostList, 
-					DcSetupCostList,AvgDcProcessingTime, LoadBalancerName);
+			(AvgResponseTimeList,DcRunCostList,AvgDcProcessingTime, LoadBalancerName);
 		}
 		catch (Exception e) {
 			e.printStackTrace();

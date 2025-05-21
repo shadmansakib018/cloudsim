@@ -44,22 +44,13 @@ import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
 import java.util.Random;
 
 /**
- * A simple example showing how to create
- * a datacenter with two hosts and run two
- * cloudlets on it. The cloudlets run in
- * VMs with different MIPS requirements.
- * The cloudlets will take different time
- * to complete the execution depending on
- * the requested VM performance.
+ * 24 hour simulation
  */
 public class OriginalExample3 {
 	public static String LoadBalancerName;
-	/** The cloudlet list. */
-	private static List<Cloudlet> cloudletList;
-	
-	private static List<Datacenter> DatacenterList;
 
-	/** The vmlist. */
+	private static List<Cloudlet> cloudletList;
+	private static List<Datacenter> DatacenterList;
 	private static List<Vm> vmlist;
 
 	/**
@@ -110,19 +101,7 @@ public class OriginalExample3 {
 				Constants.totalBatches = randomTotalBatch;
 			}
 
-			// Second step: Create Datacenters
-			//Datacenters are the resource providers in CloudSim. We need at list one of them to run a CloudSim simulation
-//			double[] gmtOffsets = {-5.0, -8.0, 9.0, 8.0, 1.0, 10.0, -3.0, 2.0};
-//			double[] gmtOffsets = {
-//					-5.0,  // Eastern Standard Time (EST)
-//		            -6.0,  // Central Standard Time (CST)
-//		            -7.0,  // Mountain Standard Time (MST)
-//		            -8.0,  // Pacific Standard Time (PST)
-//		            -9.0,  // Alaska Standard Time (AKST)
-//		            -10.0, // Hawaii-Aleutian Standard Time (HST)
-//		            -4.0,  // Atlantic Standard Time (AST)
-//		            1.0   // Central European Time (CET)
-//					};
+
 			double[] gmtOffsets = {
 					-5.0,
 					-5.0,
@@ -152,7 +131,7 @@ public class OriginalExample3 {
 			
 			// Loop for 8 times (assuming 8 data centers)
 			for (int i = 0; i < Constants.numberOfDcs; i++) {
-			    // Create VMs for version one and version two
+			    
 				int numberOfVmsPerDc = Constants.numberOfVmsPerDC;
 			    List<Vm> vmListVersionOne = CreateVmCharacteristics.createVmsVersionOne(numberOfVmsPerDc/2, brokerId);
 			    List<Vm> highPerformanceVmList = CreateVmCharacteristics.createVmsVersionTwo(numberOfVmsPerDc/2, brokerId);
@@ -183,20 +162,20 @@ public class OriginalExample3 {
 	        
 	        Map<Integer, Integer> guestIdCountMap = new HashMap<>();
 	    	double totalResponseTime = 0;
-	    	double totalWaitingTime = 0;
-	    	double totalExecTime = 0;
+//	    	double totalWaitingTime = 0;
+//	    	double totalExecTime = 0;
 			for (Cloudlet cloudlet : newList) {
                 if (cloudlet.getStatus() == Cloudlet.CloudletStatus.SUCCESS) {
                 	guestIdCountMap.put(cloudlet.getGuestId(), guestIdCountMap.getOrDefault(cloudlet.getGuestId(), 0) + 1);
-                	totalWaitingTime = totalWaitingTime + (cloudlet.getExecStartTime()- cloudlet.getSubmissionTimeTwo());
+//                	totalWaitingTime = totalWaitingTime + (cloudlet.getExecStartTime()- cloudlet.getSubmissionTimeTwo());
                 	totalResponseTime = totalResponseTime + (cloudlet.getActualCPUTime() + (cloudlet.getExecStartTime() - cloudlet.getSubmissionTimeTwo()));
-                	totalExecTime = totalExecTime + cloudlet.getActualCPUTime();
+//                	totalExecTime = totalExecTime + cloudlet.getActualCPUTime();
                 }
             }
 			
 			AvgResponseTimeList.add(totalResponseTime /(newList.size()));
-			AvgWaitingTimeList.add(totalWaitingTime /(newList.size()));
-			AvgExecutionTimeList.add(totalExecTime /(newList.size()));
+//			AvgWaitingTimeList.add(totalWaitingTime /(newList.size()));
+//			AvgExecutionTimeList.add(totalExecTime /(newList.size()));
 			LoadBalancerName = broker.loadBalancer.getName();
 			
 //			for (Map.Entry<Integer, Integer> entry : guestIdCountMap.entrySet()) {
@@ -213,7 +192,7 @@ public class OriginalExample3 {
 //				System.out.println("Cost to run " + dc.getName()+ " for this many seconds: " + (dc.lastProcessTime/1000)+ ": $"+ (dc.lastProcessTime/1000) * dc.getCharacteristics().getCostPerSecond());
 			}
 			AvgDcProcessingTime.add(totalDcProcessingTime/DatacenterList.size());
-//			System.out.println("Total Cost to run DC(Vm cost): "+ CostToRunDC);
+//			System.out.println("Total Cost to run DC (DC operating cost): "+ CostToRunDC);
 //			System.out.println(totalDcProcessingTime/DatacenterList.size());
 			DcRunCostList.add(CostToRunDC);
 			Log.println("**************************************************************");
@@ -221,8 +200,7 @@ public class OriginalExample3 {
 			Log.println("CloudSimExample3 finished! run Number: "+k);
 		}
 			ShowResults.writeResultsDataToCsv
-			(AvgResponseTimeList,AvgWaitingTimeList,AvgExecutionTimeList, DcRunCostList, 
-					DcSetupCostList,AvgDcProcessingTime, LoadBalancerName);
+			(AvgResponseTimeList,DcRunCostList,AvgDcProcessingTime, LoadBalancerName);
 			
 		}
 		catch (Exception e) {

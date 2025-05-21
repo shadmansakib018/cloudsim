@@ -35,4 +35,16 @@ public class RoundRobinVmLoadBalancer extends VmLoadBalancer {
 		
 	}
 
+	@Override
+	public void sendLongTermReward(double avgRT) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void callTrain() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

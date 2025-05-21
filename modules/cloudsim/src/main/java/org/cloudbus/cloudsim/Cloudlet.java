@@ -57,6 +57,17 @@ public class Cloudlet {
         public static final CloudletStatus[] values = values();
         // @NOTE: Convert an int to enum with CloudletStatus.values[i] (mind the array bounds)
     }
+    
+    /**
+     * The old state of all the VMS 
+     */
+    private double [] currentState = new double[41];
+    
+    /**
+     * The new state of all the VMS 
+     */
+    
+    private double [] newState = new double[41];
 
 
     /**
@@ -926,6 +937,22 @@ public class Cloudlet {
     
     public double getSubmissionTimeTwo() {
         return submissionTime;
+    }
+    
+    public void setCurrentState(double [] state) {
+    	currentState = state;
+    }
+    
+    public double [] getCurrentState() {
+    	return currentState;
+    }
+    
+    public void setNewState(double [] state) {
+    	newState = state;
+    }
+    
+    public double [] getNewState() {
+    	return newState;
     }
 
     @Deprecated

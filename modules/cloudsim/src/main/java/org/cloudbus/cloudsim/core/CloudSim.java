@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.cloudbus.cloudsim.DatacenterBroker;
 import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.core.predicates.Predicate;
 import org.cloudbus.cloudsim.core.predicates.PredicateAny;
@@ -545,9 +546,15 @@ public class CloudSim {
 			future.removeAll(toRemove);
 
 		} else {
+			DatacenterBroker broker = (DatacenterBroker) getEntity("BrokerNum0");
+			if(!broker.getCloudletList().isEmpty()) {
+//				System.out.println("SIMULATION ENDED");
+				broker.submitCloudlets();
+				return false;
+			}
 			queue_empty = true;
 			running = false;
-			printMessage(CloudSim.clock()+": Simulation: No more future events");
+			printMessage("Simulation: No more future events");
 		}
 
 		return queue_empty;
@@ -817,7 +824,7 @@ public class CloudSim {
 			ent.startEntity();
 		}
 
-		printMessage("CloudSim line 816: Entities started.");
+//		printMessage("CloudSim line 816: Entities started.");
 	}
 
 	/**
@@ -931,6 +938,7 @@ public class CloudSim {
 		}
 
 		for (SimEntity ent : entities) {
+//			System.out.println(ent.getName());
 			ent.shutdownEntity();
 		}
 

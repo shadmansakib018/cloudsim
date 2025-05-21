@@ -162,7 +162,7 @@ public class CloudSimExample1 {
 
 		// 2. A Machine contains one or more PEs or CPUs/Cores.
 		// In this example, it will have only one core.
-		List<Pe> peList = new ArrayList<>();
+		List<Pe> peList = new ArrayList<>(); 
 
 		int mips = 1000;
 

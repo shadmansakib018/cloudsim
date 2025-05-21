@@ -74,18 +74,6 @@ public class SingleRun {
 			Calendar calendar = Calendar.getInstance();
 			boolean trace_flag = false; 
 			CloudSim.init(num_user, calendar, trace_flag);
-			
-//			double[] gmtOffsets = {-5.0, -8.0, 9.0, 8.0, 1.0, 10.0, -3.0, 2.0};
-//			double[] gmtOffsets = {
-//			-5.0,  // Eastern Standard Time (EST)
-//            -6.0,  // Central Standard Time (CST)
-//            -7.0,  // Mountain Standard Time (MST)
-//            -8.0,  // Pacific Standard Time (PST)
-//            -9.0,  // Alaska Standard Time (AKST)
-//            -10.0, // Hawaii-Aleutian Standard Time (HST)
-//            -4.0,  // Atlantic Standard Time (AST)
-//            1.0   // Central European Time (CET)
-//			};
 			double[] gmtOffsets = {
 					-5.0,
 					-5.0,
@@ -133,7 +121,7 @@ public class SingleRun {
 	        List<Cloudlet> newList = broker.getCloudletReceivedList();
 	        System.out.println("Number of Finsihed Cloudlets " + newList.size());
 //			ShowResults.printCloudletList(newList, vmlist);
-//	        Double totalDCCost = broker.getDataCenterCost();
+//	        Double   = broker.getDataCenterCost();
 //	        DcSetupCostList.add(totalDCCost);
 //			double vmCost = broker.getVmCost();
 			Map<Integer, Integer> guestIdCountMap = new HashMap<>();
@@ -171,8 +159,7 @@ public class SingleRun {
 			}
 			
 			ShowResults.writeResultsDataToCsv
-			(AvgResponseTimeList,AvgWaitingTimeList,AvgExecutionTimeList, DcRunCostList, 
-					DcSetupCostList,AvgDcProcessingTime, LoadBalancerName);
+			(AvgResponseTimeList,DcRunCostList,AvgDcProcessingTime, LoadBalancerName);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
