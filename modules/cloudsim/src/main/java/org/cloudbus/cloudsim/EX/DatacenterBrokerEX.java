@@ -182,6 +182,7 @@ public class DatacenterBrokerEX extends DatacenterBroker {
         Cloudlet cloudlet = (Cloudlet) ev.getData();
         if (getLifeLength() <= 0) {
             // Will kill the broker if there are no more cloudlets.
+        	System.out.println("sfssfs");
             super.processCloudletReturn(ev);
         } else {
 

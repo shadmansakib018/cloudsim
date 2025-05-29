@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.cloudbus.cloudsim.Constants;
 import org.cloudbus.cloudsim.DatacenterBroker;
 import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.core.predicates.Predicate;
@@ -548,7 +549,8 @@ public class CloudSim {
 		} else {
 			DatacenterBroker broker = (DatacenterBroker) getEntity("BrokerNum0");
 			if(!broker.getCloudletList().isEmpty()) {
-//				System.out.println("SIMULATION ENDED");
+				System.out.println("SIMULATION ENDED");
+//				Constants.num++;
 				broker.submitCloudlets();
 				return false;
 			}

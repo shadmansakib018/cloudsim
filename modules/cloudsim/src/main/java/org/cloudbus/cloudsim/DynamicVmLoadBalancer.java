@@ -50,21 +50,22 @@ public class DynamicVmLoadBalancer extends VmLoadBalancer {
 //        }
 
         for (CustomVm vm : customVmList) {
-        	
-//        	if (vmAllocationCounts.containsKey(vm.getId()) && vmAllocationCounts.get(vm.getId()) > 5) {
-//        		continue;
-//        	}
+//        	System.out.println(vm.getId() + "==> " + vmAllocationCounts.get(vm.getId()));
+        	if (vmAllocationCounts.containsKey(vm.getId()) && vmAllocationCounts.get(vm.getId()) > 3) {
+        		continue;
+        	}
             double score = getCurrentScore(vm, cl);
             if (score > bestScore) {
                 bestScore = score;
                 bestVmId = vm.getId();
             }
         }
+//        System.out.println("****");
         if (bestVmId != -1) {
-//        	System.out.println("best Vm chosen is vm # " + bestVmId);
+//        	System.out.println("[ALLOCATED] best Vm chosen is vm # " + bestVmId);
             allocateResourcesToVm(bestVmId, cl);
         }else {
-//        	System.out.println("not enough resources, Bestscore: " + bestScore + " bestVmId: " + bestVmId + " cl length " + cl.getCloudletLength());
+//        	System.out.println("[NOT ENOUGH RESOURCES], Bestscore: " + bestScore + " bestVmId: " + bestVmId + " cl length " + cl.getCloudletLength());
         }
         return bestVmId;
     }

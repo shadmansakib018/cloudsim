@@ -29,12 +29,14 @@ public class DqnAgent {
 	
 	public static String LoadBalancerName;
 	
+	// command line args ==> port number, batchsize, Load balancer, epochs
+	
 
 	public static void main(String[] args) {
-//	    List<Double> DcRunCostList = new ArrayList<>();
-//	    List<Double> AvgDcProcessingTime = new ArrayList<>();
-//		(int) Integer.parseInt(Constants.commandLineArgs[1])
 		Constants.commandLineArgs = args;
+//		Constants.batchSize = Integer.parseInt(Constants.commandLineArgs[1]);
+//		Constants.epochs = Integer.parseInt(Constants.commandLineArgs[3]);
+//		List<Double> AvgResponseTimeList = new ArrayList<>();
 	    
 	    try {
 	    	for (int i=1; i <= Constants.epochs; i++) {
@@ -61,7 +63,7 @@ public class DqnAgent {
 				vmlist = new ArrayList<>();
 	
 				CreateVmCharacteristics CreateVmCharacteristics = new CreateVmCharacteristics();
-				int numberofVmsHalf = Constants.numberOfVmsPerDC/2;;
+				int numberofVmsHalf = Constants.numberOfVmsPerDC/2;
 				
 				for (int k = 0; k < 1; k++) {
 				    List<Vm> vmListVersionOne = CreateVmCharacteristics.createVmsVersionOne(numberofVmsHalf, brokerId);
@@ -92,7 +94,7 @@ public class DqnAgent {
 	                }
 		        }
 		        double avgRT = totalResponseTime /newList.size();
-		        if(broker.loadBalancer.lbname.equals("Reinforcement Learning")) {
+		        if(broker.loadBalancer.lbname.equals("Reinforcement_Learning")) {
 		        	broker.loadBalancer.callTrain();
 		        	broker.loadBalancer.sendLongTermReward(avgRT);
 		        }
@@ -102,26 +104,16 @@ public class DqnAgent {
 	            long finish = System.currentTimeMillis();
 	            long timeElapsed = finish - start;
 		        System.out.println("simulation number: "+(i)+ "  Average Response Time: " + avgRT + " Elapsed Time: " + timeElapsed);
-//		        if(i+1 == (int) Integer.parseInt(Constants.commandLineArgs[1])) {
-		        	Thread.sleep(5000);
-//		        }
-		        
-		        
-	
-	//			double CostToRunDC = 0.0;
-	//			double totalDcProcessingTime = 0.0;
-	//			for(Datacenter dc: datacenterList) {
-	//				totalDcProcessingTime += (dc.lastProcessTime/1000);
-	//				CostToRunDC += (dc.lastProcessTime/1000) * dc.getCharacteristics().getCostPerSecond();
-	//				System.out.println("Cost to run " + dc.getName()+ " for this many seconds: " + (dc.lastProcessTime/1000)+ ": $"+ (dc.lastProcessTime/1000) * dc.getCharacteristics().getCostPerSecond());
-	//			}
-				
-	//			AvgDcProcessingTime.add(totalDcProcessingTime/datacenterList.size());
-	//			System.out.println("Total Cost to run DC(Vm cost): "+ CostToRunDC);
-	//			DcRunCostList.add(CostToRunDC);
+		        Thread.sleep(3000);
 							
 //				ShowResults.writeCloudletDataToCsv(newList, vmlist, LoadBalancerName);
+//		        AvgResponseTimeList.add(avgRT);
 		}
+//	    	for(double avgTime : AvgResponseTimeList) {
+//	    		String formattedAvgTime = String.format("%.3f", avgTime);
+//	            System.out.println(formattedAvgTime);
+//	    	}
+//	    	ShowResults.writeResultsRL(AvgResponseTimeList, LoadBalancerName);
 	}
 		catch (Exception e) {
 			e.printStackTrace();

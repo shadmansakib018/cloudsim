@@ -61,13 +61,13 @@ public class Cloudlet {
     /**
      * The old state of all the VMS 
      */
-    private double [] currentState = new double[41];
+    private double [] currentState = new double[21];
     
     /**
      * The new state of all the VMS 
      */
     
-    private double [] newState = new double[41];
+    private double [] newState = new double[21];
 
 
     /**

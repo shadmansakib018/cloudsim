@@ -40,7 +40,7 @@ public class ShowResults {
            fileWriter = new FileWriter(file);
            bufferedWriter = new BufferedWriter(fileWriter);
             
-           String header = "Cloudlet ID,STATUS,Task Length,Datacenter ID,VM ID,RAM,Storage,Bandwidth,MIPS,Processing Time,Start Time,Finish Time, Submission Time";
+           String header = "Cloudlet ID,Task Length,VM ID,Submit Time,Start Time,Processing Time,Finish Time";
            bufferedWriter.write(header);
            bufferedWriter.newLine();
             
@@ -53,29 +53,29 @@ public class ShowResults {
                     StringBuilder row = new StringBuilder();
 
                     row.append(cloudlet.getCloudletId())
-                    .append(",").append("SUCCESS")
+//                    .append(",").append("SUCCESS")
                     .append(",").append(cloudlet.getCloudletLength())
-                    .append(",").append(cloudlet.getResourceId())
+//                    .append(",").append(cloudlet.getResourceId())
                     .append(",").append(cloudlet.getGuestId())
-                    .append(",").append(vmlist.get(cloudlet.getGuestId()).getRam())
-                    .append(",").append(vmlist.get(cloudlet.getGuestId()).getSize())
-                    .append(",").append(vmlist.get(cloudlet.getGuestId()).getBw())
-                    .append(",").append(vmlist.get(cloudlet.getGuestId()).getMips())
-                    .append(",").append(dft.format(cloudlet.getActualCPUTime()))
+//                    .append(",").append(vmlist.get(cloudlet.getGuestId()).getRam())
+//                    .append(",").append(vmlist.get(cloudlet.getGuestId()).getSize())
+//                    .append(",").append(vmlist.get(cloudlet.getGuestId()).getBw())
+//                    .append(",").append(vmlist.get(cloudlet.getGuestId()).getMips())
+                    .append(",").append(dft.format(cloudlet.getSubmissionTimeTwo()))
                     .append(",").append(dft.format(cloudlet.getExecStartTime()))
-                    .append(",").append(dft.format(cloudlet.getExecFinishTime()))
-                    .append(",").append(dft.format(cloudlet.getSubmissionTimeTwo()));
+                    .append(",").append(dft.format(cloudlet.getActualCPUTime()))
+                    .append(",").append(dft.format(cloudlet.getExecFinishTime()));
                 	
                    bufferedWriter.write(row.toString());
                     bufferedWriter.newLine();
                 }
             }
             
-            for (Map.Entry<Integer, Integer> entry : guestIdCountMap.entrySet()) {
-                System.out.println("VM ID: " + entry.getKey() + " ==> " + entry.getValue() + " Tasks");
+//            for (Map.Entry<Integer, Integer> entry : guestIdCountMap.entrySet()) {
+//                System.out.println("VM ID: " + entry.getKey() + " ==> " + entry.getValue() + " Tasks");
 //            	System.out.println(entry.getKey());
 //            	System.out.println(entry.getValue());
-            }
+//            }
             
             
             System.out.println("Average Response Time: " + dft.format(totalResponseTime /(list.size())));
@@ -239,5 +239,32 @@ public class ShowResults {
                 e.printStackTrace();
             }
         }
+    }
+	
+	
+	public static void writeResultsRL(List<Double> AvgResponseTimeList,String lb) {
+//		String timestamp = new SimpleDateFormat("MMdd_HHmm").format(new Date());
+		String folderName = System.getProperty("user.home") + "/Desktop/CloudSimCSVs/RL/EXP1";
+		File folder = new File(folderName);
+		
+		// Create the folder if it doesn't exist
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+        
+        String timestamp2 = new SimpleDateFormat("mmss").format(new Date());
+        File file = new File(folder, lb+ "_" + timestamp2 + ".txt");
+        
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            for (Double value : AvgResponseTimeList) {
+                writer.write(String.format("%.3f", value));
+                writer.newLine();
+            }
+            System.out.println("File written to: " + file.getAbsolutePath());
+        } catch (IOException e) {
+            System.err.println("Failed to write file: " + e.getMessage());
+        }
+        
+        
     }
 }

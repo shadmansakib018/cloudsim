@@ -24,10 +24,12 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 	  private boolean once = true;
 	  private int originalMin = 0;    
 	  private int originalMax = 0;    
-	  private int targetMin = 0; 
+	  private int targetMin = 50; 
 	  private List<? extends GuestEntity> vmList;
 	  private List<CustomVm> customVmList;
 	  private static final HttpClient client = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).connectTimeout(Duration.ofSeconds(5)).build();
+	  protected Map<Integer, Integer> vmCounts = new HashMap<Integer, Integer>();
+//	  private int maxExpectedTasks = (Constants.totalBatches * Constants.batchSize)/5;
   
   
 	public ReinforcementLearning(DatacenterBroker dcb) {
@@ -36,7 +38,7 @@ public class ReinforcementLearning extends VmLoadBalancer  {
       }else {
     	  webserver = "http://localhost:" + 5999;
       }
-		setName("Reinforcement Learning");
+		setName("Reinforcement_Learning");
         this.vmList = dcb.getGuestsCreatedList(); 
         this.customVmList = new ArrayList<>();
 	}
@@ -68,11 +70,12 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 
 	    int selectedVmId = getActionFromFlask(currentState);
 	    try {
-			Thread.sleep(15);
+			Thread.sleep(18);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	    if(vmAllocationCounts.getOrDefault(selectedVmId, 0) >= 5) {
+//	    	System.out.println("[MORE THAN 5 TASKS] vmId: " + selectedVmId);
 		    sendTrainingDataToFlask(currentState, selectedVmId, -1, currentState);
 		    return -1;
 	    }
@@ -86,6 +89,7 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 //	    System.out.println("[CHOSEN VM] selected VM ID: "+selectedVmId + " Cloudlet ID# " + cl.getCloudletId() + " TASK LENGTH: " + cl.getCloudletLength());
 	    cl.setCurrentState(currentState);
 	    allocateResourcesToVm(selectedVmId, cl);
+//	    VmCountsUpdate(selectedVmId);
 	    double[] newState = getVmStateVector(cl);
 	    cl.setNewState(newState);
 	    return selectedVmId;
@@ -99,46 +103,45 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 		double availableBw   = vm.getBw() - vm.getCurrentAllocatedBw();
 
         
-        long cloudletLength = cl.getCloudletLength();
-        double alpha = 1.0;
-    	if (cloudletLength >= Constants.VideoMipsLowerBound && cloudletLength <= Constants.VideoMipsUpperBound) {
-    	    originalMin = Constants.VideoMipsLowerBound;
-    	    originalMax = Constants.VideoMipsUpperBound;
-    	    
-    	} else if (cloudletLength >= Constants.ImageMipsLowerBound && cloudletLength <= Constants.ImageMipsUpperBound) {
-    	    originalMin = Constants.ImageMipsLowerBound;
-    	    originalMax = Constants.ImageMipsUpperBound;
-    	    alpha = 0.6;
-    	    
-    	} else if (cloudletLength >= Constants.TextMipsLowerBound && cloudletLength <= Constants.TextMipsUpperBound) {
-    	    originalMin = Constants.TextMipsLowerBound;
-    	    originalMax = Constants.TextMipsUpperBound;
-    	    alpha = 0.2;
-    	    
-    	} else {
-    	    System.out.println("Cloudlet length is outside of defined ranges.");
-    	    originalMin = 0; 
-    	    originalMax = 0;
-    	}
-        double reqMIPS = normalize(cloudletLength, originalMin, originalMax, targetMin, vm.getMips()) * alpha;
-        double reqRAM = normalize(cloudletLength, originalMin, originalMax, targetMin, vm.getRam()) * alpha;
-        double reqBW = normalize(cloudletLength, originalMin, originalMax, targetMin, vm.getBw()) * alpha;
+//        long cloudletLength = cl.getCloudletLength();
+//        double alpha = 1.0;
+//    	if (cloudletLength >= Constants.VideoMipsLowerBound && cloudletLength <= Constants.VideoMipsUpperBound) {
+//    	    originalMin = Constants.VideoMipsLowerBound;
+//    	    originalMax = Constants.VideoMipsUpperBound;
+//    	    
+//    	} else if (cloudletLength >= Constants.ImageMipsLowerBound && cloudletLength <= Constants.ImageMipsUpperBound) {
+//    	    originalMin = Constants.ImageMipsLowerBound;
+//    	    originalMax = Constants.ImageMipsUpperBound;
+//    	    alpha = 0.6;
+//    	    
+//    	} else if (cloudletLength >= Constants.TextMipsLowerBound && cloudletLength <= Constants.TextMipsUpperBound) {
+//    	    originalMin = Constants.TextMipsLowerBound;
+//    	    originalMax = Constants.TextMipsUpperBound;
+//    	    alpha = 0.2;
+//    	    
+//    	} else {
+//    	    System.out.println("Cloudlet length is outside of defined ranges.");
+//    	    originalMin = 0; 
+//    	    originalMax = 0;
+//    	}
+//        double reqMIPS = normalize(cloudletLength, originalMin, originalMax, targetMin, vm.getMips()) * alpha;
+//        double reqRAM = normalize(cloudletLength, originalMin, originalMax, targetMin, vm.getRam()) * alpha;
+//        double reqBW = normalize(cloudletLength, originalMin, originalMax, targetMin, vm.getBw()) * alpha;
 //        System.out.println(cloudletLength);
 //        System.out.println("available MIPS: " + availableMips + "==> required Mips: " + reqMIPS);
 //        System.out.println("available Ram: " + availableRam + "==> required Ram: " + reqRAM);
 //        System.out.println("available Bw: " + availableBw + "==> required BW: " + reqBW);
 
-        if (availableMips < reqMIPS || availableRam < reqRAM || availableBw < reqBW) {
+        if (availableMips <= 0 || availableRam <= 0 || availableBw <= 0) {
             return false; 
         }
-		
 		
 		return true;
 		
 	}
 	
 	private double[] getVmStateVector(Cloudlet cl) {
-	    double[] state = new double[41];
+	    double[] state = new double[21];
 	    int i = 0;
 	    for (CustomVm vm : customVmList) {
 
@@ -147,12 +150,18 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 //	    	state[i++] = Math.round((vm.getBw() - vm.getCurrentAllocatedBw()) * 100.0) / 100.0;
 	    	
 	    	state[i++] = normalization((vm.getMips() - vm.getCurrentAllocatedMips()), 1000);
-	    	state[i++] = normalization((vm.getRam() - vm.getCurrentAllocatedRam()), 2048);
-	    	state[i++] = normalization((vm.getBw() - vm.getCurrentAllocatedBw()), 2000);
+//	    	state[i++] = normalization((vm.getRam() - vm.getCurrentAllocatedRam()), 2048);
+//	    	state[i++] = normalization((vm.getBw() - vm.getCurrentAllocatedBw()), 2000);
+	    	
+//	    	 int processed  = vmCounts.getOrDefault(vm.getId(), 0);
+//		     state[i++] = (double) processed / maxExpectedTasks;
+//		     System.out.println((double) processed / 50);
 
 	        int activeTasks = vmAllocationCounts.getOrDefault(vm.getId(), 0);
-	        state[i++] = activeTasks;
-//	        System.out.println(activeTasks);
+	        state[i++] = (double) activeTasks / 5;
+	        
+	        
+	       
 	    }
 	    state[i++] = normalizeCloudletLength(cl.getCloudletLength());
 //        System.out.println(cl.getCloudletLength() + " " + normalizeCloudletLength(cl.getCloudletLength()));
@@ -262,21 +271,21 @@ public class ReinforcementLearning extends VmLoadBalancer  {
             	} else if (cloudletLength >= Constants.ImageMipsLowerBound && cloudletLength <= Constants.ImageMipsUpperBound) { 
             	    originalMin = Constants.ImageMipsLowerBound;
             	    originalMax = Constants.ImageMipsUpperBound;
-            	    alpha = 0.6;
+            	    alpha = 0.8;
             	    
             	} else if (cloudletLength >= Constants.TextMipsLowerBound && cloudletLength <= Constants.TextMipsUpperBound) {
             	    originalMin = Constants.TextMipsLowerBound;
             	    originalMax = Constants.TextMipsUpperBound;
-            	    alpha = 0.2;
+            	    alpha = 0.5;
             	    
             	} else {
             	    System.out.println("Cloudlet length is outside of defined ranges.");
             	    originalMin = 0;
             	    originalMax = 0;
             	}
-                double normalizedMIPS = normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getMips());
-                double normalizedRAM = normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getRam());
-                double normalizedBW = normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getBw());
+                double normalizedMIPS = normalize(cloudletLength, originalMin, originalMax, targetMin, 1000*0.3);
+                double normalizedRAM = normalize(cloudletLength, originalMin, originalMax, targetMin, 2048*0.3);
+                double normalizedBW = normalize(cloudletLength, originalMin, originalMax, targetMin, 2000*0.3);
 //                System.out.println("allocated amount based on length: " + cl.getCloudletLength());
 //                System.out.println(normalizedMIPS);
 //                System.out.println(normalizedRAM);
@@ -306,21 +315,21 @@ public class ReinforcementLearning extends VmLoadBalancer  {
             	} else if (cloudletLength >= Constants.ImageMipsLowerBound && cloudletLength <= Constants.ImageMipsUpperBound) {
             	    originalMin = Constants.ImageMipsLowerBound;
             	    originalMax = Constants.ImageMipsUpperBound;
-            	    alpha = 0.6;
+            	    alpha = 0.8;
             	    
             	} else if (cloudletLength >= Constants.TextMipsLowerBound && cloudletLength <= Constants.TextMipsUpperBound) {
             	    originalMin = Constants.TextMipsLowerBound;
             	    originalMax = Constants.TextMipsUpperBound;
-            	    alpha = 0.2;
+            	    alpha = 0.5;
             	    
             	} else {
             	    System.out.println("Cloudlet length is outside of defined ranges.");
             	    originalMin = 0;
             	    originalMax = 0;
             	}
-                double normalizedMIPS = normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getMips());
-                double normalizedRAM = normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getRam());
-                double normalizedBW = normalize(cloudletLength, originalMin, originalMax, targetMin, selectedVm.getBw());
+                double normalizedMIPS = normalize(cloudletLength, originalMin, originalMax, targetMin, 1000*0.3);
+                double normalizedRAM = normalize(cloudletLength, originalMin, originalMax, targetMin, 2048*0.3);
+                double normalizedBW = normalize(cloudletLength, originalMin, originalMax, targetMin, 2000*0.3);
 
                 selectedVm.setCurrentAllocatedMips(selectedVm.getCurrentAllocatedMips() - (normalizedMIPS*alpha));
 
@@ -445,6 +454,15 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 
 	    double weightedScore = normalized * weight;
 	    return Math.round(weightedScore * 100.0) / 100.0;  // round to 2 decimal places
+	}
+	
+	public void VmCountsUpdate(int currVm){
+		
+		Integer currCount = vmCounts.get(currVm);
+		if (currCount == null){
+			currCount = 0;
+		}
+		vmCounts.put(currVm, currCount + 1);		
 	}
 
 

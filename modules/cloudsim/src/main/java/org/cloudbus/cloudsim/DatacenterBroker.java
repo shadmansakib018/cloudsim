@@ -128,8 +128,8 @@ public class DatacenterBroker extends SimEntity {
 //        System.out.println("3. DynamicLB");
         
 
-//        int choice = scanner.nextInt();
-        int choice =4;
+//        int choice = scanner.nextInt();  Integer.parseInt(Constants.commandLineArgs[2]);
+        int choice = 3;
 
         switch (choice) {
             case 1:
@@ -324,11 +324,11 @@ public class DatacenterBroker extends SimEntity {
 	    efficiency = Math.max(min, Math.min(efficiency, max));
 
 	    // Normalize to 0–1
-//	    return (efficiency - min) / (max - min);
+	    double normalized = (efficiency - min) / (max - min);
 	    
 //	    return Math.pow((efficiency - min) / (max - min), 2); // quadratic: sharp rewards for higher efficiency
-	    double normalized = 1 - Math.exp(-((efficiency - min) / (max - min)) * 5); // smoother reward curve - exponential
-	    return normalized * 2;
+//	    double normalized = 1 - Math.exp(-((efficiency - min) / (max - min)) * 5); // smoother reward curve - exponential
+	    return normalized;
 	}
 	/**
 	 * Process a cloudlet return event.
@@ -342,20 +342,22 @@ public class DatacenterBroker extends SimEntity {
 		
 		
 		vmStatesList.put(cloudlet.getGuestId(), VirtualMachineState.AVAILABLE);
-		if(loadBalancer.lbname == "DynamicVmLoadBalancer" || loadBalancer.lbname == "Reinforcement Learning") {
+		if (loadBalancer.lbname.equals("DynamicVmLoadBalancer") || loadBalancer.lbname.equals("Reinforcement_Learning")) {
 			loadBalancer.releaseResources(cloudlet.getGuestId(), cloudlet);
 		}
-		if(loadBalancer.lbname == "Reinforcement Learning") {
-			int idx = cloudlet.getGuestId() * 4;
+		if(loadBalancer.lbname.equals("Reinforcement_Learning")){
+			int idx = cloudlet.getGuestId() * 2;
 			double efficiency = cloudlet.getCloudletLength() / cloudlet.getActualCPUTime();
 			double efficiencyReward = normalizeEfficiency(efficiency);
+//			System.out.println("Cloudlet ID# " + cloudlet.getCloudletId() + " TASK LENGTH: " + cloudlet.getCloudletLength() + " PROC TIME: " +  cloudlet.getActualCPUTime() + " EFFICIENCY: " + efficiency);
 			double[] newState = cloudlet.getNewState();
-			double activeTasks   = newState[idx + 3];
-			double loadPenalty = (activeTasks / 5) * 0.7;
+			double activeTasks   = newState[idx + 1];
+			double loadPenalty = (activeTasks / 5) * 0.3;
 			GuestEntity vm = getGuestsCreatedList().get(cloudlet.getGuestId()); 
-			double mipsBonus = ((vm.getMips() - 500.0) / 250.0) * 0.5;
+			double mipsBonus = ((vm.getMips() - 500.0) / 250.0) * 0.25;
 			double finalReward = efficiencyReward - loadPenalty + mipsBonus;
 			finalReward = (Math.round(finalReward * 1000.0)/1000.0);
+//			System.out.println(cloudlet.getGuestId() + "  " + finalReward +" " + vm.getMips() + " " + mipsBonus);
 		    ((ReinforcementLearning) loadBalancer).sendTrainingDataToFlask(cloudlet.getCurrentState(), cloudlet.getGuestId(), finalReward, newState);
 		}
 		
@@ -369,12 +371,12 @@ public class DatacenterBroker extends SimEntity {
 			submitWaitingCloudlet();
 
 		
-//		if(getCloudletReceivedList().size()==(batch * Constants.batchSize) && batch < Constants.totalBatches) {
-//			sendNextBatch();
-//		}
-			if((getCloudletReceivedList().size()+killedTasks)==(batch * Constants.batchSize) && batch < Constants.totalBatches) {
+		if(getCloudletReceivedList().size()==(batch * Constants.batchSize) && batch < Constants.totalBatches) {
 			sendNextBatch();
 		}
+//			if((getCloudletReceivedList().size()+killedTasks)==(batch * Constants.batchSize) && batch < Constants.totalBatches) {
+//			sendNextBatch();
+//		}
 		
 		if (getCloudletList().isEmpty() && cloudletsSubmitted == 0 && batch==Constants.totalBatches) { // all cloudlets executed
 			Log.printlnConcat(getName(), ": All Cloudlets executed. Finishing...");
@@ -397,7 +399,6 @@ public class DatacenterBroker extends SimEntity {
     }
     
     private void sendNextBatch() {
-//    		Constants.seed = Constants.seed+batch;
     		random = new Random(Constants.seed+batch);
 			System.out.println("sending batch number: "+ batch + " number of finished cloudlets are: " + getCloudletReceivedList().size());
 			List<Cloudlet> newcloudletList = new ArrayList<>();
@@ -408,9 +409,9 @@ public class DatacenterBroker extends SimEntity {
 			int numCloudlets = Constants.batchSize;
 			int currentTaskId = numCloudlets*batch;
 
-	        int videoCloudlets = (int) (Constants.batchSize * Constants.VideoPercentage);
-	        int imageCloudlets = (int) (Constants.batchSize * Constants.ImagePercentage);
-	        int textCloudlets = Constants.batchSize - videoCloudlets - imageCloudlets;
+	        int videoCloudlets = (int) (numCloudlets * Constants.VideoPercentage);
+	        int imageCloudlets = (int) (numCloudlets* Constants.ImagePercentage);
+	        int textCloudlets = numCloudlets - videoCloudlets - imageCloudlets;
 	
 	        // Temporary lists for each type of cloudlet
 	        List<Cloudlet> videoCloudletsList = new ArrayList<>();
@@ -514,26 +515,18 @@ public class DatacenterBroker extends SimEntity {
 	 */
 	public void submitCloudlets() {
  		List<Cloudlet> successfullySubmitted = new ArrayList<>();
-// 		int c = 1;
 		for (Cloudlet cloudlet : getCloudletList()) {
-//			if(c%5==0) {
-//				try {
-//					Thread.sleep(600);
-//				} catch (InterruptedException e) {
-////					System.out.println("c%5==0 error");
-//				}
-//			}
-//			c++;
+			
 			GuestEntity vm;
 			if (cloudlet.getGuestId() == -1) {
 				int vmid = loadBalancer.getNextAvailableVm(cloudlet);
 				if(vmid == -1) {
 //					waitingQueue.add(cloudlet);	
 //					queuedCount++;
-//					cloudletsSubmitted++;
-					killedTasks++;
-					getCloudletSubmittedList().add(cloudlet);
-					successfullySubmitted.add(cloudlet);
+					
+//					killedTasks++;
+//					getCloudletSubmittedList().add(cloudlet);
+//					successfullySubmitted.add(cloudlet);
 					continue;
 				}else {
 					vm = getGuestsCreatedList().get(vmid);
