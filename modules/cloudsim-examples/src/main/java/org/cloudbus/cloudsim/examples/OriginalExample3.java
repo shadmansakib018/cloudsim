@@ -57,8 +57,8 @@ public class OriginalExample3 {
 	 * Creates main() to run this example
 	 */
 	public static void main(String[] args) {
-		Random rand = new Random(100);
-		List<Double> AvgResponseTimeList = new ArrayList<>();
+		 Random rand = new Random(100);
+		 List<Double> AvgResponseTimeList = new ArrayList<>();
 	     List<Double> AvgWaitingTimeList = new ArrayList<>();
 	     List<Double> AvgExecutionTimeList = new ArrayList<>();
 	     List<Double> DcRunCostList = new ArrayList<>();

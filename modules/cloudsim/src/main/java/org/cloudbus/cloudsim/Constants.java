@@ -21,7 +21,7 @@ public final class Constants {
 		
 	public static int epochs = 5;
 	public static int totalBatches = 5;
-	public static int batchSize = 150;
+	public static int batchSize = 50;
 	public static long seed = 62L;
 		
 	public static final int numberOfVmsPerDC = 10;

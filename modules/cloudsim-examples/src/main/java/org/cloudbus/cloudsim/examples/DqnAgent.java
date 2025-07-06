@@ -34,14 +34,13 @@ public class DqnAgent {
 
 	public static void main(String[] args) {
 		Constants.commandLineArgs = args;
-//		Constants.batchSize = Integer.parseInt(Constants.commandLineArgs[1]);
-//		Constants.epochs = Integer.parseInt(Constants.commandLineArgs[3]);
-//		List<Double> AvgResponseTimeList = new ArrayList<>();
-	    
+		Constants.batchSize = Integer.parseInt(Constants.commandLineArgs[1]);
+		Constants.epochs = Integer.parseInt(Constants.commandLineArgs[3]);
+		List<Double> AvgResponseTimeList = new ArrayList<>();
 	    try {
 	    	for (int i=1; i <= Constants.epochs; i++) {
-	    		long start = System.currentTimeMillis();
-	    		Constants.seed = Constants.seed + i;
+//	    		long start = System.currentTimeMillis();
+	    		Constants.seed = Constants.seed + 1;
 				List<Cloudlet> cloudletList;
 				List<Vm> vmlist;
 					
@@ -94,6 +93,7 @@ public class DqnAgent {
 	                }
 		        }
 		        double avgRT = totalResponseTime /newList.size();
+		        AvgResponseTimeList.add(avgRT);
 		        if(broker.loadBalancer.lbname.equals("Reinforcement_Learning")) {
 		        	broker.loadBalancer.callTrain();
 		        	broker.loadBalancer.sendLongTermReward(avgRT);
@@ -101,19 +101,16 @@ public class DqnAgent {
 	            for (Map.Entry<Integer, Integer> entry : guestIdCountMap.entrySet()) {
 	                System.out.println("VM ID: " + entry.getKey() + " ==> " + entry.getValue() + " Tasks");
 	            }
-	            long finish = System.currentTimeMillis();
-	            long timeElapsed = finish - start;
-		        System.out.println("simulation number: "+(i)+ "  Average Response Time: " + avgRT + " Elapsed Time: " + timeElapsed);
-		        Thread.sleep(3000);
-							
+//	            long finish = System.currentTimeMillis();
+//	            long timeElapsed = finish - start;
+		        System.out.println("simulation number: "+(i)+ "  Average Response Time: " + avgRT);
+		        Thread.sleep(3000);					
 //				ShowResults.writeCloudletDataToCsv(newList, vmlist, LoadBalancerName);
-//		        AvgResponseTimeList.add(avgRT);
+		        
 		}
-//	    	for(double avgTime : AvgResponseTimeList) {
-//	    		String formattedAvgTime = String.format("%.3f", avgTime);
-//	            System.out.println(formattedAvgTime);
-//	    	}
-//	    	ShowResults.writeResultsRL(AvgResponseTimeList, LoadBalancerName);
+
+//	    	ShowResults.writeResultsRL(AvgResponseTimeList, LoadBalancerName, Constants.commandLineArgs[4]);
+
 	}
 		catch (Exception e) {
 			e.printStackTrace();

@@ -76,14 +76,14 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 		}
 	    if(vmAllocationCounts.getOrDefault(selectedVmId, 0) >= 5) {
 //	    	System.out.println("[MORE THAN 5 TASKS] vmId: " + selectedVmId);
-		    sendTrainingDataToFlask(currentState, selectedVmId, -1, currentState);
+//		    sendTrainingDataToFlask(currentState, selectedVmId, -1, currentState);
 		    return -1;
 	    }
 
 	    boolean available = checkIfResourcesEnough(selectedVmId, cl);
 	    if(!available) {
 //	    	System.out.println("[NOT ENOUGH RESOURCES] vmId: " + selectedVmId);
-		    sendTrainingDataToFlask(currentState, selectedVmId, -1, currentState);
+//		    sendTrainingDataToFlask(currentState, selectedVmId, -1, currentState);
 	    	return -1;
 	    }
 //	    System.out.println("[CHOSEN VM] selected VM ID: "+selectedVmId + " Cloudlet ID# " + cl.getCloudletId() + " TASK LENGTH: " + cl.getCloudletLength());

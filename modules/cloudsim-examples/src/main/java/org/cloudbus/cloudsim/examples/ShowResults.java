@@ -242,7 +242,7 @@ public class ShowResults {
     }
 	
 	
-	public static void writeResultsRL(List<Double> AvgResponseTimeList,String lb) {
+	public static void writeResultsRL(List<Double> AvgResponseTimeList,String lb, String name) {
 //		String timestamp = new SimpleDateFormat("MMdd_HHmm").format(new Date());
 		String folderName = System.getProperty("user.home") + "/Desktop/CloudSimCSVs/RL/EXP1";
 		File folder = new File(folderName);
@@ -252,14 +252,19 @@ public class ShowResults {
             folder.mkdirs();
         }
         
-        String timestamp2 = new SimpleDateFormat("mmss").format(new Date());
-        File file = new File(folder, lb+ "_" + timestamp2 + ".txt");
-        
+//        String timestamp2 = new SimpleDateFormat("mmss").format(new Date());
+//        File file = new File(folder, lb+ "_" + timestamp2 + ".txt");
+        File file = new File(folder, name + ".txt");
+
+        double totalAvgResponseTimes = 0.0;
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             for (Double value : AvgResponseTimeList) {
+            	totalAvgResponseTimes = totalAvgResponseTimes + value;
                 writer.write(String.format("%.3f", value));
                 writer.newLine();
             }
+            writer.write(String.format("%.3f", totalAvgResponseTimes/AvgResponseTimeList.size()));
+            writer.newLine();
             System.out.println("File written to: " + file.getAbsolutePath());
         } catch (IOException e) {
             System.err.println("Failed to write file: " + e.getMessage());

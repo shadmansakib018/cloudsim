@@ -129,27 +129,27 @@ public class DatacenterBroker extends SimEntity {
         
 
 //        int choice = scanner.nextInt();  Integer.parseInt(Constants.commandLineArgs[2]);
-        int choice = 3;
+        int choice = Integer.parseInt(Constants.commandLineArgs[2]);
 
         switch (choice) {
             case 1:
-//                System.out.println("You selected RoundRobin.");
+                System.out.println("You selected RoundRobin.");
                 loadBalancer = new RoundRobinVmLoadBalancer(this);
                 break;
             case 2:
-//                System.out.println("You selected Throttled.");
+                System.out.println("You selected Throttled.");
                 loadBalancer = new ThrottledVmLoadBalancer(this);
                 break;
             case 3:
-//                System.out.println("You selected DynamicLB.");
+                System.out.println("You selected DynamicLB.");
                 loadBalancer = new DynamicVmLoadBalancer(this);
                 break;
             case 4:
-//                System.out.println("You selected Reinforcement Learning.");
+                System.out.println("You selected Reinforcement Learning.");
                 loadBalancer = new ReinforcementLearning(this);
                 break;
             default:
-//                System.out.println("Invalid choice. Defaults to Round Robin");
+                System.out.println("Invalid choice. Defaults to Round Robin");
                 loadBalancer = new RoundRobinVmLoadBalancer(this);
         }
         scanner.close();
