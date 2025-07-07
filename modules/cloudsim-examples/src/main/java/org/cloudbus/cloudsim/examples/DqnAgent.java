@@ -40,7 +40,7 @@ public class DqnAgent {
 	    try {
 	    	for (int i=1; i <= Constants.epochs; i++) {
 //	    		long start = System.currentTimeMillis();
-	    		Constants.seed = Constants.seed + 1;
+	    		Constants.seed = Constants.seed + i;
 				List<Cloudlet> cloudletList;
 				List<Vm> vmlist;
 					
@@ -109,7 +109,7 @@ public class DqnAgent {
 		        
 		}
 
-//	    	ShowResults.writeResultsRL(AvgResponseTimeList, LoadBalancerName, Constants.commandLineArgs[4]);
+	    	ShowResults.writeResultsRL(AvgResponseTimeList, LoadBalancerName, Constants.commandLineArgs[4]);
 
 	}
 		catch (Exception e) {

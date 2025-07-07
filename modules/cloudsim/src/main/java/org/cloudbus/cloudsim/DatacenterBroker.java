@@ -345,21 +345,21 @@ public class DatacenterBroker extends SimEntity {
 		if (loadBalancer.lbname.equals("DynamicVmLoadBalancer") || loadBalancer.lbname.equals("Reinforcement_Learning")) {
 			loadBalancer.releaseResources(cloudlet.getGuestId(), cloudlet);
 		}
-		if(loadBalancer.lbname.equals("Reinforcement_Learning")){
-			int idx = cloudlet.getGuestId() * 2;
-			double efficiency = cloudlet.getCloudletLength() / cloudlet.getActualCPUTime();
-			double efficiencyReward = normalizeEfficiency(efficiency);
-//			System.out.println("Cloudlet ID# " + cloudlet.getCloudletId() + " TASK LENGTH: " + cloudlet.getCloudletLength() + " PROC TIME: " +  cloudlet.getActualCPUTime() + " EFFICIENCY: " + efficiency);
-			double[] newState = cloudlet.getNewState();
-			double activeTasks   = newState[idx + 1];
-			double loadPenalty = (activeTasks / 5) * 0.3;
-			GuestEntity vm = getGuestsCreatedList().get(cloudlet.getGuestId()); 
-			double mipsBonus = ((vm.getMips() - 500.0) / 250.0) * 0.25;
-			double finalReward = efficiencyReward - loadPenalty + mipsBonus;
-			finalReward = (Math.round(finalReward * 1000.0)/1000.0);
-//			System.out.println(cloudlet.getGuestId() + "  " + finalReward +" " + vm.getMips() + " " + mipsBonus);
-		    ((ReinforcementLearning) loadBalancer).sendTrainingDataToFlask(cloudlet.getCurrentState(), cloudlet.getGuestId(), finalReward, newState);
-		}
+//		if(loadBalancer.lbname.equals("Reinforcement_Learning")){
+//			int idx = cloudlet.getGuestId() * 2;
+//			double efficiency = cloudlet.getCloudletLength() / cloudlet.getActualCPUTime();
+//			double efficiencyReward = normalizeEfficiency(efficiency);
+////			System.out.println("Cloudlet ID# " + cloudlet.getCloudletId() + " TASK LENGTH: " + cloudlet.getCloudletLength() + " PROC TIME: " +  cloudlet.getActualCPUTime() + " EFFICIENCY: " + efficiency);
+//			double[] newState = cloudlet.getNewState();
+//			double activeTasks   = newState[idx + 1];
+//			double loadPenalty = (activeTasks / 5) * 0.3;
+//			GuestEntity vm = getGuestsCreatedList().get(cloudlet.getGuestId()); 
+//			double mipsBonus = ((vm.getMips() - 500.0) / 250.0) * 0.25;
+//			double finalReward = efficiencyReward - loadPenalty + mipsBonus;
+//			finalReward = (Math.round(finalReward * 1000.0)/1000.0);
+////			System.out.println(cloudlet.getGuestId() + "  " + finalReward +" " + vm.getMips() + " " + mipsBonus);
+//		    ((ReinforcementLearning) loadBalancer).sendTrainingDataToFlask(cloudlet.getCurrentState(), cloudlet.getGuestId(), finalReward, newState);
+//		}
 		
 		getCloudletReceivedList().add(cloudlet);
 //		Log.printlnConcat("[TASK FINISHED] ",cloudlet.getClass().getSimpleName(), " ID# ", cloudlet.getCloudletId(), " The number of finished Cloudlets is:", getCloudletReceivedList().size());
