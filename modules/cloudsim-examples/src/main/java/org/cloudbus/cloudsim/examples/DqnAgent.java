@@ -94,10 +94,10 @@ public class DqnAgent {
 		        }
 		        double avgRT = totalResponseTime /newList.size();
 		        AvgResponseTimeList.add(avgRT);
-		        if(broker.loadBalancer.lbname.equals("Reinforcement_Learning")) {
-		        	broker.loadBalancer.callTrain();
-		        	broker.loadBalancer.sendLongTermReward(avgRT);
-		        }
+//		        if(broker.loadBalancer.lbname.equals("Reinforcement_Learning")) {
+//		        	broker.loadBalancer.callTrain();
+//		        	broker.loadBalancer.sendLongTermReward(avgRT);
+//		        }
 	            for (Map.Entry<Integer, Integer> entry : guestIdCountMap.entrySet()) {
 	                System.out.println("VM ID: " + entry.getKey() + " ==> " + entry.getValue() + " Tasks");
 	            }
