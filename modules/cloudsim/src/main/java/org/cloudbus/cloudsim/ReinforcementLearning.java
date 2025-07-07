@@ -28,8 +28,6 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 	  private List<? extends GuestEntity> vmList;
 	  private List<CustomVm> customVmList;
 	  private static final HttpClient client = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).connectTimeout(Duration.ofSeconds(5)).build();
-	  protected Map<Integer, Integer> vmCounts = new HashMap<Integer, Integer>();
-//	  private int maxExpectedTasks = (Constants.totalBatches * Constants.batchSize)/5;
   
   
 	public ReinforcementLearning(DatacenterBroker dcb) {
@@ -76,20 +74,19 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 		}
 	    if(vmAllocationCounts.getOrDefault(selectedVmId, 0) >= 5) {
 //	    	System.out.println("[MORE THAN 5 TASKS] vmId: " + selectedVmId);
-//		    sendTrainingDataToFlask(currentState, selectedVmId, -1, currentState);
+		    sendTrainingDataToFlask(currentState, selectedVmId, -1, currentState);
 		    return -1;
 	    }
 
 	    boolean available = checkIfResourcesEnough(selectedVmId, cl);
 	    if(!available) {
 //	    	System.out.println("[NOT ENOUGH RESOURCES] vmId: " + selectedVmId);
-//		    sendTrainingDataToFlask(currentState, selectedVmId, -1, currentState);
+		    sendTrainingDataToFlask(currentState, selectedVmId, -1, currentState);
 	    	return -1;
 	    }
 //	    System.out.println("[CHOSEN VM] selected VM ID: "+selectedVmId + " Cloudlet ID# " + cl.getCloudletId() + " TASK LENGTH: " + cl.getCloudletLength());
 	    cl.setCurrentState(currentState);
 	    allocateResourcesToVm(selectedVmId, cl);
-//	    VmCountsUpdate(selectedVmId);
 	    double[] newState = getVmStateVector(cl);
 	    cl.setNewState(newState);
 	    return selectedVmId;
@@ -144,27 +141,15 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 	    double[] state = new double[21];
 	    int i = 0;
 	    for (CustomVm vm : customVmList) {
-
-//	    	state[i++] = Math.round((vm.getMips() - vm.getCurrentAllocatedMips()) * 100.0) / 100.0;
-//	    	state[i++] = Math.round((vm.getRam() - vm.getCurrentAllocatedRam()) * 100.0) / 100.0;
-//	    	state[i++] = Math.round((vm.getBw() - vm.getCurrentAllocatedBw()) * 100.0) / 100.0;
 	    	
 	    	state[i++] = normalization((vm.getMips() - vm.getCurrentAllocatedMips()), 1000);
 //	    	state[i++] = normalization((vm.getRam() - vm.getCurrentAllocatedRam()), 2048);
 //	    	state[i++] = normalization((vm.getBw() - vm.getCurrentAllocatedBw()), 2000);
-	    	
-//	    	 int processed  = vmCounts.getOrDefault(vm.getId(), 0);
-//		     state[i++] = (double) processed / maxExpectedTasks;
-//		     System.out.println((double) processed / 50);
 
 	        int activeTasks = vmAllocationCounts.getOrDefault(vm.getId(), 0);
-	        state[i++] = (double) activeTasks / 5;
-	        
-	        
-	       
+	        state[i++] = (double) activeTasks / 5;  
 	    }
 	    state[i++] = normalizeCloudletLength(cl.getCloudletLength());
-//        System.out.println(cl.getCloudletLength() + " " + normalizeCloudletLength(cl.getCloudletLength()));
 	    return state;
 	}
 	
@@ -191,11 +176,6 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 	    } catch (Exception e) {
 //	        e.printStackTrace();
 	    	System.out.println("ERROR IN GET ACTION " + webserver);
-//	    	try {
-//				Thread.sleep(3000);
-//			} catch (InterruptedException e1) {
-//
-//			}
 	        return new Random().nextInt(vmList.size());
 	    }
 	}
@@ -221,22 +201,7 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 	        client.send(request, HttpResponse.BodyHandlers.ofString());
 
 	    } catch (Exception e) {
-//	    	try {
 	    	System.out.println("ERROR IN SENDING DATA "+ webserver);
-//	    	Thread.sleep(3000);
-//	        ObjectMapper mapper = new ObjectMapper();
-//	        Map<String, Object> payload = new HashMap<>();
-//	        payload.put("state", state);
-//	        payload.put("action", action);
-//	        payload.put("reward", reward);
-//	        payload.put("next_state", nextState);
-//	        payload.put("port", Constants.commandLineArgs[0]);
-//	        String json = mapper.writeValueAsString(payload);
-//	        HttpRequest request = HttpRequest.newBuilder().uri(new URI( "http://localhost:5999/fallback_store_states")).header("Content-Type", "application/json").POST(HttpRequest.BodyPublishers.ofString(json)).build();
-//	        client.send(request, HttpResponse.BodyHandlers.ofString());
-//	    	}catch(Exception e1) {
-//	    		System.out.println("ERROR IN SENDING DATA TO FALLBACK SERVER "+ "http://localhost:5999/fallback_store_states");
-//	    	}
 	    }
 	}
 	 
@@ -456,15 +421,4 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 	    return Math.round(weightedScore * 100.0) / 100.0;  // round to 2 decimal places
 	}
 	
-	public void VmCountsUpdate(int currVm){
-		
-		Integer currCount = vmCounts.get(currVm);
-		if (currCount == null){
-			currCount = 0;
-		}
-		vmCounts.put(currVm, currCount + 1);		
-	}
-
-
-
 }

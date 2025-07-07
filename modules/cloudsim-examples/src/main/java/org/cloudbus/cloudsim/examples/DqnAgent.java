@@ -36,7 +36,6 @@ public class DqnAgent {
 		Constants.commandLineArgs = args;
 		Constants.batchSize = Integer.parseInt(Constants.commandLineArgs[1]);
 		Constants.epochs = Integer.parseInt(Constants.commandLineArgs[3]);
-		List<Double> AvgResponseTimeList = new ArrayList<>();
 	    try {
 	    	for (int i=1; i <= Constants.epochs; i++) {
 //	    		long start = System.currentTimeMillis();
@@ -93,7 +92,6 @@ public class DqnAgent {
 	                }
 		        }
 		        double avgRT = totalResponseTime /newList.size();
-		        AvgResponseTimeList.add(avgRT);
 		        if(broker.loadBalancer.lbname.equals("Reinforcement_Learning")) {
 		        	broker.loadBalancer.callTrain();
 		        	broker.loadBalancer.sendLongTermReward(avgRT);
@@ -108,9 +106,6 @@ public class DqnAgent {
 //				ShowResults.writeCloudletDataToCsv(newList, vmlist, LoadBalancerName);
 		        
 		}
-
-//	    	ShowResults.writeResultsRL(AvgResponseTimeList, LoadBalancerName, Constants.commandLineArgs[4]);
-
 	}
 		catch (Exception e) {
 			e.printStackTrace();
