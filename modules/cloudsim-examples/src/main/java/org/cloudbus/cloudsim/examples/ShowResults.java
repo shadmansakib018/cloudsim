@@ -242,34 +242,36 @@ public class ShowResults {
     }
 	
 	
-	public static void writeResultsRL(List<Double> AvgResponseTimeList,String lb, String name) {
-//		String timestamp = new SimpleDateFormat("MMdd_HHmm").format(new Date());
-		String folderName = System.getProperty("user.home") + "/Desktop/CloudSimCSVs/RL/EXP1";
-		File folder = new File(folderName);
-		
-		// Create the folder if it doesn't exist
-        if (!folder.exists()) {
-            folder.mkdirs();
-        }
-        
-//        String timestamp2 = new SimpleDateFormat("mmss").format(new Date());
-//        File file = new File(folder, lb+ "_" + timestamp2 + ".txt");
-        File file = new File(folder, name + ".txt");
+	
+	public static void writeValidationResult(List<Double> avgResponseTimeList) {
+	    // Define the path: Desktop/DDQN-150/validation
+	    String folderPath = System.getProperty("user.home") + "/Desktop/DDQN-150/validation";
+	    File folder = new File(folderPath);
 
-        double totalAvgResponseTimes = 0.0;
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            for (Double value : AvgResponseTimeList) {
-            	totalAvgResponseTimes = totalAvgResponseTimes + value;
-                writer.write(String.format("%.3f", value));
-                writer.newLine();
-            }
-            writer.write(String.format("%.3f", totalAvgResponseTimes/AvgResponseTimeList.size()));
-            writer.newLine();
-            System.out.println("File written to: " + file.getAbsolutePath());
-        } catch (IOException e) {
-            System.err.println("Failed to write file: " + e.getMessage());
-        }
-        
-        
-    }
+	    // Create directory if it doesn't exist
+	    if (!folder.exists()) {
+	        folder.mkdirs();
+	    }
+
+	    // Create file named by modelName.txt
+	    File file = new File(folder, "ValidationART.txt");
+
+	    // Calculate total average response time
+	    double total = 0.0;
+	    for (Double val : avgResponseTimeList) {
+	        total += val;
+	    }
+	    double avg = avgResponseTimeList.isEmpty() ? 0.0 : total / avgResponseTimeList.size();
+
+	    // Write results
+	    try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+//	        writer.write("Model Name: " + modelName);
+//	        writer.newLine();
+	        writer.write(String.format("%.3f", avg));
+	        writer.newLine();
+	        System.out.println("✅ Validation results written to: " + file.getAbsolutePath());
+	    } catch (IOException e) {
+	        System.err.println("❌ Failed to write validation result: " + e.getMessage());
+	    }
+	}
 }

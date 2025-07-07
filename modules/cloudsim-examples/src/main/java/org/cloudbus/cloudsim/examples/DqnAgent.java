@@ -40,7 +40,7 @@ public class DqnAgent {
 	    try {
 	    	for (int i=1; i <= Constants.epochs; i++) {
 //	    		long start = System.currentTimeMillis();
-	    		Constants.seed = Constants.seed + i;
+	    		Constants.seed = Constants.seed + 1;
 				List<Cloudlet> cloudletList;
 				List<Vm> vmlist;
 					
@@ -82,7 +82,7 @@ public class DqnAgent {
 	
 				LoadBalancerName = broker.loadBalancer.getName();
 		        List<Cloudlet> newList = broker.getCloudletReceivedList();
-		        System.out.println("Number of Finsihed Cloudlets " + newList.size());
+		        System.out.println("[VALIDATION] Number of Finsihed Cloudlets " + newList.size());
 		        
 		        Map<Integer, Integer> guestIdCountMap = new HashMap<>();
 		    	double totalResponseTime = 0;
@@ -94,22 +94,22 @@ public class DqnAgent {
 		        }
 		        double avgRT = totalResponseTime /newList.size();
 		        AvgResponseTimeList.add(avgRT);
-		        if(broker.loadBalancer.lbname.equals("Reinforcement_Learning")) {
-		        	broker.loadBalancer.callTrain();
-		        	broker.loadBalancer.sendLongTermReward(avgRT);
-		        }
-	            for (Map.Entry<Integer, Integer> entry : guestIdCountMap.entrySet()) {
-	                System.out.println("VM ID: " + entry.getKey() + " ==> " + entry.getValue() + " Tasks");
-	            }
+//		        if(broker.loadBalancer.lbname.equals("Reinforcement_Learning")) {
+//		        	broker.loadBalancer.callTrain();
+//		        	broker.loadBalancer.sendLongTermReward(avgRT);
+//		        }
+//	            for (Map.Entry<Integer, Integer> entry : guestIdCountMap.entrySet()) {
+//	                System.out.println("VM ID: " + entry.getKey() + " ==> " + entry.getValue() + " Tasks");
+//	            }
 //	            long finish = System.currentTimeMillis();
 //	            long timeElapsed = finish - start;
-		        System.out.println("simulation number: "+(i)+ "  Average Response Time: " + avgRT);
-		        Thread.sleep(3000);					
+		        System.out.println("[VALIDATION] EPOCH: "+(i)+ "  Average Response Time: " + avgRT);
+		        Thread.sleep(2000);					
 //				ShowResults.writeCloudletDataToCsv(newList, vmlist, LoadBalancerName);
 		        
 		}
 
-	    	ShowResults.writeResultsRL(AvgResponseTimeList, LoadBalancerName, Constants.commandLineArgs[4]);
+	    	ShowResults.writeValidationResult(AvgResponseTimeList);
 
 	}
 		catch (Exception e) {
