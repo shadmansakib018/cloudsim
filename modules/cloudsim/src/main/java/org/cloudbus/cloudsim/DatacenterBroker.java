@@ -122,14 +122,15 @@ public class DatacenterBroker extends SimEntity {
 		loadBalancer = new RoundRobinVmLoadBalancer(this);
 		Scanner scanner = new Scanner(System.in);
 
-//        System.out.println("Please select Load Balancing algorithm:");
+        System.out.println("Please select Load Balancing algorithm:");
 //        System.out.println("1. RoundRobin");
 //        System.out.println("2. Throttled");
 //        System.out.println("3. DynamicLB");
         
 
-//        int choice = scanner.nextInt();  Integer.parseInt(Constants.commandLineArgs[2]);
-        int choice = Integer.parseInt(Constants.commandLineArgs[2]);
+//        int choice = scanner.nextInt();
+//        int choice = Integer.parseInt(Constants.commandLineArgs[2]);
+		int choice = 5;
 
         switch (choice) {
             case 1:
@@ -147,6 +148,10 @@ public class DatacenterBroker extends SimEntity {
             case 4:
                 System.out.println("You selected Reinforcement Learning.");
                 loadBalancer = new ReinforcementLearning(this);
+                break;
+            case 5:
+                System.out.println("You selected DynamicLB V2.");
+                loadBalancer = new DynamicLBV2(this);
                 break;
             default:
                 System.out.println("Invalid choice. Defaults to Round Robin");
@@ -515,11 +520,12 @@ public class DatacenterBroker extends SimEntity {
 	 */
 	public void submitCloudlets() {
  		List<Cloudlet> successfullySubmitted = new ArrayList<>();
+// 		int jk = 0;
 		for (Cloudlet cloudlet : getCloudletList()) {
-			
 			GuestEntity vm;
 			if (cloudlet.getGuestId() == -1) {
 				int vmid = loadBalancer.getNextAvailableVm(cloudlet);
+//				System.out.println(++jk + " submitting cloudlets to vm: " + vmid);
 				if(vmid == -1) {
 //					waitingQueue.add(cloudlet);	
 //					queuedCount++;

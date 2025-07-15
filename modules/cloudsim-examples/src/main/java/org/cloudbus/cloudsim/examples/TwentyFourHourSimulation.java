@@ -46,7 +46,7 @@ import java.util.Random;
 /**
  * 24 hour simulation
  */
-public class OriginalExample3 {
+public class TwentyFourHourSimulation {
 	public static String LoadBalancerName;
 
 	private static List<Cloudlet> cloudletList;
@@ -65,7 +65,7 @@ public class OriginalExample3 {
 	     List<Double> DcSetupCostList = new ArrayList<>();
 	     List<Double> AvgDcProcessingTime = new ArrayList<>();
 
-		Log.println("Starting CloudSimExample3...");
+		Log.println("Starting 24Hour simulation...");
 
 		try {
 			for(int k =0; k < 24; k++) {

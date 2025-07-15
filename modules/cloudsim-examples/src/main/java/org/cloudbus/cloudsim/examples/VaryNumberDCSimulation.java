@@ -53,7 +53,7 @@ import java.util.Random;
  * to complete the execution depending on
  * the requested VM performance.
  */
-public class CloudSimExample3 {
+public class VaryNumberDCSimulation {
 	public static String LoadBalancerName;
 
 	public static void main(String[] args) {
@@ -69,7 +69,7 @@ public class CloudSimExample3 {
 			List<Cloudlet> cloudletList;
 			List<Vm> vmlist;
 				
-			Log.println("Starting CloudSimExample3... RUN NUMBER: " + i);
+			Log.println("Starting - Vary Number of DCs... RUN NUMBER: " + i);
 			int num_user = 1;
 			Calendar calendar = Calendar.getInstance();
 			boolean trace_flag = false; 
@@ -148,14 +148,14 @@ public class CloudSimExample3 {
 			double CostToRunDC = 0.0;
 			double totalDcProcessingTime = 0.0;
 			for(Datacenter dc: datacenterList) {
-				totalDcProcessingTime += (dc.lastProcessTime/1000);
-				CostToRunDC += (dc.lastProcessTime/1000) * dc.getCharacteristics().getCostPerSecond();
-				System.out.println("Cost to run " + dc.getName()+ " for this many seconds: " + (dc.lastProcessTime/1000)+ ": $"+ (dc.lastProcessTime/1000) * dc.getCharacteristics().getCostPerSecond());
+				totalDcProcessingTime += (dc.lastProcessTime);
+				CostToRunDC += (dc.lastProcessTime) * dc.getCharacteristics().getCostPerSecond();
+				System.out.println("Cost to run " + dc.getName()+ " for this many seconds: " + (dc.lastProcessTime)+ ": $"+ (dc.lastProcessTime) * dc.getCharacteristics().getCostPerSecond());
 			}
 			AvgDcProcessingTime.add(totalDcProcessingTime/datacenterList.size());
 			System.out.println("Total Cost to run DC(DC operating cost): "+ CostToRunDC);
 			DcRunCostList.add(CostToRunDC);
-			Log.println("**************************************************************");
+			System.out.println("ART: "+ totalResponseTime /(newList.size()));
 			
 			}
 			
