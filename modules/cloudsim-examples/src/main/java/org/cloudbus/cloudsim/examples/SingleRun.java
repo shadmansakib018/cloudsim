@@ -147,19 +147,19 @@ public class SingleRun {
 			double CostToRunDC = 0.0;
 			double totalDcProcessingTime = 0.0;
 			for(Datacenter dc: datacenterList) {
-				totalDcProcessingTime += (dc.lastProcessTime/1000);
-				CostToRunDC += (dc.lastProcessTime/1000) * dc.getCharacteristics().getCostPerSecond();
-				System.out.println("Cost to run " + dc.getName()+ " for this many seconds: " + (dc.lastProcessTime/1000)+ ": $"+ (dc.lastProcessTime/1000) * dc.getCharacteristics().getCostPerSecond());
+				totalDcProcessingTime += (dc.lastProcessTime);
+				CostToRunDC += (dc.lastProcessTime) * dc.getCharacteristics().getCostPerSecond();
+				System.out.println("Cost to run " + dc.getName()+ " for this many seconds: " + (dc.lastProcessTime)+ ": $"+ (dc.lastProcessTime) * dc.getCharacteristics().getCostPerSecond());
 			}
 			AvgDcProcessingTime.add(totalDcProcessingTime/datacenterList.size());
 			System.out.println("Total Cost to run DC(Vm cost): "+ CostToRunDC);
 			DcRunCostList.add(CostToRunDC);
-			Log.println("**************************************************************");
+			System.out.println("ART: "+ totalResponseTime /(newList.size()));
 			
 			}
 			
-			ShowResults.writeResultsDataToCsv
-			(AvgResponseTimeList,DcRunCostList,AvgDcProcessingTime, LoadBalancerName);
+//			ShowResults.writeResultsDataToCsv
+//			(AvgResponseTimeList,DcRunCostList,AvgDcProcessingTime, LoadBalancerName);
 		}
 		catch (Exception e) {
 			e.printStackTrace();

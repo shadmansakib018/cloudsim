@@ -148,6 +148,10 @@ public class DatacenterBroker extends SimEntity {
                 System.out.println("You selected Reinforcement Learning.");
                 loadBalancer = new ReinforcementLearning(this);
                 break;
+            case 5:
+                System.out.println("You selected DynamicLB V2.");
+                loadBalancer = new DynamicLBV2(this);
+                break;
             default:
                 System.out.println("Invalid choice. Defaults to Round Robin");
                 loadBalancer = new RoundRobinVmLoadBalancer(this);
