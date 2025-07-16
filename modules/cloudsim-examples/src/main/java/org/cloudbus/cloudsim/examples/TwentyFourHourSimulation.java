@@ -46,7 +46,7 @@ import java.util.Random;
 /**
  * 24 hour simulation
  */
-public class OriginalExample3 {
+public class TwentyFourHourSimulation {
 	public static String LoadBalancerName;
 
 	private static List<Cloudlet> cloudletList;
@@ -57,6 +57,7 @@ public class OriginalExample3 {
 	 * Creates main() to run this example
 	 */
 	public static void main(String[] args) {
+		Constants.commandLineArgs = args;
 		 Random rand = new Random(100);
 		 List<Double> AvgResponseTimeList = new ArrayList<>();
 	     List<Double> AvgWaitingTimeList = new ArrayList<>();
@@ -80,22 +81,22 @@ public class OriginalExample3 {
 			CloudSim.init(num_user, calendar, trace_flag);
 			Constants.seed = Constants.seed+k;
 			if(k>=17 && k<=22 || k>=8 && k<=10 || k>=13 && k<=14) {
-				int[] batchsizeOptions = {5000, 5500, 6000}; // 4000 - 5.5k
+				int[] batchsizeOptions = {250, 290, 330}; // 5K - 6k
 				int randomIndex = rand.nextInt(batchsizeOptions.length);
 				int randomBatchSize = batchsizeOptions[randomIndex];
 				Constants.batchSize = randomBatchSize;
 				
-				int[] totalBatchesOptions = {18, 19, 20}; // 15-18
+				int[] totalBatchesOptions = {9,10,11}; // 18-20
 				int randomIndex2 = rand.nextInt(totalBatchesOptions.length);
 				int randomTotalBatch = totalBatchesOptions[randomIndex2];
 				Constants.totalBatches = randomTotalBatch;
 			}else {
-				int[] batchsizeOptions = {3000, 3500, 4000}; // 1.5k - 3k
+				int[] batchsizeOptions = {60, 100, 140}; // 3K - 4K
 				int randomIndex = rand.nextInt(batchsizeOptions.length);
 				int randomBatchSize = batchsizeOptions[randomIndex];
 				Constants.batchSize = randomBatchSize;
 				
-				int[] totalBatchesOptions = {9,10,11}; // 6-9
+				int[] totalBatchesOptions = {4,5,6}; // 9-11
 				int randomIndex2 = rand.nextInt(totalBatchesOptions.length);
 				int randomTotalBatch = totalBatchesOptions[randomIndex2];
 				Constants.totalBatches = randomTotalBatch;
@@ -187,8 +188,8 @@ public class OriginalExample3 {
 			double CostToRunDC = 0.0;
 			double totalDcProcessingTime = 0.0;
 			for(Datacenter dc: DatacenterList) {
-				totalDcProcessingTime += (dc.lastProcessTime/1000);
-				CostToRunDC += (dc.lastProcessTime/1000) * dc.getCharacteristics().getCostPerSecond();
+				totalDcProcessingTime += (dc.lastProcessTime);
+				CostToRunDC += (dc.lastProcessTime) * dc.getCharacteristics().getCostPerSecond();
 //				System.out.println("Cost to run " + dc.getName()+ " for this many seconds: " + (dc.lastProcessTime/1000)+ ": $"+ (dc.lastProcessTime/1000) * dc.getCharacteristics().getCostPerSecond());
 			}
 			AvgDcProcessingTime.add(totalDcProcessingTime/DatacenterList.size());
