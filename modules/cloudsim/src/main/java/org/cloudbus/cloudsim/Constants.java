@@ -24,7 +24,7 @@ public final class Constants {
 	public static int batchSize = 50;
 	public static long seed = 10L;
 		
-	public static final int numberOfVmsPerDC = 10;
+	public static final int numberOfVmsPerDC = 8;
 	public static final int numberOfDcs = 1;
 	
 	public static String[] commandLineArgs;

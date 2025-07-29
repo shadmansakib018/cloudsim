@@ -245,7 +245,7 @@ public class ShowResults {
 	
 	public static void writeValidationResult(List<Double> avgResponseTimeList) {
 	    // Define the path: Desktop/DDQN-150/validation
-	    String folderPath = System.getProperty("user.home") + "/Desktop/DDQN-150/validation";
+	    String folderPath = System.getProperty("user.home") + "/Desktop/DQN_SIMULATION/validation";
 	    File folder = new File(folderPath);
 
 	    // Create directory if it doesn't exist
