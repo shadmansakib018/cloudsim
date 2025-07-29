@@ -213,16 +213,16 @@ public class ShowResults {
                 row.append(dft.format(AvgResponseTimeList.get(i)))
                 .append(",").append("-")
                 .append(",").append("-")
-                .append(",").append(dft.format(DcRunCostList.get(i)))
-                .append(",").append("-")
-                .append(",").append(dft.format(AvgDcProcessingTime.get(i)));
+                .append(",").append("_")
+                .append(",").append("_")
+                .append(",").append("_");
                 
                 bufferedWriter.write(row.toString());
                 bufferedWriter.newLine();
                 
             }
             
-//            System.out.println("CSV file created successfully at: " + DESKTOP_PATH + filename);
+            System.out.println("CSV file created successfully at: " + DESKTOP_PATH + filename);
 //            OpenFileExample(DESKTOP_PATH + filename);
 
         } catch (IOException e) {

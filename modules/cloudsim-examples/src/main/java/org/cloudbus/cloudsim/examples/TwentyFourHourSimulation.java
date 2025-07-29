@@ -57,29 +57,17 @@ public class TwentyFourHourSimulation {
 	 * Creates main() to run this example
 	 */
 	public static void main(String[] args) {
-		Constants.commandLineArgs = args;
+		Constants.commandLineArgs = args; //str(port), str(batch_size) =>useless, str(lb_type)
 		 Random rand = new Random(100);
 		 List<Double> AvgResponseTimeList = new ArrayList<>();
-	     List<Double> AvgWaitingTimeList = new ArrayList<>();
-	     List<Double> AvgExecutionTimeList = new ArrayList<>();
 	     List<Double> DcRunCostList = new ArrayList<>();
-	     List<Double> DcSetupCostList = new ArrayList<>();
 	     List<Double> AvgDcProcessingTime = new ArrayList<>();
 
 		Log.println("Starting CloudSimExample3...");
 
 		try {
 			for(int k =0; k < 24; k++) {
-			System.out.println("Thread ID: " + Thread.currentThread().getId());
-			// First step: Initialize the CloudSim package. It should be called
-			// before creating any entities.
-			int num_user = 1;   // number of cloud users
-			Calendar calendar = Calendar.getInstance();
-			boolean trace_flag = false;  // mean trace events
-
-			// Initialize the CloudSim library
-			CloudSim.init(num_user, calendar, trace_flag);
-			Constants.seed = Constants.seed+k;
+			List<Double> AvgResponseTimeList20 = new ArrayList<>();
 			if(k>=17 && k<=22 || k>=8 && k<=10 || k>=13 && k<=14) {
 				int[] batchsizeOptions = {250, 290, 330}; // 5K - 6k
 				int randomIndex = rand.nextInt(batchsizeOptions.length);
@@ -101,30 +89,25 @@ public class TwentyFourHourSimulation {
 				int randomTotalBatch = totalBatchesOptions[randomIndex2];
 				Constants.totalBatches = randomTotalBatch;
 			}
-
-
-			double[] gmtOffsets = {
-					-5.0,
-					-5.0,
-					-6.0,
-					7.0,
-					8.0,
-					9.0,
-					10.0,
-					-4.0
-					};
+			
+			for(int l =0; l < 20; l++) {
+				int num_user = 1;   // number of cloud users
+				Calendar calendar = Calendar.getInstance();
+				boolean trace_flag = false;  // mean trace events
+				CloudSim.init(num_user, calendar, trace_flag);
+				Constants.seed = Constants.seed+l+k;
+			
 			
 			DatacenterList = new ArrayList<>();
 
 			for (int j = 0; j < Constants.numberOfDcs; j++) {
-			    Datacenter datacenter = createDatacenter("Datacenter_" + j, gmtOffsets[j]);
+			    Datacenter datacenter = createDatacenter("Datacenter_" + j);
 			    DatacenterList.add(datacenter);
 			}
 			
 			//Third step: Create Broker
 			DatacenterBroker broker = createBroker();
 			int brokerId = broker.getId();
-			System.out.println("broker ID: " +brokerId);
 
 			vmlist = new ArrayList<>();
 
@@ -136,13 +119,10 @@ public class TwentyFourHourSimulation {
 				int numberOfVmsPerDc = Constants.numberOfVmsPerDC;
 			    List<Vm> vmListVersionOne = CreateVmCharacteristics.createVmsVersionOne(numberOfVmsPerDc/2, brokerId);
 			    List<Vm> highPerformanceVmList = CreateVmCharacteristics.createVmsVersionTwo(numberOfVmsPerDc/2, brokerId);
-
-			    // Add to the main list
 			    vmlist.addAll(vmListVersionOne);
 			    vmlist.addAll(highPerformanceVmList);
 			}
 			
-			//submit vm list to the broker
 			broker.submitGuestList(vmlist);
 
 			cloudletList = new ArrayList<>();
@@ -155,50 +135,25 @@ public class TwentyFourHourSimulation {
 
 	        List<Cloudlet> newList = broker.getCloudletReceivedList();
 	        System.out.println("Number of Finsihed Cloudlets " + newList.size());
-	        Double totalDCCost = broker.getDataCenterCost();
-	        DcSetupCostList.add(totalDCCost);
-//	        broker.getVmCost();
-//			ShowResults.printCloudletList(newList, vmlist);
-//			ShowResults.writeCloudletDataToCsv(newList, vmlist, broker.loadBalancer.getName());
+
 	        
 	        Map<Integer, Integer> guestIdCountMap = new HashMap<>();
 	    	double totalResponseTime = 0;
-//	    	double totalWaitingTime = 0;
-//	    	double totalExecTime = 0;
+
 			for (Cloudlet cloudlet : newList) {
                 if (cloudlet.getStatus() == Cloudlet.CloudletStatus.SUCCESS) {
                 	guestIdCountMap.put(cloudlet.getGuestId(), guestIdCountMap.getOrDefault(cloudlet.getGuestId(), 0) + 1);
-//                	totalWaitingTime = totalWaitingTime + (cloudlet.getExecStartTime()- cloudlet.getSubmissionTimeTwo());
                 	totalResponseTime = totalResponseTime + (cloudlet.getActualCPUTime() + (cloudlet.getExecStartTime() - cloudlet.getSubmissionTimeTwo()));
-//                	totalExecTime = totalExecTime + cloudlet.getActualCPUTime();
                 }
             }
-			
-			AvgResponseTimeList.add(totalResponseTime /(newList.size()));
-//			AvgWaitingTimeList.add(totalWaitingTime /(newList.size()));
-//			AvgExecutionTimeList.add(totalExecTime /(newList.size()));
+			double art = totalResponseTime /(newList.size());
+			AvgResponseTimeList20.add(art);
 			LoadBalancerName = broker.loadBalancer.getName();
-			
-//			for (Map.Entry<Integer, Integer> entry : guestIdCountMap.entrySet()) {
-////                System.out.println("VM ID: " + entry.getKey() + " ==> " + entry.getValue() + " Tasks");
-//                System.out.println(entry.getValue());
-//
-//            }
-			
-			double CostToRunDC = 0.0;
-			double totalDcProcessingTime = 0.0;
-			for(Datacenter dc: DatacenterList) {
-				totalDcProcessingTime += (dc.lastProcessTime);
-				CostToRunDC += (dc.lastProcessTime) * dc.getCharacteristics().getCostPerSecond();
-//				System.out.println("Cost to run " + dc.getName()+ " for this many seconds: " + (dc.lastProcessTime/1000)+ ": $"+ (dc.lastProcessTime/1000) * dc.getCharacteristics().getCostPerSecond());
-			}
-			AvgDcProcessingTime.add(totalDcProcessingTime/DatacenterList.size());
-//			System.out.println("Total Cost to run DC (DC operating cost): "+ CostToRunDC);
-//			System.out.println(totalDcProcessingTime/DatacenterList.size());
-			DcRunCostList.add(CostToRunDC);
-			Log.println("**************************************************************");
 					
-			Log.println("CloudSimExample3 finished! run Number: "+k);
+			Log.println("CloudSimExample3 finished! run Number: "+k + " ART: " + art);
+			}
+			double average = AvgResponseTimeList20.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+			AvgResponseTimeList.add(average);
 		}
 			ShowResults.writeResultsDataToCsv
 			(AvgResponseTimeList,DcRunCostList,AvgDcProcessingTime, LoadBalancerName);
@@ -210,7 +165,7 @@ public class TwentyFourHourSimulation {
 		}
 	}
 
-	private static Datacenter createDatacenter(String name, double time_zone){
+	private static Datacenter createDatacenter(String name){
 
 		// Here are the steps needed to create a PowerDatacenter:
 		// 1. We need to create a list to store one or more
@@ -289,6 +244,7 @@ public class TwentyFourHourSimulation {
 		double costPerStorage = 0.0001;	// the cost of using storage in this resource
 		double costPerBw = 0.01;			// the cost of using bw in this resource
 		LinkedList<Storage> storageList = new LinkedList<>();	//we are not adding SAN devices by now
+		double time_zone = 5.0;
 
         DatacenterCharacteristics characteristics = new DatacenterCharacteristics(
                 arch, os, vmm, hostList, time_zone, cost, costPerMem, costPerStorage, costPerBw);

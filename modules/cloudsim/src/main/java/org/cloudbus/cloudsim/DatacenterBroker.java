@@ -128,9 +128,9 @@ public class DatacenterBroker extends SimEntity {
 //        System.out.println("3. DynamicLB");
         
 
-//        int choice = scanner.nextInt();  Integer.parseInt(Constants.commandLineArgs[2]);
+//        int choice = scanner.nextInt();
         int choice = Integer.parseInt(Constants.commandLineArgs[2]);
-
+//		  int choice = 5;
         switch (choice) {
             case 1:
                 System.out.println("You selected RoundRobin.");
