@@ -104,7 +104,7 @@ public class DqnAgent {
 //	            long finish = System.currentTimeMillis();
 //	            long timeElapsed = finish - start;
 		        System.out.println("[VALIDATION] EPOCH: "+(i)+ "  Average Response Time: " + avgRT);
-		        Thread.sleep(2000);					
+		        Thread.sleep(3000);					
 //				ShowResults.writeCloudletDataToCsv(newList, vmlist, LoadBalancerName);
 		        
 		}
