@@ -20,12 +20,12 @@ public final class Constants {
 	public static final double TextPercentage = 0.2;
 		
 	public static int epochs = 5;
-	public static int totalBatches = 20;
-	public static int batchSize = 700;
+	public static int totalBatches = 5;
+	public static int batchSize = 150;
 	public static long seed = 62L;
 		
-	public static final int numberOfVmsPerDC = 60;
-	public static final int numberOfDcs = 8;
+	public static final int numberOfVmsPerDC = 8;
+	public static final int numberOfDcs = 1;
 	
 	public static String[] commandLineArgs;
 

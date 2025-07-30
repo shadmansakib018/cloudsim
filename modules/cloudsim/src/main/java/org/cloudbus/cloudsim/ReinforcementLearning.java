@@ -141,13 +141,17 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 	    double[] state = new double[21];
 	    int i = 0;
 	    for (CustomVm vm : customVmList) {
-	    	
+	    	if (i >= 20) break;
 	    	state[i++] = normalization((vm.getMips() - vm.getCurrentAllocatedMips()), 1000);
 //	    	state[i++] = normalization((vm.getRam() - vm.getCurrentAllocatedRam()), 2048);
 //	    	state[i++] = normalization((vm.getBw() - vm.getCurrentAllocatedBw()), 2000);
 
 	        int activeTasks = vmAllocationCounts.getOrDefault(vm.getId(), 0);
 	        state[i++] = (double) activeTasks / 5;  
+	    }
+	    while (i < 20) {
+	    	 state[i++] = 0.0;
+	    	  state[i++] = 1.0;	
 	    }
 	    state[i++] = normalizeCloudletLength(cl.getCloudletLength());
 	    return state;

@@ -129,8 +129,8 @@ public class DatacenterBroker extends SimEntity {
         
 
 //        int choice = scanner.nextInt();
-//        int choice = Integer.parseInt(Constants.commandLineArgs[2]);
-		int choice = 5;
+        int choice = Integer.parseInt(Constants.commandLineArgs[2]);
+//		int choice = 4;
 
         switch (choice) {
             case 1:
