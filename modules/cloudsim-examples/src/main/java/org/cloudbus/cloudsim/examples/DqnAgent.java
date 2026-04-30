@@ -29,7 +29,7 @@ public class DqnAgent {
 	
 	public static String LoadBalancerName;
 	
-	// command line args ==> port number, batchsize, Load balancer, epochs
+	// command line args ==> port number, batchsize, Load balancer, epochs, unique name for file
 	
 
 	public static void main(String[] args) {
@@ -92,12 +92,12 @@ public class DqnAgent {
 	                	totalResponseTime = totalResponseTime + (cloudlet.getActualCPUTime() + (cloudlet.getExecStartTime() - cloudlet.getSubmissionTimeTwo()));
 	                }
 		        }
-		        double avgRT = totalResponseTime /newList.size();
-		        AvgResponseTimeList.add(avgRT);
-//		        if(broker.loadBalancer.lbname.equals("Reinforcement_Learning")) {
-//		        	broker.loadBalancer.callTrain();
-//		        	broker.loadBalancer.sendLongTermReward(avgRT);
-//		        }
+		        double avgRT = totalResponseTime/newList.size();
+//		        AvgResponseTimeList.add(avgRT);
+		        if(broker.loadBalancer.lbname.equals("Reinforcement_Learning")) {
+		        	broker.loadBalancer.callTrain();
+		        	broker.loadBalancer.sendLongTermReward(avgRT);
+		        }
 	            for (Map.Entry<Integer, Integer> entry : guestIdCountMap.entrySet()) {
 	                System.out.println("VM ID: " + entry.getKey() + " ==> " + entry.getValue() + " Tasks");
 	            }
@@ -109,7 +109,7 @@ public class DqnAgent {
 		        
 		}
 
-	    	ShowResults.writeResultsRL(AvgResponseTimeList, LoadBalancerName, Constants.commandLineArgs[4]);
+//	    	ShowResults.writeResultsRL(AvgResponseTimeList, LoadBalancerName, Constants.commandLineArgs[4]);s
 
 	}
 		catch (Exception e) {
