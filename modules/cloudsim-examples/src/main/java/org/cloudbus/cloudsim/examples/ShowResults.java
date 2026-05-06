@@ -264,9 +264,7 @@ public class ShowResults {
 	    double avg = avgResponseTimeList.isEmpty() ? 0.0 : total / avgResponseTimeList.size();
 
 	    // Write results
-	    try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-//	        writer.write("Model Name: " + modelName);
-//	        writer.newLine();
+	    try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) { // true = append
 	        writer.write(String.format("%.3f", avg));
 	        writer.newLine();
 	        System.out.println("✅ Validation results written to: " + file.getAbsolutePath());
