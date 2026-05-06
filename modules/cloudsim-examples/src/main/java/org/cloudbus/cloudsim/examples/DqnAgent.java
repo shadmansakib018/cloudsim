@@ -29,7 +29,7 @@ public class DqnAgent {
 	
 	public static String LoadBalancerName;
 	
-	// command line args ==> port number, batchsize, Load balancer, epochs, unique name for file
+	// command line args ==> port number, batchsize, Load balancer, epochs
 	
 
 	public static void main(String[] args) {
@@ -40,7 +40,7 @@ public class DqnAgent {
 	    try {
 	    	for (int i=1; i <= Constants.epochs; i++) {
 //	    		long start = System.currentTimeMillis();
-	    		Constants.seed = Constants.seed + i;
+	    		Constants.seed = Constants.seed + 1;
 				List<Cloudlet> cloudletList;
 				List<Vm> vmlist;
 					
@@ -104,12 +104,12 @@ public class DqnAgent {
 //	            long finish = System.currentTimeMillis();
 //	            long timeElapsed = finish - start;
 		        System.out.println("simulation number: "+(i)+ "  Average Response Time: " + avgRT);
-//		        Thread.sleep(3000);					
+		        Thread.sleep(3000);					
 //				ShowResults.writeCloudletDataToCsv(newList, vmlist, LoadBalancerName);
 		        
 		}
 
-//	    	ShowResults.writeResultsRL(AvgResponseTimeList, LoadBalancerName, Constants.commandLineArgs[4]);s
+//	    	ShowResults.writeResultsRL(AvgResponseTimeList, LoadBalancerName, Constants.commandLineArgs[4]);
 
 	}
 		catch (Exception e) {
