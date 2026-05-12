@@ -17,6 +17,18 @@ import java.util.Random;
 import org.cloudbus.cloudsim.core.CustomVm;
 import org.cloudbus.cloudsim.core.GuestEntity;
 
+class ActionResult {
+	 int action;
+	 double logProb;
+	 double value;
+
+	 ActionResult(int action, double logProb, double value) {
+	     this.action  = action;
+	     this.logProb = logProb;
+	     this.value   = value;
+	 }
+}
+
 public class ReinforcementLearning extends VmLoadBalancer  {
 	  String webserver;
 	  public static final int GlobalMipsLowerBound = 1;
@@ -66,7 +78,10 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 	    
 	    double[] currentState = getVmStateVector(cl); 
 
-	    int selectedVmId = getActionFromFlask(currentState);
+//	    int selectedVmId = getActionFromFlask(currentState);
+	    int ar = getActionFromFlask(currentState);
+	    int selectedVmId = ar;
+	    
 	    try {
 			Thread.sleep(18);
 		} catch (InterruptedException e) {
@@ -159,7 +174,32 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 	}
 	
 	
-	private int getActionFromFlask(double[] state) {
+//	private int getActionFromFlask(double[] state) {
+//	    try {
+//	        ObjectMapper mapper = new ObjectMapper();
+//	        Map<String, Object> requestBody = new HashMap<>();
+//	        requestBody.put("state", state);
+//
+//	        String json = mapper.writeValueAsString(requestBody);
+//
+//	        HttpRequest request = HttpRequest.newBuilder()
+//	                .uri(new URI(webserver + "/select_action"))
+//	                .header("Content-Type", "application/json")
+//	                .POST(HttpRequest.BodyPublishers.ofString(json))
+//	                .build();
+//
+//	        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+//
+//	        JsonNode res = mapper.readTree(response.body());
+//	        return res.get("action").asInt();
+//
+//	    } catch (Exception e) {
+//	    	System.out.println("ERROR IN GET ACTION " + webserver);
+//	        return new Random().nextInt(vmList.size());
+//	    }
+//	}
+	
+	private int getActionFromFlask(double[] state) {  // validation — action only
 	    try {
 	        ObjectMapper mapper = new ObjectMapper();
 	        Map<String, Object> requestBody = new HashMap<>();
@@ -175,39 +215,39 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 
 	        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-	        JsonNode res = mapper.readTree(response.body());
-	        return res.get("action").asInt();
+	        return mapper.readTree(response.body()).get("action").asInt();
 
 	    } catch (Exception e) {
-	    	System.out.println("ERROR IN GET ACTION " + webserver);
+	        System.out.println("ERROR IN GET ACTION " + webserver);
 	        return new Random().nextInt(vmList.size());
 	    }
 	}
+
 	
-	 void sendTrainingDataToFlask(double[] state, int action, double reward, double[] nextState) {
-	    try {
-	        ObjectMapper mapper = new ObjectMapper();
-
-	        Map<String, Object> payload = new HashMap<>();
-	        payload.put("state", state);
-	        payload.put("action", action);
-	        payload.put("reward", reward);
-	        payload.put("next_state", nextState);
-
-	        String json = mapper.writeValueAsString(payload);
-
-	        HttpRequest request = HttpRequest.newBuilder()
-	                .uri(new URI( webserver + "/store_states"))
-	                .header("Content-Type", "application/json")
-	                .POST(HttpRequest.BodyPublishers.ofString(json))
-	                .build();
-
-	        client.send(request, HttpResponse.BodyHandlers.ofString());
-
-	    } catch (Exception e) {
-	    	System.out.println("ERROR IN SENDING DATA "+ webserver);
-	    }
-	}
+//	 void sendTrainingDataToFlask(double[] state, int action, double reward, double[] nextState) {
+//	    try {
+//	        ObjectMapper mapper = new ObjectMapper();
+//
+//	        Map<String, Object> payload = new HashMap<>();
+//	        payload.put("state", state);
+//	        payload.put("action", action);
+//	        payload.put("reward", reward);
+//	        payload.put("next_state", nextState);
+//
+//	        String json = mapper.writeValueAsString(payload);
+//
+//	        HttpRequest request = HttpRequest.newBuilder()
+//	                .uri(new URI( webserver + "/store_states"))
+//	                .header("Content-Type", "application/json")
+//	                .POST(HttpRequest.BodyPublishers.ofString(json))
+//	                .build();
+//
+//	        client.send(request, HttpResponse.BodyHandlers.ofString());
+//
+//	    } catch (Exception e) {
+//	    	System.out.println("ERROR IN SENDING DATA "+ webserver);
+//	    }
+//	}
 	 
 	 
 	 public void callTrain() {

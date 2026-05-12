@@ -68,7 +68,9 @@ public class Cloudlet {
      */
     
     private double [] newState = new double[21];
-
+    
+    private double logProb = 0.0;
+    private double value   = 0.0;
 
     /**
      * The cloudlet ID.
@@ -954,6 +956,14 @@ public class Cloudlet {
     public double [] getNewState() {
     	return newState;
     }
+    
+	 // Getters
+	 public double getLogProb() { return logProb; }
+	 public double getValue()   { return value;   }
+	
+	 // Setters
+	 public void setLogProb(double logProb) { this.logProb = logProb; }
+	 public void setValue(double value)     { this.value   = value;   }
 
     @Deprecated
     public double getCloudletArrivalTime() { return getSubmissionTime(); }
