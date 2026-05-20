@@ -548,7 +548,7 @@ public class CloudSim {
 
 		} else {
 			DatacenterBroker broker = (DatacenterBroker) getEntity("BrokerNum0");
-			if(!broker.getCloudletList().isEmpty()) {
+			if(!broker.getCloudletList().isEmpty()) { // comment this block during dynamic sbdlb testing or running cus it hangs
 				System.out.println("SIMULATION ENDED");
 //				Constants.num++;
 				broker.submitCloudlets();
