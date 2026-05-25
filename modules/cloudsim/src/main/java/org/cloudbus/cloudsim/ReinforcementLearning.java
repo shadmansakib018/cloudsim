@@ -80,8 +80,8 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 	    double[] currentState = getVmStateVector(cl); 
 
 //	    int selectedVmId = getActionFromFlask(currentState);
-	    ActionResult ar = getActionFromFlask(currentState);
-	    int selectedVmId = ar.action;
+	    int ar = getActionFromFlask(currentState);
+	    int selectedVmId = ar;
 	    try {
 			Thread.sleep(18);
 		} catch (InterruptedException e) {
@@ -199,7 +199,7 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 //	    }
 //	}
 	
-	private ActionResult getActionFromFlask(double[] state) { // this is for PPO
+	private int getActionFromFlask(double[] state) {  // validation — action only
 	    try {
 	        ObjectMapper mapper = new ObjectMapper();
 	        Map<String, Object> requestBody = new HashMap<>();
@@ -215,16 +215,11 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 
 	        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-	        JsonNode res     = mapper.readTree(response.body());
-	        int    action   = res.get("action").asInt();
-	        double logProb  = res.get("log_prob").asDouble();   // NEW
-	        double value    = res.get("value").asDouble();       // NEW
-
-	        return new ActionResult(action, logProb, value);
+	        return mapper.readTree(response.body()).get("action").asInt();
 
 	    } catch (Exception e) {
 	        System.out.println("ERROR IN GET ACTION " + webserver);
-	        return new ActionResult(new Random().nextInt(vmList.size()), 0.0, 0.0);
+	        return new Random().nextInt(vmList.size());
 	    }
 	}
 	
