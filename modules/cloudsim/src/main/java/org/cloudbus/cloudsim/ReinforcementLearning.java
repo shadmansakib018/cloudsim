@@ -78,7 +78,6 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 	    
 	    double[] currentState = getVmStateVector(cl); 
 
-//	    int selectedVmId = getActionFromFlask(currentState);
 	    ActionResult ar = getActionFromFlask(currentState);
 	    int selectedVmId = ar.action;
 	    try {
@@ -113,35 +112,6 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 		double availableRam  = vm.getRam() - vm.getCurrentAllocatedRam();
 		double availableBw   = vm.getBw() - vm.getCurrentAllocatedBw();
 
-        
-//        long cloudletLength = cl.getCloudletLength();
-//        double alpha = 1.0;
-//    	if (cloudletLength >= Constants.VideoMipsLowerBound && cloudletLength <= Constants.VideoMipsUpperBound) {
-//    	    originalMin = Constants.VideoMipsLowerBound;
-//    	    originalMax = Constants.VideoMipsUpperBound;
-//    	    
-//    	} else if (cloudletLength >= Constants.ImageMipsLowerBound && cloudletLength <= Constants.ImageMipsUpperBound) {
-//    	    originalMin = Constants.ImageMipsLowerBound;
-//    	    originalMax = Constants.ImageMipsUpperBound;
-//    	    alpha = 0.6;
-//    	    
-//    	} else if (cloudletLength >= Constants.TextMipsLowerBound && cloudletLength <= Constants.TextMipsUpperBound) {
-//    	    originalMin = Constants.TextMipsLowerBound;
-//    	    originalMax = Constants.TextMipsUpperBound;
-//    	    alpha = 0.2;
-//    	    
-//    	} else {
-//    	    System.out.println("Cloudlet length is outside of defined ranges.");
-//    	    originalMin = 0; 
-//    	    originalMax = 0;
-//    	}
-//        double reqMIPS = normalize(cloudletLength, originalMin, originalMax, targetMin, vm.getMips()) * alpha;
-//        double reqRAM = normalize(cloudletLength, originalMin, originalMax, targetMin, vm.getRam()) * alpha;
-//        double reqBW = normalize(cloudletLength, originalMin, originalMax, targetMin, vm.getBw()) * alpha;
-//        System.out.println(cloudletLength);
-//        System.out.println("available MIPS: " + availableMips + "==> required Mips: " + reqMIPS);
-//        System.out.println("available Ram: " + availableRam + "==> required Ram: " + reqRAM);
-//        System.out.println("available Bw: " + availableBw + "==> required BW: " + reqBW);
 
         if (availableMips <= 0 || availableRam <= 0 || availableBw <= 0) {
             return false; 
@@ -172,31 +142,6 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 	    return state;
 	}
 	
-	
-//	private int getActionFromFlask(double[] state) {
-//	    try {
-//	        ObjectMapper mapper = new ObjectMapper();
-//	        Map<String, Object> requestBody = new HashMap<>();
-//	        requestBody.put("state", state);
-//
-//	        String json = mapper.writeValueAsString(requestBody);
-//
-//	        HttpRequest request = HttpRequest.newBuilder()
-//	                .uri(new URI(webserver + "/select_action"))
-//	                .header("Content-Type", "application/json")
-//	                .POST(HttpRequest.BodyPublishers.ofString(json))
-//	                .build();
-//
-//	        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-//
-//	        JsonNode res = mapper.readTree(response.body());
-//	        return res.get("action").asInt();
-//
-//	    } catch (Exception e) {
-//	    	System.out.println("ERROR IN GET ACTION " + webserver);
-//	        return new Random().nextInt(vmList.size());
-//	    }
-//	}
 	private ActionResult getActionFromFlask(double[] state) {
 	    try {
 	        ObjectMapper mapper = new ObjectMapper();
@@ -225,31 +170,7 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 	        return new ActionResult(new Random().nextInt(vmList.size()), 0.0, 0.0);
 	    }
 	}
-	
-//	 void sendTrainingDataToFlask(double[] state, int action, double reward, double[] nextState) {
-//	    try {
-//	        ObjectMapper mapper = new ObjectMapper();
-//
-//	        Map<String, Object> payload = new HashMap<>();
-//	        payload.put("state", state);
-//	        payload.put("action", action);
-//	        payload.put("reward", reward);
-//	        payload.put("next_state", nextState);
-//
-//	        String json = mapper.writeValueAsString(payload);
-//
-//	        HttpRequest request = HttpRequest.newBuilder()
-//	                .uri(new URI( webserver + "/store_states"))
-//	                .header("Content-Type", "application/json")
-//	                .POST(HttpRequest.BodyPublishers.ofString(json))
-//	                .build();
-//
-//	        client.send(request, HttpResponse.BodyHandlers.ofString());
-//
-//	    } catch (Exception e) {
-//	    	System.out.println("ERROR IN SENDING DATA "+ webserver);
-//	    }
-//	}
+
 	void sendTrainingDataToFlask(double[] state, int action, double reward, double[] nextState, double logProb, double value) { // NEW params
 		try {
 		ObjectMapper mapper = new ObjectMapper();
