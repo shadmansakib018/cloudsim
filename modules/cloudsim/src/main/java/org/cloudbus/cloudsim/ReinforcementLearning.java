@@ -114,36 +114,6 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 		double availableRam  = vm.getRam() - vm.getCurrentAllocatedRam();
 		double availableBw   = vm.getBw() - vm.getCurrentAllocatedBw();
 
-        
-//        long cloudletLength = cl.getCloudletLength();
-//        double alpha = 1.0;
-//    	if (cloudletLength >= Constants.VideoMipsLowerBound && cloudletLength <= Constants.VideoMipsUpperBound) {
-//    	    originalMin = Constants.VideoMipsLowerBound;
-//    	    originalMax = Constants.VideoMipsUpperBound;
-//    	    
-//    	} else if (cloudletLength >= Constants.ImageMipsLowerBound && cloudletLength <= Constants.ImageMipsUpperBound) {
-//    	    originalMin = Constants.ImageMipsLowerBound;
-//    	    originalMax = Constants.ImageMipsUpperBound;
-//    	    alpha = 0.6;
-//    	    
-//    	} else if (cloudletLength >= Constants.TextMipsLowerBound && cloudletLength <= Constants.TextMipsUpperBound) {
-//    	    originalMin = Constants.TextMipsLowerBound;
-//    	    originalMax = Constants.TextMipsUpperBound;
-//    	    alpha = 0.2;
-//    	    
-//    	} else {
-//    	    System.out.println("Cloudlet length is outside of defined ranges.");
-//    	    originalMin = 0; 
-//    	    originalMax = 0;
-//    	}
-//        double reqMIPS = normalize(cloudletLength, originalMin, originalMax, targetMin, vm.getMips()) * alpha;
-//        double reqRAM = normalize(cloudletLength, originalMin, originalMax, targetMin, vm.getRam()) * alpha;
-//        double reqBW = normalize(cloudletLength, originalMin, originalMax, targetMin, vm.getBw()) * alpha;
-//        System.out.println(cloudletLength);
-//        System.out.println("available MIPS: " + availableMips + "==> required Mips: " + reqMIPS);
-//        System.out.println("available Ram: " + availableRam + "==> required Ram: " + reqRAM);
-//        System.out.println("available Bw: " + availableBw + "==> required BW: " + reqBW);
-
         if (availableMips <= 0 || availableRam <= 0 || availableBw <= 0) {
             return false; 
         }
