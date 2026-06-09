@@ -81,6 +81,7 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 //	    int selectedVmId = getActionFromFlask(currentState);
 	    int ar = getActionFromFlask(currentState);
 	    int selectedVmId = ar;
+//	    System.out.println("vmId SELECTED: " + selectedVmId);
 	    
 	    try {
 			Thread.sleep(18);
@@ -218,7 +219,7 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 	        return mapper.readTree(response.body()).get("action").asInt();
 
 	    } catch (Exception e) {
-	        System.out.println("ERROR IN GET ACTION " + webserver);
+	        System.out.println("ERROR IN GET ACTION " + webserver + e.getMessage());
 	        return new Random().nextInt(vmList.size());
 	    }
 	}
