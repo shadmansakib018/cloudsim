@@ -100,6 +100,8 @@ public class ReinforcementLearning extends VmLoadBalancer  {
 //	    System.out.println("[CHOSEN VM] selected VM ID: "+selectedVmId + " Cloudlet ID# " + cl.getCloudletId() + " TASK LENGTH: " + cl.getCloudletLength());
 	    cl.setCurrentState(currentState);
 	    allocateResourcesToVm(selectedVmId, cl);
+	    cl.setLogProb(ar.logProb);
+	    cl.setValue(ar.value);
 	    double[] newState = getVmStateVector(cl);
 	    cl.setNewState(newState);
 	    return selectedVmId;
